@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Trading Charts">
 <meta name="theme-color" content="#0f1419">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="logo-icon.png">
+<link rel="icon" href="logo-icon.png">
 <title>Trading Charts</title>
 <style>
 *{box-sizing:border-box}
@@ -19,7 +19,7 @@ html,body{margin:0;background:#0f1419}
 body{padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));color:#e6e9ee;font:15px -apple-system,system-ui,sans-serif}
 input,button{font:inherit;width:100%;padding:11px;margin:5px 0;border-radius:8px;border:1px solid #2c3540;background:#1a222b;color:inherit}
 button{background:#d9a441;color:#111;font-weight:600;border:0}
-#splash{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
+#splash{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .6s ease}
 #splash.out{opacity:0;pointer-events:none}
 #splash video{width:100%;height:100%;object-fit:cover;display:block}
 #top{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px}
@@ -47,7 +47,7 @@ button{background:#d9a441;color:#111;font-weight:600;border:0}
 <body>
 
 <div id="splash">
-  <video id="sv" src="splash.mp4" muted playsinline autoplay preload="auto"></video>
+  <video id="sv" src="logo-splash.mp4" muted playsinline autoplay preload="auto"></video>
 </div>
 
 <div id="top">
@@ -78,7 +78,7 @@ button{background:#d9a441;color:#111;font-weight:600;border:0}
 
 <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
 <script>
-const VERSION='v3';
+const VERSION='v4';
 const $=id=>document.getElementById(id);
 const BASE='https://demo.tradelocker.com/backend-api';
 const DAYS={'1m':2,'5m':7,'15m':14,'1H':60,'4H':200,'1D':1000};
@@ -93,15 +93,15 @@ const msg=t=>$('msg').textContent=t;
     if(done)return;
     done=true;
     sp.classList.add('out');
-    setTimeout(()=>sp.remove(),600);
+    setTimeout(()=>sp.remove(),700);
   };
   v.muted=true;
-  v.addEventListener('ended',end);
+  v.addEventListener('ended',()=>setTimeout(end,400));
   v.addEventListener('error',end);
   sp.addEventListener('click',end);
   const p=v.play();
   if(p&&p.catch)p.catch(end);
-  setTimeout(end,4000);
+  setTimeout(end,7000);
 })();
 
 const FLAGS={it:'🇮🇹',es:'🇪🇸',en:'🇬🇧',fr:'🇫🇷'};
