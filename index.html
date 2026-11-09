@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Oro">
+<meta name="theme-color" content="#0f1419">
+<title>Oro Chart</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#0f1419}
+body{padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));color:#e6e9ee;font:15px -apple-system,system-ui,sans-serif}
+input,button{font:inherit;width:100%;padding:11px;margin:5px 0;border-radius:8px;border:1px solid #2c3540;background:#1a222b;color:inherit}
+button{background:#d9a441;color:#111;font-weight:600;border:0}
+#tf{display:flex;gap:6px;margin-top:8px}
+#tf button{background:#1a222b;color:#e6e9ee;border:1px solid #2c3540;padding:8px 0;margin:0}
+#tf button.on{background:#d9a441;color:#111}
+#chart{height:68vh;margin-top:8px}
+#msg{min-height:22px;font-size:13px;color:#9aa6b2;word-break:break-word;margin:6px 0}
+#px{font-size:20px;font-weight:600;margin-left:8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <input id="email" type="email" placeholder="Email" autocomplete="off">
+  <input id="pass" type="password" placeholder="Password" autocomplete="off">
+  <input id="server" placeholder="Server" autocomplete="off">
+  <button id="go">Collegati</button>
+</div>
+<div id="msg"></div>
+<div id="app" hidden>
+  <b id="sym"></b><span id="px"></span>
+  <div id="tf"></div>
+  <div id="chart"></div>
+</div>
+
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const BASE='https://demo.tradelocker.com/backend-api';
+const DAYS={'1m':2,'5m':7,'15m':14,'1H':60,'4H':200,'1D':1000};
+let tok,accNum,accId,tid,route,res='5m',chart,series;
+const msg=t=>$('msg').textContent=t;
+
+async function api(path,opt={}){
+  const r=await fetch(BASE+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}});
+  const t=await r.text();let j;
+  try{j=JSON.parse(t)}catch(e){j=t}
+  if(!r.ok)throw new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));
+  return j;
+}
+const auth=()=>({Authorization:'Bearer '+tok,accNum:String(accNum)});
+
+async function bars(from,to){
+  const q=new URLSearchParams({routeId:route,from:from,to:to,resolution:res,tradableInstrumentId:tid});
+  const j=await api('/trade/history?'+q,{headers:auth()});
+  const list=(j.d&&j.d.barDetails)||j.barDetails||[];
+  const off=-new Date().getTimezoneOffset()*60;
+  return list.map(b=>({time:Math.floor(b.t/1000)+off,open:+b.o,high:+b.h,low:+b.l,close:+b.c})).sort((a,b)=>a.time-b.time);
+}
+function showLast(b){if(b.length)$('px').textContent=b[b.length-1].close.toFixed(2)}
+
+async function load(){
+  const to=Date.now(),from=to-DAYS[res]*864e5;
+  const b=await bars(from,to);
+  if(!b.length)throw new Error('Nessuna candela ricevuta');
+  series.setData(b);showLast(b);
+}
+async function tick(){
+  try{
+    const to=Date.now();
+    const b=await bars(to-72e5,to);
+    b.forEach(x=>{try{series.update(x)}catch(e){}});
+    showLast(b);
+  }catch(e){msg('Aggiornamento: '+e.message)}
+}
+
+function start(){
+  if(!window.LightweightCharts){msg('La libreria del grafico non si è caricata. Ricarica la pagina.');return}
+  $('login').hidden=true;$('app').hidden=false;
+  chart=LightweightCharts.createChart($('chart'),{
+    autoSize:true,
+    layout:{background:{color:'#0f1419'},textColor:'#9aa6b2'},
+    grid:{vertLines:{color:'#1a222b'},horzLines:{color:'#1a222b'}},
+    timeScale:{timeVisible:true,secondsVisible:false}
+  });
+  series=chart.addCandlestickSeries();
+  Object.keys(DAYS).forEach(k=>{
+    const b=document.createElement('button');
+    b.textContent=k;if(k===res)b.className='on';
+    b.onclick=()=>{
+      res=k;
+      document.querySelectorAll('#tf button').forEach(x=>x.className='');
+      b.className='on';
+      load().catch(e=>msg(e.message));
+    };
+    $('tf').appendChild(b);
+  });
+  load().then(()=>msg('Collegato.')).catch(e=>msg(e.message));
+  setInterval(tick,5000);
+}
+
+$('go').onclick=async()=>{
+  try{
+    msg('Accesso in corso...');
+    const j=await api('/auth/jwt/token',{method:'POST',body:JSON.stringify({
+      email:$('email').value.trim(),password:$('pass').value,server:$('server').value.trim()})});
+    tok=j.accessToken;
+    $('pass').value='';
+    const a=await api('/auth/jwt/all-accounts',{headers:{Authorization:'Bearer '+tok}});
+    const acc=(a.accounts||a)[0];
+    accId=acc.id;accNum=acc.accNum;
+    msg('Cerco XAUUSD...');
+    const i=await api('/trade/accounts/'+accId+'/instruments',{headers:auth()});
+    const g=((i.d&&i.d.instruments)||[]).find(x=>/^XAUUSD/i.test(x.name));
+    if(!g)throw new Error('XAUUSD non trovato');
+    tid=g.tradableInstrumentId;
+    route=g.routes.find(r=>r.type==='INFO').id;
+    $('sym').textContent=g.name;
+    start();
+  }catch(e){
+    msg(e instanceof TypeError
+      ? 'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'
+      : e.message);
+  }
+};
+</script>
+</body>
+</html>
