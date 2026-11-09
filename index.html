@@ -16,6 +16,8 @@ html,body{margin:0;background:#0f1419}
 body{padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));color:#e6e9ee;font:15px -apple-system,system-ui,sans-serif}
 input,button{font:inherit;width:100%;padding:11px;margin:5px 0;border-radius:8px;border:1px solid #2c3540;background:#1a222b;color:inherit}
 button{background:#d9a441;color:#111;font-weight:600;border:0}
+#top{display:flex;justify-content:flex-end;margin-bottom:6px}
+#lang{font:inherit;font-size:13px;width:auto;padding:5px 8px;border-radius:8px;border:1px solid #2c3540;background:#1a222b;color:#e6e9ee}
 #tf{display:flex;gap:6px;margin-top:8px}
 #tf button{background:#1a222b;color:#e6e9ee;border:1px solid #2c3540;padding:8px 0;margin:0}
 #tf button.on{background:#d9a441;color:#111}
@@ -26,6 +28,15 @@ button{background:#d9a441;color:#111;font-weight:600;border:0}
 </style>
 </head>
 <body>
+
+<div id="top">
+  <select id="lang">
+    <option value="it">Italiano</option>
+    <option value="es">Español</option>
+    <option value="en">English</option>
+    <option value="fr">Français</option>
+  </select>
+</div>
 
 <div id="login">
   <input id="email" type="email" placeholder="Email" autocomplete="off">
@@ -48,10 +59,52 @@ const DAYS={'1m':2,'5m':7,'15m':14,'1H':60,'4H':200,'1D':1000};
 let tok,accNum,accId,tid,route,res='5m',chart,series;
 const msg=t=>$('msg').textContent=t;
 
+const T={
+  it:{email:'Email',pass:'Password',server:'Server',go:'Collegati',
+    logging:'Accesso in corso...',finding:'Cerco XAUUSD...',nofind:'XAUUSD non trovato',
+    nobars:'Nessuna candela ricevuta',upd:'Aggiornamento: ',ok:'Collegato.',
+    nolib:'La libreria del grafico non si è caricata. Ricarica la pagina.',
+    cors:'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'},
+  es:{email:'Correo electrónico',pass:'Contraseña',server:'Servidor',go:'Conectar',
+    logging:'Iniciando sesión...',finding:'Buscando XAUUSD...',nofind:'XAUUSD no encontrado',
+    nobars:'No se recibió ninguna vela',upd:'Actualización: ',ok:'Conectado.',
+    nolib:'La librería del gráfico no se cargó. Recarga la página.',
+    cors:'El navegador bloqueó la solicitud (probable bloqueo CORS de TradeLocker).'},
+  en:{email:'Email',pass:'Password',server:'Server',go:'Connect',
+    logging:'Signing in...',finding:'Looking for XAUUSD...',nofind:'XAUUSD not found',
+    nobars:'No candles received',upd:'Update: ',ok:'Connected.',
+    nolib:'The chart library failed to load. Reload the page.',
+    cors:'The browser blocked the request (probably a TradeLocker CORS block).'},
+  fr:{email:'E-mail',pass:'Mot de passe',server:'Serveur',go:'Se connecter',
+    logging:'Connexion en cours...',finding:'Recherche de XAUUSD...',nofind:'XAUUSD introuvable',
+    nobars:'Aucune bougie reçue',upd:'Mise à jour : ',ok:'Connecté.',
+    nolib:"La bibliothèque du graphique ne s'est pas chargée. Recharge la page.",
+    cors:'Le navigateur a bloqué la requête (probable blocage CORS de TradeLocker).'}
+};
+let lang='it';
+try{lang=localStorage.getItem('lang')||'it'}catch(e){}
+if(!T[lang])lang='it';
+const t=k=>T[lang][k];
+function applyLang(){
+  document.documentElement.lang=lang;
+  $('lang').value=lang;
+  $('email').placeholder=t('email');
+  $('pass').placeholder=t('pass');
+  $('server').placeholder=t('server');
+  $('go').textContent=t('go');
+}
+$('lang').onchange=()=>{
+  lang=$('lang').value;
+  try{localStorage.setItem('lang',lang)}catch(e){}
+  applyLang();
+  msg('');
+};
+applyLang();
+
 async function api(path,opt={}){
   const r=await fetch(BASE+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}});
-  const t=await r.text();let j;
-  try{j=JSON.parse(t)}catch(e){j=t}
+  const tx=await r.text();let j;
+  try{j=JSON.parse(tx)}catch(e){j=tx}
   if(!r.ok)throw new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));
   return j;
 }
@@ -69,7 +122,7 @@ function showLast(b){if(b.length)$('px').textContent=b[b.length-1].close.toFixed
 async function load(){
   const to=Date.now(),from=to-DAYS[res]*864e5;
   const b=await bars(from,to);
-  if(!b.length)throw new Error('Nessuna candela ricevuta');
+  if(!b.length)throw new Error(t('nobars'));
   series.setData(b);showLast(b);
 }
 async function tick(){
@@ -78,11 +131,11 @@ async function tick(){
     const b=await bars(to-72e5,to);
     b.forEach(x=>{try{series.update(x)}catch(e){}});
     showLast(b);
-  }catch(e){msg('Aggiornamento: '+e.message)}
+  }catch(e){msg(t('upd')+e.message)}
 }
 
 function start(){
-  if(!window.LightweightCharts){msg('La libreria del grafico non si è caricata. Ricarica la pagina.');return}
+  if(!window.LightweightCharts){msg(t('nolib'));return}
   $('login').hidden=true;$('app').hidden=false;
   chart=LightweightCharts.createChart($('chart'),{
     autoSize:true,
@@ -102,13 +155,13 @@ function start(){
     };
     $('tf').appendChild(b);
   });
-  load().then(()=>msg('Collegato.')).catch(e=>msg(e.message));
+  load().then(()=>msg(t('ok'))).catch(e=>msg(e.message));
   setInterval(tick,5000);
 }
 
 $('go').onclick=async()=>{
   try{
-    msg('Accesso in corso...');
+    msg(t('logging'));
     const j=await api('/auth/jwt/token',{method:'POST',body:JSON.stringify({
       email:$('email').value.trim(),password:$('pass').value,server:$('server').value.trim()})});
     tok=j.accessToken;
@@ -116,18 +169,16 @@ $('go').onclick=async()=>{
     const a=await api('/auth/jwt/all-accounts',{headers:{Authorization:'Bearer '+tok}});
     const acc=(a.accounts||a)[0];
     accId=acc.id;accNum=acc.accNum;
-    msg('Cerco XAUUSD...');
+    msg(t('finding'));
     const i=await api('/trade/accounts/'+accId+'/instruments',{headers:auth()});
     const g=((i.d&&i.d.instruments)||[]).find(x=>/^XAUUSD/i.test(x.name));
-    if(!g)throw new Error('XAUUSD non trovato');
+    if(!g)throw new Error(t('nofind'));
     tid=g.tradableInstrumentId;
     route=g.routes.find(r=>r.type==='INFO').id;
     $('sym').textContent=g.name;
     start();
   }catch(e){
-    msg(e instanceof TypeError
-      ? 'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'
-      : e.message);
+    msg(e instanceof TypeError ? t('cors') : e.message);
   }
 };
 </script>
