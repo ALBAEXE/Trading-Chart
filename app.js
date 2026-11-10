@@ -1,4 +1,4 @@
-const VERSION='0.14.0';
+const VERSION='0.15.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -53,6 +53,14 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #lform{margin:0}
 #forget,#reset{background:transparent;border:0;color:var(--muted);font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
 #reset{color:var(--faint)}
+.lnk{background:transparent;border:0;color:var(--muted);font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
+#fopen{color:var(--goldfg);font-weight:600;font-size:14px;text-decoration:none;margin-top:6px}
+#fform{margin:0}
+#fcode{text-align:center;font-size:22px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:13px}
+#fcode::placeholder{font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
+#flost{color:var(--goldfg)}
+.fcodebox{margin:6px 18px 4px;padding:14px 10px 6px;border-radius:18px;background:var(--glasssel);text-align:center}
+.fcodebig{font-size:30px;font-weight:800;letter-spacing:.16em;font-variant-numeric:tabular-nums;color:var(--goldfg);user-select:all;-webkit-user-select:all}
 #ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:var(--faint)}
 body.inapp #ver{display:none}
 body.inapp #msg{pointer-events:none;position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 8px);z-index:70;margin:0;min-height:0;padding:10px 14px;border-radius:14px;color:var(--fg);font-size:14px;background:var(--glass2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--glassline)}
@@ -270,6 +278,8 @@ document.getElementById('root').innerHTML=`
   <input id="server" name="server" placeholder="Server" autocomplete="off" autocapitalize="off" spellcheck="false">
   <button id="go" type="submit">Collegati</button>
   </form>
+  <button id="fopen" type="button" class="lnk"></button>
+  <form id="fform" novalidate hidden><input id="fcode" name="fcode" placeholder="Codice amico" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"><button id="fgo" type="submit"></button><button id="flost" type="button" class="lnk"></button><button id="fback" type="button" class="lnk"></button></form>
   <button id="forget" type="button" hidden></button>
   <button id="reset" type="button"></button>
 </div>
@@ -333,7 +343,9 @@ document.getElementById('root').innerHTML=`
 
 /* ---------- impostazioni ---------- */
 const $=id=>document.getElementById(id);
-const BASE='https://demo.tradelocker.com/backend-api';
+let BASE='https://demo.tradelocker.com/backend-api';
+const TL_BASE=BASE;
+var WORKER='https://tradingcharts.nexuscharts.workers.dev',TG_USER='albaexe',FRIEND=null;
 const DAYS={'1m':2,'5m':7,'15m':14,'1H':60,'4H':200,'1D':1000};
 let tok,accNum,accId,tid,route,res='5m',chart,series;
 let msgTimer=0;
@@ -397,6 +409,7 @@ function buildLangMenu(){
 }
 function applyLang(){
   document.documentElement.lang=lang;
+  if(window.FRT)fTexts();
   $('langflag').textContent=FLAGS[lang];
   $('email').placeholder=t('email');
   $('pass').placeholder=t('pass');
@@ -913,6 +926,7 @@ function openMenu(){
       shItem(s,NAMES[k],{left:f,check:k===lang,on:()=>{lang=k;try{localStorage.setItem('lang',k)}catch(e){}applyLang();openMenu()}});
     });
     shEl(s,'sh-sep','');
+    if(!FRIEND)shItem(s,ft('codes'),{on:()=>openCodes()});
     shItem(s,t('refresh'),{on:async()=>{closeSheet();await doRefresh()}});
     shItem(s,t('reset'),{on:()=>{closeSheet();resetApp()}});
     shItem(s,t('logout'),{danger:true,on:logout});
@@ -1033,7 +1047,7 @@ async function authed(path){
   try{return await api(path,{headers:auth()})}
   catch(e){
     if(e.status===401&&sess){await relogin();return await api(path,{headers:auth()})}
-    if(e.status===401&&!sess)sessionLost();
+    if(e.status===401&&!sess){if(FRIEND)friendLost();else sessionLost()}
     throw e;
   }
 }
@@ -1225,8 +1239,10 @@ try{const sv=localStorage.getItem('tc_server');if(sv&&!$('server').value)$('serv
   const snap=takeSnap();
   if(snap&&snap.tok){
     tok=snap.tok;accNum=snap.accNum;accId=snap.accId;res=snap.res||res;cur=snap.cur||null;tab=snap.tab||'wl';
+    window.__resume=true;
+    if(snap.fr)friendMode(snap.fr);
     try{sessionStorage.removeItem('noAuto')}catch(e){}
-    loadInstruments().then(start).catch(e=>{if(e&&e.status===401)sessionLost();else msg(e.message)});
+    loadInstruments().then(start).catch(e=>{if(e&&e.status===401){if(FRIEND)friendLost();else sessionLost()}else msg(e.message)});
     return;
   }
   let na=false;try{na=sessionStorage.getItem('noAuto')==='1';sessionStorage.removeItem('noAuto')}catch(e){}
@@ -1254,14 +1270,14 @@ function setTheme(th){
 }
 /* esci: torna al login. L'accesso salvato con Face ID resta, si rientra col pulsante */
 function logout(){
-  try{sessionStorage.setItem('noSplash','1');sessionStorage.setItem('noAuto','1')}catch(e){}
+  try{sessionStorage.setItem('noSplash','1');sessionStorage.setItem('noAuto','1');sessionStorage.setItem('noAutoF','1')}catch(e){}
   location.reload();
 }
 
 /* ---------- ripresa dopo un aggiornamento ----------
    Salva solo il token temporaneo (non email ne' password) per il tempo del ricaricamento. */
 function saveSnap(){
-  try{sessionStorage.setItem('tc_snap',JSON.stringify({tok,accNum,accId,res,cur,tab}))}catch(e){}
+  try{sessionStorage.setItem('tc_snap',JSON.stringify({tok,accNum,accId,res,cur,tab,fr:FRIEND}))}catch(e){}
 }
 function takeSnap(){
   try{const s=JSON.parse(sessionStorage.getItem('tc_snap'));sessionStorage.removeItem('tc_snap');return s}catch(e){return null}
@@ -2432,3 +2448,150 @@ $('wheelbg').addEventListener('click',()=>wheelClose(true));
   z.addEventListener('pointercancel',e=>{if(WH.pid===e.pointerId){WH.pid=null;WH.drag=false}});
 });
 renderSymPillTF();
+
+
+/* =====================================================================
+   AMICI: entrano con un codice, i prezzi passano dal servizio Cloudflare
+   (le credenziali del broker stanno solo li', mai nell'app)
+   ===================================================================== */
+var FRT={
+ it:{have:"Hai un codice amico?",ph:"Codice amico",enter:"Entra col codice",lost:"Codice perso? Richiedilo su Telegram",back:"Accedi con email e password",bad:"Codice non valido. Controllalo o richiedine uno nuovo.",expired:"Il tuo codice non è più valido. Richiedine uno nuovo su Telegram.",tgmsg:"Ciao, mi serve un codice per TradingCharts",
+   codes:"Codici amici",keyq:"Scrivi la tua chiave amministratore (la ADMIN_KEY che hai messo su Cloudflare). Serve una volta sola: poi resta su questo iPhone.",keyph:"Chiave amministratore",keysave:"Salva chiave",keybad:"Chiave sbagliata.",name:"Nome dell'amico",gen:"Genera codice",newc:"Nuovo codice",copy:"Copia",copied:"Copiato.",send:"Invia",active:"Codici attivi",none:"Nessun codice attivo.",delq:"Disattivare questo codice? Chi lo usa non potrà più entrare.",forgetkey:"Dimentica la chiave su questo iPhone",share:"Ecco il tuo codice per TradingCharts: ",howto:"Apri l'app, tocca «Hai un codice amico?» e scrivilo.",noname:"senza nome",neterr:"Servizio amici non raggiungibile."},
+ es:{have:"¿Tienes un código de amigo?",ph:"Código de amigo",enter:"Entrar con el código",lost:"¿Perdiste el código? Pídelo en Telegram",back:"Entrar con email y contraseña",bad:"Código no válido. Revísalo o pide uno nuevo.",expired:"Tu código ya no es válido. Pide uno nuevo en Telegram.",tgmsg:"Hola, necesito un código para TradingCharts",
+   codes:"Códigos de amigos",keyq:"Escribe tu clave de administrador (la ADMIN_KEY de Cloudflare). Solo una vez: luego se queda en este iPhone.",keyph:"Clave de administrador",keysave:"Guardar clave",keybad:"Clave incorrecta.",name:"Nombre del amigo",gen:"Generar código",newc:"Código nuevo",copy:"Copiar",copied:"Copiado.",send:"Enviar",active:"Códigos activos",none:"No hay códigos activos.",delq:"¿Desactivar este código? Quien lo use ya no podrá entrar.",forgetkey:"Olvidar la clave en este iPhone",share:"Este es tu código para TradingCharts: ",howto:"Abre la app, toca «¿Tienes un código de amigo?» y escríbelo.",noname:"sin nombre",neterr:"Servicio de amigos no disponible."},
+ en:{have:"Have a friend code?",ph:"Friend code",enter:"Enter with code",lost:"Lost your code? Ask on Telegram",back:"Sign in with email and password",bad:"Invalid code. Check it or ask for a new one.",expired:"Your code is no longer valid. Ask for a new one on Telegram.",tgmsg:"Hi, I need a code for TradingCharts",
+   codes:"Friend codes",keyq:"Type your admin key (the ADMIN_KEY you set on Cloudflare). Only once: then it stays on this iPhone.",keyph:"Admin key",keysave:"Save key",keybad:"Wrong key.",name:"Friend's name",gen:"Generate code",newc:"New code",copy:"Copy",copied:"Copied.",send:"Send",active:"Active codes",none:"No active codes.",delq:"Deactivate this code? Whoever uses it won't be able to sign in.",forgetkey:"Forget the key on this iPhone",share:"Here is your TradingCharts code: ",howto:"Open the app, tap “Have a friend code?” and type it.",noname:"no name",neterr:"Friend service unreachable."},
+ fr:{have:"Tu as un code ami ?",ph:"Code ami",enter:"Entrer avec le code",lost:"Code perdu ? Demande-le sur Telegram",back:"Se connecter avec email et mot de passe",bad:"Code non valide. Vérifie-le ou demandes-en un nouveau.",expired:"Ton code n'est plus valide. Demandes-en un nouveau sur Telegram.",tgmsg:"Salut, il me faut un code pour TradingCharts",
+   codes:"Codes amis",keyq:"Écris ta clé administrateur (l'ADMIN_KEY mise sur Cloudflare). Une seule fois : elle reste ensuite sur cet iPhone.",keyph:"Clé administrateur",keysave:"Enregistrer la clé",keybad:"Clé incorrecte.",name:"Nom de l'ami",gen:"Générer un code",newc:"Nouveau code",copy:"Copier",copied:"Copié.",send:"Envoyer",active:"Codes actifs",none:"Aucun code actif.",delq:"Désactiver ce code ? La personne qui l'utilise ne pourra plus entrer.",forgetkey:"Oublier la clé sur cet iPhone",share:"Voici ton code TradingCharts : ",howto:"Ouvre l'app, touche « Tu as un code ami ? » et écris-le.",noname:"sans nom",neterr:"Service amis injoignable."}
+};
+function ft(k){return(FRT[lang]&&FRT[lang][k])||FRT.it[k]||k}
+const fnorm=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const fshow=c=>{c=fnorm(c);return c.length===8?c.slice(0,4)+'-'+c.slice(4):c};
+
+function friendMode(code){FRIEND=fnorm(code);BASE=WORKER+'/tl';tok=FRIEND;accId='me';accNum='me';sess=null}
+function friendOff(){FRIEND=null;BASE=TL_BASE}
+/* codice tolto dall'amministratore mentre l'amico era dentro */
+function friendLost(){
+  try{localStorage.removeItem('tc_fcode');sessionStorage.setItem('noSplash','1');sessionStorage.setItem('tc_fexp','1')}catch(e){}
+  location.reload();
+}
+function friendUI(on){
+  $('fform').hidden=!on;$('fopen').hidden=on;
+  $('lform').hidden=on;$('fid').hidden=on;
+  $('forget').hidden=true;
+  if(on)setTimeout(()=>{if(!$('fcode').value)$('fcode').focus()},50);
+}
+function fTexts(){
+  $('fopen').textContent=ft('have');$('fcode').placeholder=ft('ph');
+  $('fgo').textContent=ft('enter');$('flost').textContent=ft('lost');$('fback').textContent=ft('back');
+}
+let fBusy=false;
+async function friendEnter(code,auto){
+  code=fnorm(code);if(code.length<6||fBusy)return;
+  fBusy=true;
+  try{
+    msg(t('logging'));
+    friendMode(code);
+    await loadInstruments();
+    try{localStorage.setItem('tc_fcode',code)}catch(e){}
+    start();
+  }catch(e){
+    friendOff();
+    if(e&&e.status===401){try{localStorage.removeItem('tc_fcode')}catch(_){}msg(ft('bad'));friendUI(true)}
+    else msg(e&&e.status?errText(e):ft('neterr'));
+  }finally{fBusy=false}
+}
+function openTelegram(){
+  const u='https://t.me/'+TG_USER+'?text='+encodeURIComponent(ft('tgmsg'));
+  const w=window.open(u,'_blank');if(!w)location.href=u;
+}
+$('fopen').onclick=()=>friendUI(true);
+$('fback').onclick=()=>{friendUI(false);msg('')};
+$('flost').onclick=openTelegram;
+$('fform').onsubmit=ev=>{ev.preventDefault();friendEnter($('fcode').value,false)};
+$('fcode').addEventListener('input',()=>{
+  const c=fnorm($('fcode').value);
+  if(c.length===8&&!fBusy){$('fcode').value=fshow(c);$('fcode').blur();friendEnter(c,false)}
+});
+fTexts();
+/* all'apertura: l'amico che ha gia' un codice entra da solo */
+(function(){
+  let exp=false,na=false;
+  try{exp=sessionStorage.getItem('tc_fexp')==='1';sessionStorage.removeItem('tc_fexp')}catch(e){}
+  try{na=sessionStorage.getItem('noAutoF')==='1';sessionStorage.removeItem('noAutoF')}catch(e){}
+  let code=null;try{code=localStorage.getItem('tc_fcode')}catch(e){}
+  if(exp){friendUI(true);setTimeout(()=>msg(ft('expired')),300);return}
+  if(!code)return;
+  friendUI(true);$('fcode').value=fshow(code);
+  if(document.body.classList.contains('inapp')||FRIEND||window.__resume)return;   /* gia' dentro (ripresa dopo aggiornamento) */
+  if(!na)friendEnter(code,true);
+})();
+
+/* ---------- Codici amici: solo per l'amministratore (serve la chiave amministratore) ---------- */
+function admKey(){try{return localStorage.getItem('tc_admin')||''}catch(e){return ''}}
+async function adm(method,path,body,key){
+  const r=await fetch(WORKER+'/admin'+path,{method,headers:{'Content-Type':'application/json','X-Admin-Key':key||admKey()},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  let j=null;try{j=await r.json()}catch(e){}
+  if(!r.ok){const er=new Error((j&&j.error)||('HTTP '+r.status));er.status=r.status;throw er}
+  return j;
+}
+function codeBox(s,code){
+  const box=document.createElement('div');box.className='fcodebox';
+  const c=document.createElement('div');c.className='fcodebig';c.textContent=fshow(code);box.appendChild(c);
+  const row=document.createElement('div');row.className='chips';row.style.justifyContent='center';
+  const cp=document.createElement('button');cp.className='chip';cp.textContent=ft('copy');
+  cp.onclick=async()=>{try{await navigator.clipboard.writeText(fshow(code));msg(ft('copied'))}catch(e){msg(fshow(code))}};
+  const sh=document.createElement('button');sh.className='chip on';sh.textContent=ft('send');
+  sh.onclick=()=>{
+    const txt=ft('share')+fshow(code)+'\n'+ft('howto');
+    if(navigator.share)navigator.share({text:txt}).catch(()=>{});
+    else{try{navigator.clipboard.writeText(txt);msg(ft('copied'))}catch(e){}}
+  };
+  row.appendChild(cp);row.appendChild(sh);box.appendChild(row);s.appendChild(box);
+}
+function openCodes(fresh){
+  openSheet(s=>{
+    shEl(s,'sh-t',ft('codes'));
+    if(!admKey()){
+      shEl(s,'sh-note',ft('keyq'));
+      const i=document.createElement('input');i.type='password';i.className='hinput';i.placeholder=ft('keyph');i.autocomplete='off';s.appendChild(i);
+      const row=document.createElement('div');row.className='chips';
+      const ok=document.createElement('button');ok.className='chip on';ok.textContent=ft('keysave');
+      ok.onclick=async()=>{
+        const k=i.value.trim();if(!k)return;
+        try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);openCodes()}
+        catch(e){msg(e.status===403?ft('keybad'):ft('neterr'))}
+      };
+      row.appendChild(ok);s.appendChild(row);
+      return;
+    }
+    if(fresh){shEl(s,'sh-l',ft('newc')+(fresh.name?' — '+fresh.name:''));codeBox(s,fresh.code)}
+    const i=document.createElement('input');i.className='hinput';i.placeholder=ft('name');i.autocomplete='off';s.appendChild(i);
+    const row=document.createElement('div');row.className='chips';
+    const gen=document.createElement('button');gen.className='chip on';gen.textContent=ft('gen');
+    gen.onclick=async()=>{
+      gen.disabled=true;
+      try{const j=await adm('POST','/codes',{name:i.value.trim()});openCodes(j)}
+      catch(e){gen.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}
+    };
+    row.appendChild(gen);s.appendChild(row);
+    shEl(s,'sh-l',ft('active'));
+    const list=document.createElement('div');s.appendChild(list);
+    adm('GET','/codes').then(j=>{
+      const cs=(j&&j.codes)||[];
+      if(!cs.length){shEl(list,'sh-note',ft('none'));return}
+      cs.forEach(c=>{
+        const del=document.createElement('button');del.className='addb';del.innerHTML='✕';del.setAttribute('aria-label',t('del'));
+        del.onclick=async e=>{
+          e.stopPropagation();
+          if(!confirm(ft('delq')))return;
+          try{await adm('DELETE','/codes/'+c.code);openCodes()}catch(er){msg(ft('neterr'))}
+        };
+        const d=c.created?new Date(c.created).toLocaleDateString(LOC[lang]||'it-IT',{day:'2-digit',month:'short'}):'';
+        shItem(list,(c.name||ft('noname'))+'  ·  '+fshow(c.code)+(d?'  ·  '+d:''),{right:del,on:()=>openCodes({code:c.code,name:c.name})});
+      });
+    }).catch(e=>{if(e.status===403){try{localStorage.removeItem('tc_admin')}catch(_){}msg(ft('keybad'))}else shEl(list,'sh-note',ft('neterr'))});
+    shEl(s,'sh-sep','');
+    shItem(s,ft('forgetkey'),{danger:true,on:()=>{try{localStorage.removeItem('tc_admin')}catch(e){}openCodes()}});
+  });
+}
