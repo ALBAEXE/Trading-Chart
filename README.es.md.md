@@ -249,3 +249,4 @@ NexusCharts es una herramienta de análisis. Nada en la app es asesoramiento fin
 **© 2026 NexusCharts — Todos los derechos reservados.**
 
 </div>
+
