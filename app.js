@@ -1,4 +1,4 @@
-const VERSION='0.8.8';
+const VERSION='0.8.9';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -62,7 +62,9 @@ body.inapp #msg:empty{display:none}
 .glass{background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--glassline);box-shadow:inset 0 1px 0 var(--glasshi),0 10px 30px var(--shadow)}
 
 /* app */
-#shell{position:fixed;top:0;left:0;right:0;bottom:calc(-1 * var(--vfix))}
+#shell{position:fixed;inset:0}
+/* iPhone disegna l'app solo fino alla fascia nera in basso: le barre scendono fino al fondo della parte visibile */
+html.vgap{--tbb:8px}
 .screen{position:absolute;inset:0}
 #wl-screen{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 8px) 0 calc(var(--tbb) + var(--tbh) + var(--gapb) + var(--rowh) + 24px)}
 #wlhead{display:flex;align-items:center;justify-content:space-between;padding:0 16px}
@@ -137,8 +139,8 @@ body.inapp #msg:empty{display:none}
 #tools svg{width:24px;height:24px;display:block}
 
 /* fogli dal basso */
-#sheetbg{position:fixed;top:0;left:0;right:0;bottom:calc(-1 * var(--vfix));background:rgba(0,0,0,.35);z-index:60}
-#sheet{position:fixed;left:8px;right:8px;bottom:calc(var(--tbb) - var(--vfix));max-height:78vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px;z-index:61;padding:8px 0 14px;background:var(--glass2);color:var(--fg)}
+#sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60}
+#sheet{position:fixed;left:8px;right:8px;bottom:var(--tbb);max-height:78vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px;z-index:61;padding:8px 0 14px;background:var(--glass2);color:var(--fg)}
 .sh-h{width:40px;height:5px;border-radius:3px;background:var(--faint);margin:4px auto 8px}
 .sh-t{font-weight:700;font-size:19px;padding:4px 18px 8px}
 .sh-l{padding:14px 18px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -1221,16 +1223,21 @@ async function loadSafe(n=0){
   }
 }
 
-/* iPhone, nelle app della Home con barra di stato trasparente, a volte accorcia lo schermo
-   dell'altezza della barra in alto: misuro quanto manca e allungo l'app fino al bordo vero */
+/* iPhone, nelle app della Home con barra di stato trasparente, a volte disegna l'app piu' corta dello schermo
+   (fascia nera in basso, fuori dall'app). In quel caso il bordo in basso della parte visibile non ha la barra
+   della Home sopra, quindi le barre possono scendere quasi fino al fondo. */
+const topProbe=document.createElement('div');
+topProbe.style.cssText='position:fixed;top:0;left:0;width:0;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none';
+document.body.appendChild(topProbe);
 function fixViewport(){
-  let g=0;
+  let gap=false;
   try{
     const portrait=window.innerHeight>window.innerWidth;
     const standalone=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
-    if(standalone&&portrait){g=Math.round(screen.height-window.innerHeight);if(g<0||g>120)g=0}
+    const missing=screen.height-window.innerHeight,top=topProbe.getBoundingClientRect().height;
+    gap=standalone&&portrait&&missing>20&&missing<120&&top>20;
   }catch(e){}
-  document.documentElement.style.setProperty('--vfix',g+'px');
+  document.documentElement.classList.toggle('vgap',gap);
 }
 fixViewport();
 window.addEventListener('resize',fixViewport);
