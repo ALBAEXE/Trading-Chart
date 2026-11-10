@@ -1,4 +1,4 @@
-const VERSION='0.8.2';
+const VERSION='0.8.3';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -51,7 +51,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #forget{background:transparent;border:0;color:var(--muted);font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
 #ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:var(--faint)}
 body.inapp #ver{display:none}
-body.inapp #msg{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 70px);z-index:70;margin:0;min-height:0;padding:10px 14px;border-radius:14px;color:var(--fg);font-size:14px;background:var(--glass2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--glassline)}
+body.inapp #msg{pointer-events:none;position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 8px);z-index:70;margin:0;min-height:0;padding:10px 14px;border-radius:14px;color:var(--fg);font-size:14px;background:var(--glass2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--glassline)}
 body.inapp #msg:empty{display:none}
 
 /* vetro */
@@ -66,7 +66,7 @@ body.inapp #msg:empty{display:none}
 .circ img{width:42px;height:42px;display:block;filter:var(--logo)}
 .circ svg{width:24px;height:24px;display:block}
 #wltitle{display:inline-block;margin:16px 16px 4px;padding:8px 18px;border-radius:999px;background:var(--pill);color:var(--onpill);font-weight:600;font-size:17px}
-#bar{display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:12px 16px 0;font-size:13px;color:var(--fg)}
+#bar{display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:12px 16px 4px;font-size:13px;color:var(--fg)}
 #bar span{flex:1}
 #bar button{width:auto;margin:0;padding:7px 12px;font-size:13px}
 #bar .no{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:400}
@@ -91,7 +91,7 @@ body.inapp #msg:empty{display:none}
 .up{color:var(--up)}
 .down{color:var(--down)}
 
-#mini{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 88px);height:62px;border-radius:31px;display:flex;align-items:center;gap:12px;margin:0;padding:0 18px 0 8px;z-index:30;color:var(--fg);text-align:left;font-weight:400}
+#mini{width:auto;position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 88px);height:62px;border-radius:31px;display:flex;align-items:center;gap:12px;margin:0;padding:0 18px 0 8px;z-index:30;color:var(--fg);text-align:left;font-weight:400}
 #mntxt{flex:1;min-width:0}
 #mna{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 #mnb{font-size:14px;font-variant-numeric:tabular-nums}
@@ -193,10 +193,8 @@ document.getElementById('root').innerHTML=`
   <section id="wl-screen" class="screen">
     <div id="wlhead">
       <button id="menubtn" class="circ glass" aria-label="Menu"><img alt="" src="${LOGO_SRC}"></button>
-      <button id="searchbtn" class="circ glass" aria-label="Search">${IC_SEARCH}</button>
     </div>
     <div id="bar" hidden><span id="bartxt"></span><button id="barsave"></button><button id="barno" class="no"></button></div>
-    <div id="wltitle"></div>
     <div id="wl"></div>
   </section>
   <section id="ch-screen" class="screen" hidden>
@@ -496,7 +494,7 @@ function themeVar(n){return getComputedStyle(document.documentElement).getProper
 /* ---------- strumenti, watchlist, simbolo attivo ---------- */
 let INST=[],BYN={},WATCH=[],cur=null,QUOTE={},lastBars=[],dec=2,tab='wl',tickN=0,lastMove=0;
 const norm=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-const PREF=['EURUSD','GBPUSD','USDJPY','XAUUSD','XAGUSD','XPTUSD','BTCUSD','ETHUSD','US30','NAS100','US500','GER40'];
+const FIXED=['EURUSD','XAUUSD','XAGUSD','XPTUSD','BTCUSD','ETHUSD','US30','NAS100'];
 function findBase(b){return INST.find(x=>norm(x.name)===b)||INST.find(x=>norm(x.name).startsWith(b))}
 function saveWatch(){try{localStorage.setItem('tc_watch',JSON.stringify(WATCH))}catch(e){}}
 /* niente rinnovo automatico qui: questa funzione la usa anche il ricollegamento */
@@ -511,13 +509,13 @@ async function loadInstruments(){
     INST.push(it);BYN[it.name]=it;
   });
   if(!INST.length)throw new Error(t('noinst'));
-  let w=null;try{w=JSON.parse(localStorage.getItem('tc_watch'))}catch(e){}
-  WATCH=Array.isArray(w)?w.filter(n=>BYN[n]):[];
-  if(!WATCH.length){PREF.forEach(b=>{const x=findBase(b);if(x&&!WATCH.includes(x.name))WATCH.push(x.name)})}
+  /* watchlist fissa: solo i simboli scelti dall'amministratore */
+  WATCH=[];
+  FIXED.forEach(b=>{const x=findBase(b);if(x&&!WATCH.includes(x.name))WATCH.push(x.name)});
   if(!WATCH.length)WATCH=INST.slice(0,8).map(x=>x.name);
-  saveWatch();
   let s=cur;
-  if(!s||!BYN[s]){try{s=localStorage.getItem('tc_sym')}catch(e){}}
+  if(!s||!WATCH.includes(s)){try{s=localStorage.getItem('tc_sym')}catch(e){}}
+  if(!WATCH.includes(s))s=null;
   if(!s||!BYN[s]){const g=findBase('XAUUSD');s=g?g.name:WATCH[0]}
   setCur(s,false);
 }
@@ -565,7 +563,7 @@ function info(it){
   else if(ty.includes('EQUITY')||ty.includes('STOCK')||ty.includes('SHARE'))cat='stk';
   const b6=b.slice(0,6);
   let desc=(lang==='it'&&DESC_IT[b6])||it.desc||DESC_IT[b6]||'';
-  if(!desc&&cat==='idx'){const r=IDX.find(r=>r[0].test(b));if(r)desc=r[2]}
+  if(cat==='idx'){const r=IDX.find(r=>r[0].test(b));if(r)desc=r[2]}
   return{cat,b,desc};
 }
 function iconEl(it,size,id){
@@ -620,26 +618,27 @@ function renderWL(){
 let wlBusy=false,wlLast=0;
 async function refreshWL(force){
   if(wlBusy||!accId||!WATCH.length)return;
-  if(!force&&Date.now()-wlLast<15000)return;
+  if(!force&&Date.now()-wlLast<8000)return;
   if(paused())return;
-  wlBusy=true;
+  wlBusy=true;wlLast=Date.now();
   try{
     for(const n of WATCH.slice()){
       try{await quoteFor(n)}catch(e){if(e.status===401)break;continue}
       document.querySelectorAll('#wl .row').forEach(r=>{if(r.dataset.n===n)fillQuote(r,n)});
       if(n===cur){renderLegend();renderMini();tint()}
     }
-  }finally{wlBusy=false;wlLast=Date.now()}
+  }finally{wlBusy=false}
 }
-setInterval(()=>{if(!document.hidden&&series&&tab==='wl')refreshWL(false)},2000);
+setInterval(()=>{if(!document.hidden&&series&&tab==='wl')refreshWL(false)},1000);
 
 /* ---------- mini lettore sopra la barra ---------- */
 function renderMini(){
   const it=BYN[cur];if(!it)return;
   swapIcon('mnic',44);
   const q=QUOTE[cur];
-  const last=lastBars.length?lastBars[lastBars.length-1].c:(q?q.last:null);
-  const d=lastBars.length?dec:(q?q.dec:dec);
+  const useQ=tab==='wl'&&q;
+  const last=useQ?q.last:(lastBars.length?lastBars[lastBars.length-1].c:(q?q.last:null));
+  const d=useQ?q.dec:(lastBars.length?dec:(q?q.dec:dec));
   $('mna').textContent=it.name+(last!=null?'  '+fmt(last,d):'');
   if(q){
     const dv=(last!=null?last:q.last)-q.prev,pc=q.prev?dv/q.prev*100:0;
@@ -799,7 +798,7 @@ function showTab(x){
   $('mini').hidden=x!=='wl';
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===x));
   if(x==='wl')refreshWL(false);
-  if(x==='ch')tagText();
+  if(x==='ch'){tagText();if(series&&lastBars.length)tick()}
 }
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
 $('mini').onclick=()=>showTab('ch');
@@ -891,7 +890,6 @@ function openSoon(title,keys){
 }
 $('menubtn').onclick=openMenu;
 $('more').onclick=openMenu;
-$('searchbtn').onclick=openSearch;
 $('pencil').onclick=()=>openSoon(t('tools'),['tl_trend','tl_h','tl_rect','tl_fib','tl_text']);
 $('inds').onclick=()=>openSoon(t('inds'),['in_ma','in_rsi','in_macd','in_bb','in_mine']);
 
@@ -912,7 +910,7 @@ function start(){
     series=chart.addCandlestickSeries({upColor:UP,downColor:DN,borderVisible:false,wickUpColor:UP,wickDownColor:DN,
       lastValueVisible:false,priceLineVisible:true,priceLineStyle:1,priceLineWidth:1,priceLineColor:themeVar('--blue'),
       priceFormat:{type:'price',precision:dec,minMove:Math.pow(10,-dec)}});
-    setInterval(tick,5000);
+    setInterval(()=>{if(tab==='ch')tick()},3000);
     requestAnimationFrame(tagLoop);
   }
   $('top').hidden=true;$('login').hidden=true;$('brand').hidden=true;
@@ -925,7 +923,6 @@ function start(){
   refreshWL(true);
 }
 function renderAll(){
-  $('wltitle').textContent=t('wl');
   $('tabwl').textContent=t('wl');
   $('tabch').textContent=t('ch');
   if(!BYN[cur])return;
@@ -1072,6 +1069,9 @@ async function faceLogin(auto){
   }
 }
 $('barsave').onclick=async()=>{
+  const btn=$('barsave');
+  if(btn.disabled)return;
+  btn.disabled=true;
   try{
     const mode=await saveCreds();
     $('bar').hidden=true;
@@ -1079,8 +1079,9 @@ $('barsave').onclick=async()=>{
     setTimeout(()=>msg(''),5000);
     refreshFid();
   }catch(e){
-    msg(t('nofid')+(e&&e.name?' ('+e.name+')':''));
-  }
+    const tx=t('nofid')+(e&&e.name?' ('+e.name+(e.message?': '+e.message:'')+')':'');
+    $('bartxt').textContent=tx;msg(tx);
+  }finally{btn.disabled=false}
 };
 $('barno').onclick=()=>{$('bar').hidden=true;try{sessionStorage.setItem('noOffer','1')}catch(e){}};
 $('forget').onclick=async()=>{
