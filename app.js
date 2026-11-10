@@ -1,4 +1,4 @@
-const VERSION='0.7.0';
+const VERSION='0.7.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -277,6 +277,7 @@ async function checkFresh(){
     if(m&&m[1]!==VERSION){
       msg(t('newver'));
       try{sessionStorage.setItem('noSplash','1')}catch(e){}
+      if(series)saveSnap();
       setTimeout(()=>location.reload(),300);
     }
   }catch(e){}
@@ -287,10 +288,24 @@ document.addEventListener('visibilitychange',()=>{
   else if(Date.now()-hiddenAt>3000)checkFresh();
 });
 window.addEventListener('pageshow',e=>{if(e.persisted)checkFresh()});
-$('reload').onclick=()=>{
-  $('reload').classList.add('spin');
-  try{sessionStorage.setItem('noSplash','1')}catch(e){}
-  location.reload();
+/* aggiorna: nel grafico ricarica i dati e resta dentro; se online c'e' una versione nuova la carica senza farti uscire */
+$('reload').onclick=async()=>{
+  const b=$('reload');
+  if(b.classList.contains('spin'))return;
+  b.classList.add('spin');
+  let newer=false;
+  try{
+    const r=await fetch('app.js?t='+Date.now(),{cache:'no-store'});
+    if(r.ok){const m=(await r.text()).match(/const VERSION='([^']+)'/);newer=!!(m&&m[1]!==VERSION)}
+  }catch(e){}
+  if(!series||newer){
+    try{sessionStorage.setItem('noSplash','1')}catch(e){}
+    if(series)saveSnap();
+    location.reload();
+    return;
+  }
+  try{await load()}catch(e){msg(e.message)}
+  setTimeout(()=>b.classList.remove('spin'),300);
 };
 
 /* ---------- dati TradeLocker ---------- */
@@ -328,7 +343,11 @@ async function tick(){
 }
 
 function start(){
-  if(!window.LightweightCharts){msg(t('nolib'));return}
+  if(!window.LightweightCharts){
+    let n=0;
+    const w=setInterval(()=>{if(window.LightweightCharts){clearInterval(w);start()}else if(++n>100){clearInterval(w);msg(t('nolib'))}},100);
+    return;
+  }
   $('login').hidden=true;$('brand').hidden=true;$('app').hidden=false;
   document.body.classList.add('inapp');$('menubox').hidden=false;
   chart=LightweightCharts.createChart($('chart'),{
@@ -382,6 +401,7 @@ async function authed(path){
   try{return await api(path,{headers:auth()})}
   catch(e){
     if(e.status===401&&sess){await relogin();return await api(path,{headers:auth()})}
+    if(e.status===401&&!sess)sessionLost();
     throw e;
   }
 }
@@ -528,6 +548,14 @@ $('go').onclick=async()=>{
 refreshFid();
 /* all'apertura, se c'e' un accesso salvato, chiede il Face ID appena finisce l'animazione */
 (function(){
+  const snap=takeSnap();
+  if(snap&&snap.tok){
+    tok=snap.tok;accNum=snap.accNum;accId=snap.accId;tid=snap.tid;route=snap.route;res=snap.res||res;
+    $('sym').textContent=snap.sym||'';
+    try{sessionStorage.removeItem('noAuto')}catch(e){}
+    start();
+    return;
+  }
   let na=false;try{na=sessionStorage.getItem('noAuto')==='1';sessionStorage.removeItem('noAuto')}catch(e){}
   if(na||!hasSaved()||!fidOK())return;
   let n=0;
@@ -581,3 +609,16 @@ document.addEventListener('click',e=>{if(!$('menubox').contains(e.target))$('men
 buildMenu();
 /* aprendo le lingue si chiude il menu del logo */
 (function(){const lb=$('langbtn').onclick;$('langbtn').onclick=e=>{$('menu').hidden=true;lb(e)}})();
+
+/* ---------- ripresa dopo un aggiornamento ----------
+   Salva solo il token temporaneo (non email ne' password) per il tempo del ricaricamento. */
+function saveSnap(){
+  try{sessionStorage.setItem('tc_snap',JSON.stringify({tok,accNum,accId,tid,route,res,sym:$('sym').textContent}))}catch(e){}
+}
+function takeSnap(){
+  try{const s=JSON.parse(sessionStorage.getItem('tc_snap'));sessionStorage.removeItem('tc_snap');return s}catch(e){return null}
+}
+function sessionLost(){
+  try{sessionStorage.setItem('noSplash','1')}catch(e){}
+  location.reload();
+}
