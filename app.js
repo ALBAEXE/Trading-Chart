@@ -1,4 +1,4 @@
-const VERSION='0.8.7';
+const VERSION='0.8.8';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -18,6 +18,8 @@ html[data-theme="light"]{--bg:#fff;--surf:#f3f3f1;--surf2:#e9e9e6;--line:#d9d9d4
 --sep:rgba(0,0,0,.08);--pill:#111;--onpill:#fff;
 --glass:rgba(255,255,255,.55);--glass2:rgba(250,250,250,.92);--glassline:rgba(0,0,0,.08);--glasshi:rgba(255,255,255,.95);--glasssel:rgba(0,0,0,.07);
 --tintup:rgba(34,171,148,.12);--tintdn:rgba(242,54,69,.12)}
+/* barre in basso: piu' vicine al bordo, piu' sottili, larghe quasi tutto lo schermo */
+:root{--tbb:max(8px,calc(env(safe-area-inset-bottom) - 14px));--tbh:56px;--rowh:50px;--gapb:8px;--side:10px;--vfix:0px}
 html,body{background:var(--bg)}
 #root{color:var(--fg)}
 body{padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));color:var(--fg);font:15px -apple-system,system-ui,sans-serif;transition:background-color .3s ease,color .3s ease}
@@ -60,9 +62,9 @@ body.inapp #msg:empty{display:none}
 .glass{background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--glassline);box-shadow:inset 0 1px 0 var(--glasshi),0 10px 30px var(--shadow)}
 
 /* app */
-#shell{position:fixed;inset:0}
+#shell{position:fixed;top:0;left:0;right:0;bottom:calc(-1 * var(--vfix))}
 .screen{position:absolute;inset:0}
-#wl-screen{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 8px) 0 calc(env(safe-area-inset-bottom) + 176px)}
+#wl-screen{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 8px) 0 calc(var(--tbb) + var(--tbh) + var(--gapb) + var(--rowh) + 24px)}
 #wlhead{display:flex;align-items:center;justify-content:space-between;padding:0 16px}
 .circ{width:52px;height:52px;border-radius:50%;margin:0;padding:0;display:flex;align-items:center;justify-content:center;color:var(--fg)}
 .circ img{width:42px;height:42px;display:block;filter:var(--logo)}
@@ -93,21 +95,21 @@ body.inapp #msg:empty{display:none}
 .up{color:var(--up)}
 .down{color:var(--down)}
 
-#mini{width:auto;position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 88px);height:62px;border-radius:31px;display:flex;align-items:center;gap:12px;margin:0;padding:0 18px 0 8px;z-index:30;color:var(--fg);text-align:left;font-weight:400}
+#mini{width:auto;position:absolute;left:var(--side);right:var(--side);bottom:calc(var(--tbb) + var(--tbh) + var(--gapb));height:var(--rowh);border-radius:25px;display:flex;align-items:center;gap:12px;margin:0;padding:0 18px 0 8px;z-index:30;color:var(--fg);text-align:left;font-weight:400}
 #mntxt{flex:1;min-width:0}
-#mna{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
-#mnb{font-size:14px;font-variant-numeric:tabular-nums}
-#mnsp{width:70px;height:30px;display:block}
+#mna{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+#mnb{font-size:13px;font-variant-numeric:tabular-nums}
+#mnsp{width:64px;height:26px;display:block}
 
-#tabbar{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 12px);height:66px;border-radius:33px;display:flex;gap:4px;padding:5px;z-index:31}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;margin:0;padding:0;background:transparent;border:0;border-radius:28px;color:var(--fg);font-size:12px;font-weight:600;transition:background-color .2s ease}
-.tab svg{width:25px;height:25px;display:block}
+#tabbar{position:absolute;left:var(--side);right:var(--side);bottom:var(--tbb);height:var(--tbh);border-radius:28px;display:flex;gap:4px;padding:4px;z-index:31}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:0;padding:0;background:transparent;border:0;border-radius:24px;color:var(--fg);font-size:11px;font-weight:600;transition:background-color .2s ease}
+.tab svg{width:22px;height:22px;display:block}
 .tab.on{background:var(--glasssel)}
 
-#ch-screen{--tint:var(--bg);background:linear-gradient(180deg,var(--bg) 0,var(--tint) calc(100% - 158px - env(safe-area-inset-bottom)),var(--tint) 100%)}
+#ch-screen{--tint:var(--bg);--chb:calc(var(--tbb) + var(--tbh) + var(--gapb) + var(--rowh) + 6px);background:linear-gradient(180deg,var(--bg) 0,var(--tint) calc(100% - var(--chb)),var(--tint) 100%)}
 #ch-screen.tup{--tint:var(--tintup)}
 #ch-screen.tdn{--tint:var(--tintdn)}
-#chartbox{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 4px);bottom:calc(env(safe-area-inset-bottom) + 158px)}
+#chartbox{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 4px);bottom:var(--chb)}
 #chart{position:absolute;inset:0}
 #pxtag{position:absolute;right:0;z-index:4;background:var(--blue);color:#fff;font-size:13px;line-height:1.3;padding:3px 7px 4px;border-radius:3px;font-variant-numeric:tabular-nums;pointer-events:none;transform:translateY(-11px);box-sizing:border-box}
 #wm{position:absolute;left:14px;bottom:40px;width:46px;height:46px;opacity:.45;filter:var(--logo);z-index:3;pointer-events:none}
@@ -123,20 +125,20 @@ body.inapp #msg:empty{display:none}
 #lgbtn svg{width:18px;height:18px;transition:transform .2s ease}
 #lgbtn.open svg{transform:rotate(180deg)}
 #lgohlc{font-size:12px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;line-height:1.6}
-#chbar{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 90px);display:flex;gap:10px;z-index:6}
-#sympill{flex:1.35;min-width:0;height:58px;border-radius:29px;display:flex;align-items:center;gap:10px;margin:0;padding:0 14px 0 6px;position:relative;overflow:hidden;color:var(--fg);font-weight:600;font-size:18px;text-align:left}
-#sympill .ic{flex-basis:44px}
+#chbar{position:absolute;left:var(--side);right:var(--side);bottom:calc(var(--tbb) + var(--tbh) + var(--gapb));display:flex;gap:8px;z-index:6}
+#sympill{flex:1.35;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:center;gap:9px;margin:0;padding:0 12px 0 6px;position:relative;overflow:hidden;color:var(--fg);font-weight:600;font-size:16px;text-align:left}
+#sympill .ic{flex-basis:38px}
 #sptxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#sympill .ghost{position:absolute;left:62px;font-size:15px;opacity:.32;font-weight:600;white-space:nowrap;pointer-events:none}
-#spg1{top:-7px}
-#spg2{bottom:-7px}
-#tools{flex:1;min-width:0;height:58px;border-radius:29px;display:flex;align-items:center;justify-content:space-around;padding:0 6px}
-#tools button{width:44px;height:44px;margin:0;padding:0;background:transparent;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:50%}
-#tools svg{width:27px;height:27px;display:block}
+#sympill .ghost{position:absolute;left:53px;font-size:13px;opacity:.32;font-weight:600;white-space:nowrap;pointer-events:none}
+#spg1{top:-6px}
+#spg2{bottom:-6px}
+#tools{flex:1;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:center;justify-content:space-around;padding:0 4px}
+#tools button{width:42px;height:42px;margin:0;padding:0;background:transparent;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:50%}
+#tools svg{width:24px;height:24px;display:block}
 
 /* fogli dal basso */
-#sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60}
-#sheet{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);max-height:78vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px;z-index:61;padding:8px 0 14px;background:var(--glass2);color:var(--fg)}
+#sheetbg{position:fixed;top:0;left:0;right:0;bottom:calc(-1 * var(--vfix));background:rgba(0,0,0,.35);z-index:60}
+#sheet{position:fixed;left:8px;right:8px;bottom:calc(var(--tbb) - var(--vfix));max-height:78vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px;z-index:61;padding:8px 0 14px;background:var(--glass2);color:var(--fg)}
 .sh-h{width:40px;height:5px;border-radius:3px;background:var(--faint);margin:4px auto 8px}
 .sh-t{font-weight:700;font-size:19px;padding:4px 18px 8px}
 .sh-l{padding:14px 18px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -640,7 +642,7 @@ setInterval(()=>{if(!document.hidden&&series&&tab==='wl')refreshWL(false)},1000)
 /* ---------- mini lettore sopra la barra ---------- */
 function renderMini(){
   const it=BYN[cur];if(!it)return;
-  swapIcon('mnic',44);
+  swapIcon('mnic',38);
   const q=QUOTE[cur];
   const useQ=tab==='wl'&&q;
   const last=useQ?q.last:(lastBars.length?lastBars[lastBars.length-1].c:(q?q.last:null));
@@ -712,7 +714,7 @@ function renderLegend(){
 }
 function renderSymPill(){
   const it=BYN[cur];if(!it)return;
-  swapIcon('spic',44);
+  swapIcon('spic',38);
   $('sptxt').textContent=it.name+' '+res;
   const i=WATCH.indexOf(cur);
   $('spg1').textContent=i>0?WATCH[i-1]+' '+res:'';
@@ -792,7 +794,7 @@ $('lgbtn').onclick=()=>{$('lgohlc').hidden=!$('lgohlc').hidden;$('lgbtn').classL
     if(Math.abs(dy)<28)return;
     moved=true;
     const i=WATCH.indexOf(cur),j=i+(dy<0?1:-1);
-    if(j>=0&&j<WATCH.length)setCur(WATCH[j]);
+    if(j>=0&&j<WATCH.length){setCur(WATCH[j]);haptic()}
   });
   p.addEventListener('click',()=>{if(moved){moved=false;return}openTF()});
 })();
@@ -1218,3 +1220,34 @@ async function loadSafe(n=0){
     msg(net?t('slow'):errText(e));
   }
 }
+
+/* iPhone, nelle app della Home con barra di stato trasparente, a volte accorcia lo schermo
+   dell'altezza della barra in alto: misuro quanto manca e allungo l'app fino al bordo vero */
+function fixViewport(){
+  let g=0;
+  try{
+    const portrait=window.innerHeight>window.innerWidth;
+    const standalone=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+    if(standalone&&portrait){g=Math.round(screen.height-window.innerHeight);if(g<0||g>120)g=0}
+  }catch(e){}
+  document.documentElement.style.setProperty('--vfix',g+'px');
+}
+fixViewport();
+window.addEventListener('resize',fixViewport);
+window.addEventListener('orientationchange',()=>setTimeout(fixViewport,300));
+
+/* vibrazione leggera ai tocchi: iPhone non permette di vibrare ai siti,
+   si usa il "clic" degli interruttori di iOS (da iOS 18); altrove navigator.vibrate */
+const haptic=(()=>{
+  let lab=null;
+  try{
+    lab=document.createElement('label');lab.setAttribute('aria-hidden','true');lab.style.display='none';
+    const sw=document.createElement('input');sw.type='checkbox';sw.setAttribute('switch','');sw.tabIndex=-1;
+    lab.appendChild(sw);document.body.appendChild(lab);
+  }catch(e){}
+  return()=>{try{if(navigator.vibrate)navigator.vibrate(10);else if(lab)lab.click()}catch(e){}};
+})();
+document.addEventListener('click',e=>{
+  const el=e.target&&e.target.closest&&e.target.closest('button');
+  if(el&&!el.disabled)haptic();
+},true);
