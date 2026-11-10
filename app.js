@@ -1,4 +1,4 @@
-const VERSION='0.17.0';
+const VERSION='0.18.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -143,6 +143,18 @@ html.vgap{--tbb:8px}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:0;padding:0;background:transparent;border:0;border-radius:24px;color:var(--fg);font-size:11px;font-weight:600;transition:background-color .2s ease}
 .tab svg{width:22px;height:22px;display:block}
 .tab.on{background:var(--glasssel)}
+@keyframes tbPf{0%{transform:rotate(0) scale(1)}35%{transform:rotate(-200deg) scale(.78)}70%{transform:rotate(-390deg) scale(1.18)}100%{transform:rotate(-360deg) scale(1)}}
+.tab[data-t=pf].anim .tabimg{animation:tbPf .75s cubic-bezier(.3,.7,.3,1)}
+@keyframes tbWlBox{0%{transform:translateY(0)}30%{transform:translateY(2.5px) scaleY(.92)}65%{transform:translateY(-2px)}100%{transform:none}}
+@keyframes tbWlLine{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.tab[data-t=wl] svg path{stroke-dasharray:1 0}
+.tab[data-t=wl].anim svg rect{transform-box:fill-box;transform-origin:50% 100%;animation:tbWlBox .5s ease}
+.tab[data-t=wl].anim svg path{stroke-dasharray:1 1;animation:tbWlLine .6s .08s ease-out both}
+@keyframes tbChA{0%{transform:scaleY(1)}30%{transform:scaleY(.35)}65%{transform:scaleY(1.3)}100%{transform:scaleY(1)}}
+@keyframes tbChW{0%,100%{opacity:1}30%{opacity:.15}}
+.tab[data-t=ch].anim svg rect{transform-box:fill-box;transform-origin:50% 50%;animation:tbChA .55s cubic-bezier(.3,.7,.4,1.4)}
+.tab[data-t=ch].anim svg rect+rect{animation-delay:.12s}
+.tab[data-t=ch].anim svg path{animation:tbChW .55s ease}
 .tab .tabimg{width:26px;height:26px;margin:-2px 0;display:block;filter:var(--logo)}
 #pf-screen{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 8px) 16px calc(var(--tbb) + var(--tbh) + var(--gapb) + 28px);color:var(--fg)}
 .pfhead{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 0 14px;text-align:center}
@@ -162,6 +174,15 @@ html.vgap{--tbb:8px}
 .pfrow .fl2{font-size:22px;line-height:1;flex:0 0 32px;text-align:center}
 .pfrow.danger{color:var(--danger);justify-content:center;font-weight:600}
 .pfrow.danger .pfic{background:transparent;color:var(--danger);flex-basis:auto;width:auto}
+.pfrow.chev::after{content:'';margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-top:2px solid var(--muted);transform:rotate(45deg);flex:0 0 8px;opacity:.7}
+.pfbar{position:relative;display:flex;align-items:center;justify-content:center;min-height:44px;margin:4px 0 6px}
+.pfback{position:absolute;left:-6px;top:50%;transform:translateY(-50%);width:auto;display:flex;align-items:center;gap:2px;margin:0;padding:6px 8px;background:transparent;border:0;color:var(--goldfg);font-weight:500;font-size:16px}
+.pfback svg{width:22px;height:22px}
+.pftitle{font-weight:700;font-size:18px}
+@keyframes pfIn{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes pfOut{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+#pf-screen.pfin>*{animation:pfIn .32s cubic-bezier(.2,.8,.2,1) both}
+#pf-screen.pfout>*{animation:pfOut .32s cubic-bezier(.2,.8,.2,1) both}
 .pfseg{display:flex;gap:6px;padding:6px}
 .pfseg button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:11px 0;border-radius:13px;background:transparent;color:var(--fg);border:0;font-weight:600;font-size:15px}
 .pfseg button svg{width:19px;height:19px}
@@ -188,11 +209,15 @@ html.vgap{--tbb:8px}
 #lgstat{flex:0 0 auto;display:flex;align-items:center;padding:6px 9px;border-radius:12px;background:var(--glasssel)}
 #lgdot{width:10px;height:10px;border-radius:50%;background:var(--faint);display:block}
 #lgdot.on{background:var(--up)}
-#lgpx{font-size:16px;margin-top:6px;font-variant-numeric:tabular-nums}
+#lgpx{display:none}
 #lgbtn{width:38px;height:32px;margin:8px 0 0;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--fg)}
 #lgbtn svg{width:18px;height:18px;transition:transform .2s ease}
 #lgbtn.open svg{transform:rotate(180deg)}
-#lgohlc{font-size:12px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;line-height:1.6}
+#lgohlc{font-size:12px;margin:5px -16px 0 0;font-variant-numeric:tabular-nums;line-height:1.5;display:flex;flex-wrap:wrap;column-gap:7px;white-space:nowrap;letter-spacing:-.01em}
+#lgohlc .k{color:var(--muted);margin-right:2px}
+#lgohlc .gp{display:flex;column-gap:7px}
+#lgohlc .v{color:var(--up)}#lgohlc.dn .v{color:var(--down)}
+#lgind{font-size:12.5px;color:var(--muted);margin-top:8px}
 #chbar{position:absolute;left:var(--side);right:var(--side);bottom:calc(var(--tbb) + var(--tbh) + var(--gapb));display:flex;gap:8px;z-index:6}
 #sympill{flex:1.4;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:stretch;margin:0;padding:0;position:relative;overflow:hidden;color:var(--fg);font-weight:600;font-size:16px;text-align:left}
 #spsym,#sptf{position:relative;display:flex;align-items:center;min-width:0;height:100%;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:pointer;transition:background .15s}
@@ -246,7 +271,7 @@ html.vgap{--tbb:8px}
 .counts{font-size:13px;color:var(--muted);margin-top:6px}
 .tic{width:26px;height:26px;display:flex}.tic svg{width:26px;height:26px}
 .sh-note{padding:8px 18px 10px;color:var(--muted);font-size:14px;line-height:1.4}
-#lgohlc.xh{color:var(--up)}#lgohlc.xh.dn{color:var(--down)}
+
 #lgcmp{display:inline-block;margin-top:4px;font-size:13px;color:#ff9800;font-weight:600}
 /* fogli dal basso */
 #sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60}
@@ -322,13 +347,14 @@ document.getElementById('root').innerHTML=`
       <div id="chart"></div>
       <canvas id="draw"></canvas>
       <div id="pxtag" hidden><div id="tagpx"></div><div id="tagcd"></div></div>
-      <div id="wm" role="button" aria-label="TradingCharts"><img alt="" src="${LOGO_SRC}"><span id="wmtx"><b>TradingCharts</b></span></div>
+      <div id="wm" role="button" aria-label="NexusCharts"><img alt="" src="${LOGO_SRC}"><span id="wmtx"><b>NexusCharts</b></span></div>
     </div>
     <div id="legend">
       <div id="lgtop"><div id="lgic"></div><span id="lgname"></span><span id="lgstat"><i id="lgdot"></i></span></div>
+      <div id="lgohlc"></div>
       <div id="lgpx"></div>
       <button id="lgbtn" aria-label="Details">${IC_CHEV}</button>
-      <div id="lgohlc" hidden></div>
+      <div id="lgind" hidden></div>
       <div id="lgcmp" hidden></div>
     </div>
     <div id="chbar">
@@ -632,7 +658,7 @@ async function loadInstruments(){
     INST.push(it);BYN[it.name]=it;
   });
   if(!INST.length)throw new Error(t('noinst'));
-  /* watchlist fissa: solo i simboli scelti dall'amministratore */
+  /* watchlist fissa: solo i simboli scelti */
   WATCH=[];
   FIXED.forEach(b=>{const x=findBase(b);if(x&&!WATCH.includes(x.name))WATCH.push(x.name)});
   if(!WATCH.length)WATCH=INST.slice(0,8).map(x=>x.name);
@@ -830,7 +856,14 @@ function renderLegend(){
   const last=lastBars.length?lastBars[lastBars.length-1]:null;
   $('lgpx').textContent=last?fmt(last.c,dec):'';
   $('lgdot').className=lastMove&&Date.now()-lastMove<180000?'on':'';
-  $('lgohlc').textContent=last?('O '+fmt(last.o,dec)+'   H '+fmt(last.h,dec)+'   L '+fmt(last.l,dec)+'   C '+fmt(last.c,dec)):'';
+  if(!(window.XH&&XH.on))ohlcShow(last);
+}
+function ohlcShow(b){
+  const o=$('lgohlc');
+  if(!b){o.innerHTML='';return}
+  o.classList.toggle('dn',b.c<b.o);
+  const one=(k,v)=>'<span><span class="k">'+k+'</span><span class="v">'+fmt(v,dec)+'</span></span>';
+  o.innerHTML='<span class="gp">'+one('O',b.o)+one('H',b.h)+'</span><span class="gp">'+one('L',b.l)+one('C',b.c)+'</span>';
 }
 function renderSymPill(){
   const it=BYN[cur];if(!it)return;
@@ -906,7 +939,7 @@ function tagLoop(){
   tg.style.top=y+'px';
   tg.style.minWidth=chart.priceScale('right').width()+'px';
 }
-$('lgbtn').onclick=()=>{$('lgohlc').hidden=!$('lgohlc').hidden;$('lgbtn').classList.toggle('open',!$('lgohlc').hidden)};
+$('lgbtn').onclick=()=>{const g=$('lgind');g.textContent=window.pt?pt('noind'):'';g.hidden=!g.hidden;$('lgbtn').classList.toggle('open',!g.hidden)};
 
 /* ---------- schede in basso ---------- */
 function showTab(x){
@@ -921,7 +954,15 @@ function showTab(x){
   if(x==='wl')refreshWL(false);
   if(x==='ch'){tagText();if(series&&lastBars.length)tick()}
 }
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
+document.querySelectorAll('.tab').forEach(b=>{
+  const p=b.querySelector('svg path');if(p&&b.dataset.t==='wl')p.setAttribute('pathLength','1');
+  b.onclick=()=>{
+    b.classList.remove('anim');void b.offsetWidth;b.classList.add('anim');
+    clearTimeout(b._an);b._an=setTimeout(()=>b.classList.remove('anim'),900);
+    if(b.dataset.t==='pf'&&tab==='pf'&&window.PF)PF.page=null;
+    showTab(b.dataset.t);
+  };
+});
 $('mini').onclick=()=>showTab('ch');
 
 /* ---------- fogli dal basso ---------- */
@@ -1112,8 +1153,8 @@ async function idbDel(k){const d=await idb();return new Promise((res,rej)=>{cons
 async function saveCreds(){
   const c=sess;if(!c)throw new Error('no session');
   const cred=await navigator.credentials.create({publicKey:{
-    rp:{name:'Trading Charts',id:location.hostname},
-    user:{id:rnd(16),name:'Trading Charts',displayName:'Trading Charts'},
+    rp:{name:'Nexus Charts',id:location.hostname},
+    user:{id:rnd(16),name:'Nexus Charts',displayName:'Nexus Charts'},
     challenge:rnd(32),
     pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
     authenticatorSelection:{authenticatorAttachment:'platform',residentKey:'required',requireResidentKey:true,userVerification:'required'},
@@ -2079,16 +2120,17 @@ function shareChart(){
     }
     const fy=headH+box.height;
     c.save();if(!dark)c.filter='invert(1)';try{c.drawImage(shareLogo,14,fy+6,32,32)}catch(e){}c.restore();
-    c.fillStyle=fg;c.font='700 15px -apple-system,system-ui,sans-serif';c.fillText('TradingCharts',52,fy+27);
+    c.fillStyle=fg;c.font='700 15px -apple-system,system-ui,sans-serif';c.fillText('NexusCharts',52,fy+27);
     c.fillStyle=dark?'#8e8e93':'#6b6b70';c.font='13px -apple-system,system-ui,sans-serif';
     const ds=new Date().toLocaleString(LOC[lang]||'it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
     c.fillText(ds,W-14-c.measureText(ds).width,fy+27);
     /* tutto sincrono fino alla condivisione: iPhone la permette solo subito dopo il tocco */
-    const url=cv.toDataURL('image/png'),bin=atob(url.split(',')[1]),arr=new Uint8Array(bin.length);
+    /* JPEG e senza titolo: cosi' iPhone mostra l'anteprima dell'immagine nel foglio di condivisione */
+    const url=cv.toDataURL('image/jpeg',0.93),bin=atob(url.split(',')[1]),arr=new Uint8Array(bin.length);
     for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
-    const file=new File([arr],'TradingCharts_'+cur+'_'+res+'.png',{type:'image/png'});
+    const file=new File([arr],'NexusCharts_'+cur+'_'+res+'.jpg',{type:'image/jpeg',lastModified:Date.now()});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
-      navigator.share({files:[file],title:'TradingCharts'}).catch(e=>{if(!e||e.name!=='AbortError')showShot(url)});
+      navigator.share({files:[file]}).catch(e=>{if(!e||e.name!=='AbortError')showShot(url)});
     }else showShot(url);
   }catch(e){msg(errText(e))}
 }
@@ -2361,12 +2403,9 @@ function xhBar(time){
 }
 function xhMove(p){
   const b=p&&p.time!=null&&p.point?xhBar(p.time):null;
-  if(!b){if(XH.on){XH.on=false;$('lgohlc').hidden=!$('lgbtn').classList.contains('open');$('lgohlc').classList.remove('xh');renderLegend()}return}
+  if(!b){if(XH.on){XH.on=false;renderLegend()}return}
   XH.on=true;
-  const up=b.c>=b.o,o=$('lgohlc');
-  o.hidden=false;o.classList.add('xh');o.classList.toggle('dn',!up);
-  o.textContent='O '+fmt(b.o,dec)+'   H '+fmt(b.h,dec)+'   L '+fmt(b.l,dec)+'   C '+fmt(b.c,dec);
-  $('lgpx').textContent=fmt(b.c,dec);
+  ohlcShow(b);
 }
 (function hook(){
   if(!chart){setTimeout(hook,500);return}
@@ -2486,14 +2525,14 @@ renderSymPillTF();
    (le credenziali del broker stanno solo li', mai nell'app)
    ===================================================================== */
 var FRT={
- it:{other:"Questo codice è già usato su un altro telefono. Ogni codice vale per un solo telefono: richiedine uno nuovo su Telegram.",used:"in uso",free:"non ancora usato",have:"Hai un codice amico?",ph:"Codice amico",enter:"Entra col codice",lost:"Codice perso? Richiedilo su Telegram",back:"Accedi con email e password",bad:"Codice non valido. Controllalo o richiedine uno nuovo.",expired:"Il tuo codice non è più valido. Richiedine uno nuovo su Telegram.",tgmsg:"Ciao ALBAEXE, mi serve un codice per accedere a TradingCharts",
-   codes:"Codici amici",keyq:"Scrivi la tua chiave amministratore (la ADMIN_KEY che hai messo su Cloudflare). Serve una volta sola: poi resta su questo iPhone.",keyph:"Chiave amministratore",keysave:"Salva chiave",keybad:"Chiave sbagliata.",name:"Nome dell'amico",gen:"Genera codice",newc:"Nuovo codice",copy:"Copia",copied:"Copiato.",send:"Invia",active:"Codici attivi",none:"Nessun codice attivo.",delq:"Disattivare questo codice? Chi lo usa non potrà più entrare.",forgetkey:"Dimentica la chiave su questo iPhone",share:"Ecco il tuo codice per TradingCharts: ",howto:"Apri l'app, tocca «Hai un codice amico?» e scrivilo.",noname:"senza nome",neterr:"Servizio amici non raggiungibile."},
- es:{other:"Este código ya se usa en otro teléfono. Cada código vale para un solo teléfono: pide uno nuevo en Telegram.",used:"en uso",free:"sin usar",have:"¿Tienes un código de amigo?",ph:"Código de amigo",enter:"Entrar con el código",lost:"¿Perdiste el código? Pídelo en Telegram",back:"Entrar con email y contraseña",bad:"Código no válido. Revísalo o pide uno nuevo.",expired:"Tu código ya no es válido. Pide uno nuevo en Telegram.",tgmsg:"Hola ALBAEXE, necesito un código para entrar en TradingCharts",
-   codes:"Códigos de amigos",keyq:"Escribe tu clave de administrador (la ADMIN_KEY de Cloudflare). Solo una vez: luego se queda en este iPhone.",keyph:"Clave de administrador",keysave:"Guardar clave",keybad:"Clave incorrecta.",name:"Nombre del amigo",gen:"Generar código",newc:"Código nuevo",copy:"Copiar",copied:"Copiado.",send:"Enviar",active:"Códigos activos",none:"No hay códigos activos.",delq:"¿Desactivar este código? Quien lo use ya no podrá entrar.",forgetkey:"Olvidar la clave en este iPhone",share:"Este es tu código para TradingCharts: ",howto:"Abre la app, toca «¿Tienes un código de amigo?» y escríbelo.",noname:"sin nombre",neterr:"Servicio de amigos no disponible."},
- en:{other:"This code is already used on another phone. Each code works on one phone only: ask for a new one on Telegram.",used:"in use",free:"not used yet",have:"Have a friend code?",ph:"Friend code",enter:"Enter with code",lost:"Lost your code? Ask on Telegram",back:"Sign in with email and password",bad:"Invalid code. Check it or ask for a new one.",expired:"Your code is no longer valid. Ask for a new one on Telegram.",tgmsg:"Hi ALBAEXE, I need a code to sign in to TradingCharts",
-   codes:"Friend codes",keyq:"Type your admin key (the ADMIN_KEY you set on Cloudflare). Only once: then it stays on this iPhone.",keyph:"Admin key",keysave:"Save key",keybad:"Wrong key.",name:"Friend's name",gen:"Generate code",newc:"New code",copy:"Copy",copied:"Copied.",send:"Send",active:"Active codes",none:"No active codes.",delq:"Deactivate this code? Whoever uses it won't be able to sign in.",forgetkey:"Forget the key on this iPhone",share:"Here is your TradingCharts code: ",howto:"Open the app, tap “Have a friend code?” and type it.",noname:"no name",neterr:"Friend service unreachable."},
- fr:{other:"Ce code est déjà utilisé sur un autre téléphone. Chaque code ne vaut que pour un téléphone : demandes-en un nouveau sur Telegram.",used:"utilisé",free:"pas encore utilisé",have:"Tu as un code ami ?",ph:"Code ami",enter:"Entrer avec le code",lost:"Code perdu ? Demande-le sur Telegram",back:"Se connecter avec email et mot de passe",bad:"Code non valide. Vérifie-le ou demandes-en un nouveau.",expired:"Ton code n'est plus valide. Demandes-en un nouveau sur Telegram.",tgmsg:"Salut ALBAEXE, il me faut un code pour entrer dans TradingCharts",
-   codes:"Codes amis",keyq:"Écris ta clé administrateur (l'ADMIN_KEY mise sur Cloudflare). Une seule fois : elle reste ensuite sur cet iPhone.",keyph:"Clé administrateur",keysave:"Enregistrer la clé",keybad:"Clé incorrecte.",name:"Nom de l'ami",gen:"Générer un code",newc:"Nouveau code",copy:"Copier",copied:"Copié.",send:"Envoyer",active:"Codes actifs",none:"Aucun code actif.",delq:"Désactiver ce code ? La personne qui l'utilise ne pourra plus entrer.",forgetkey:"Oublier la clé sur cet iPhone",share:"Voici ton code TradingCharts : ",howto:"Ouvre l'app, touche « Tu as un code ami ? » et écris-le.",noname:"sans nom",neterr:"Service amis injoignable."}
+ it:{other:"Questo codice è già usato su un altro telefono. Ogni codice vale per un solo telefono: richiedine uno nuovo su Telegram.",used:"in uso",free:"non ancora usato",have:"Hai un codice amico?",ph:"Codice amico",enter:"Entra col codice",lost:"Codice perso? Richiedilo su Telegram",back:"Accedi con email e password",bad:"Codice non valido. Controllalo o richiedine uno nuovo.",expired:"Il tuo codice non è più valido. Richiedine uno nuovo su Telegram.",tgmsg:"Ciao ALBAEXE, mi serve un codice per accedere a NexusCharts",
+   codes:"Codici amici",keyq:"Scrivi la tua chiave amministratore (la ADMIN_KEY che hai messo su Cloudflare). Serve una volta sola: poi resta su questo iPhone.",keyph:"Chiave amministratore",keysave:"Salva chiave",keybad:"Chiave sbagliata.",name:"Nome dell'amico",gen:"Genera codice",newc:"Nuovo codice",copy:"Copia",copied:"Copiato.",send:"Invia",active:"Codici attivi",none:"Nessun codice attivo.",delq:"Disattivare questo codice? Chi lo usa non potrà più entrare.",forgetkey:"Dimentica la chiave su questo iPhone",share:"Ecco il tuo codice per NexusCharts: ",howto:"Apri l'app, tocca «Hai un codice amico?» e scrivilo.",noname:"senza nome",neterr:"Servizio amici non raggiungibile."},
+ es:{other:"Este código ya se usa en otro teléfono. Cada código vale para un solo teléfono: pide uno nuevo en Telegram.",used:"en uso",free:"sin usar",have:"¿Tienes un código de amigo?",ph:"Código de amigo",enter:"Entrar con el código",lost:"¿Perdiste el código? Pídelo en Telegram",back:"Entrar con email y contraseña",bad:"Código no válido. Revísalo o pide uno nuevo.",expired:"Tu código ya no es válido. Pide uno nuevo en Telegram.",tgmsg:"Hola ALBAEXE, necesito un código para entrar en NexusCharts",
+   codes:"Códigos de amigos",keyq:"Escribe tu clave de administrador (la ADMIN_KEY de Cloudflare). Solo una vez: luego se queda en este iPhone.",keyph:"Clave de administrador",keysave:"Guardar clave",keybad:"Clave incorrecta.",name:"Nombre del amigo",gen:"Generar código",newc:"Código nuevo",copy:"Copiar",copied:"Copiado.",send:"Enviar",active:"Códigos activos",none:"No hay códigos activos.",delq:"¿Desactivar este código? Quien lo use ya no podrá entrar.",forgetkey:"Olvidar la clave en este iPhone",share:"Este es tu código para NexusCharts: ",howto:"Abre la app, toca «¿Tienes un código de amigo?» y escríbelo.",noname:"sin nombre",neterr:"Servicio de amigos no disponible."},
+ en:{other:"This code is already used on another phone. Each code works on one phone only: ask for a new one on Telegram.",used:"in use",free:"not used yet",have:"Have a friend code?",ph:"Friend code",enter:"Enter with code",lost:"Lost your code? Ask on Telegram",back:"Sign in with email and password",bad:"Invalid code. Check it or ask for a new one.",expired:"Your code is no longer valid. Ask for a new one on Telegram.",tgmsg:"Hi ALBAEXE, I need a code to sign in to NexusCharts",
+   codes:"Friend codes",keyq:"Type your admin key (the ADMIN_KEY you set on Cloudflare). Only once: then it stays on this iPhone.",keyph:"Admin key",keysave:"Save key",keybad:"Wrong key.",name:"Friend's name",gen:"Generate code",newc:"New code",copy:"Copy",copied:"Copied.",send:"Send",active:"Active codes",none:"No active codes.",delq:"Deactivate this code? Whoever uses it won't be able to sign in.",forgetkey:"Forget the key on this iPhone",share:"Here is your NexusCharts code: ",howto:"Open the app, tap “Have a friend code?” and type it.",noname:"no name",neterr:"Friend service unreachable."},
+ fr:{other:"Ce code est déjà utilisé sur un autre téléphone. Chaque code ne vaut que pour un téléphone : demandes-en un nouveau sur Telegram.",used:"utilisé",free:"pas encore utilisé",have:"Tu as un code ami ?",ph:"Code ami",enter:"Entrer avec le code",lost:"Code perdu ? Demande-le sur Telegram",back:"Se connecter avec email et mot de passe",bad:"Code non valide. Vérifie-le ou demandes-en un nouveau.",expired:"Ton code n'est plus valide. Demandes-en un nouveau sur Telegram.",tgmsg:"Salut ALBAEXE, il me faut un code pour entrer dans NexusCharts",
+   codes:"Codes amis",keyq:"Écris ta clé administrateur (l'ADMIN_KEY mise sur Cloudflare). Une seule fois : elle reste ensuite sur cet iPhone.",keyph:"Clé administrateur",keysave:"Enregistrer la clé",keybad:"Clé incorrecte.",name:"Nom de l'ami",gen:"Générer un code",newc:"Nouveau code",copy:"Copier",copied:"Copié.",send:"Envoyer",active:"Codes actifs",none:"Aucun code actif.",delq:"Désactiver ce code ? La personne qui l'utilise ne pourra plus entrer.",forgetkey:"Oublier la clé sur cet iPhone",share:"Voici ton code NexusCharts : ",howto:"Ouvre l'app, touche « Tu as un code ami ? » et écris-le.",noname:"sans nom",neterr:"Service amis injoignable."}
 };
 function ft(k){return(FRT[lang]&&FRT[lang][k])||FRT.it[k]||k}
 /* identita' di questo telefono: creata una volta, resta finche' non si ripristina l'app */
@@ -2643,10 +2682,10 @@ function openCodes(fresh){
    PROFILO: scheda in basso col logo, tutte le impostazioni dell'app
    ===================================================================== */
 var PFT={
- it:{profile:"Profilo",look:"Aspetto",theme:"Tema",language:"Lingua",friends:"Amici",app:"App",own:"Conto demo TradeLocker",fr:"Accesso con codice",codesub:"Crea e gestisci i codici per i tuoi amici",refsub:"Ricarica i dati e controlla gli aggiornamenti",ressub:"Cancella tutto ciò che è salvato su questo iPhone"},
- es:{profile:"Perfil",look:"Apariencia",theme:"Tema",language:"Idioma",friends:"Amigos",app:"App",own:"Cuenta demo TradeLocker",fr:"Acceso con código",codesub:"Crea y gestiona los códigos de tus amigos",refsub:"Recarga los datos y busca actualizaciones",ressub:"Borra todo lo guardado en este iPhone"},
- en:{profile:"Profile",look:"Appearance",theme:"Theme",language:"Language",friends:"Friends",app:"App",own:"TradeLocker demo account",fr:"Signed in with code",codesub:"Create and manage your friends' codes",refsub:"Reload data and check for updates",ressub:"Erase everything saved on this iPhone"},
- fr:{profile:"Profil",look:"Apparence",theme:"Thème",language:"Langue",friends:"Amis",app:"App",own:"Compte démo TradeLocker",fr:"Accès avec code",codesub:"Crée et gère les codes de tes amis",refsub:"Recharge les données et cherche les mises à jour",ressub:"Efface tout ce qui est enregistré sur cet iPhone"}
+ it:{settings:"Impostazioni",setsub:"Aspetto, lingua e dati dell'app",data:"Dati",noind:"Nessun indicatore attivo",profile:"Profilo",look:"Aspetto",theme:"Tema",language:"Lingua",friends:"Amici",app:"App",own:"Conto demo TradeLocker",fr:"Accesso con codice",codesub:"Crea e gestisci i codici per i tuoi amici",refsub:"Ricarica i dati e controlla gli aggiornamenti",ressub:"Cancella tutto ciò che è salvato su questo iPhone"},
+ es:{settings:"Ajustes",setsub:"Apariencia, idioma y datos de la app",data:"Datos",noind:"Ningún indicador activo",profile:"Perfil",look:"Apariencia",theme:"Tema",language:"Idioma",friends:"Amigos",app:"App",own:"Cuenta demo TradeLocker",fr:"Acceso con código",codesub:"Crea y gestiona los códigos de tus amigos",refsub:"Recarga los datos y busca actualizaciones",ressub:"Borra todo lo guardado en este iPhone"},
+ en:{settings:"Settings",setsub:"Appearance, language and app data",data:"Data",noind:"No active indicators",profile:"Profile",look:"Appearance",theme:"Theme",language:"Language",friends:"Friends",app:"App",own:"TradeLocker demo account",fr:"Signed in with code",codesub:"Create and manage your friends' codes",refsub:"Reload data and check for updates",ressub:"Erase everything saved on this iPhone"},
+ fr:{settings:"Réglages",setsub:"Apparence, langue et données de l'app",data:"Données",noind:"Aucun indicateur actif",profile:"Profil",look:"Apparence",theme:"Thème",language:"Langue",friends:"Amis",app:"App",own:"Compte démo TradeLocker",fr:"Accès avec code",codesub:"Crée et gère les codes de tes amis",refsub:"Recharge les données et cherche les mises à jour",ressub:"Efface tout ce qui est enregistré sur cet iPhone"}
 };
 function pt(k){const P=window.PFT;return P?((P[lang]&&P[lang][k])||P.it[k]||k):k}
 var PIC={
@@ -2654,6 +2693,7 @@ var PIC={
   refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
   reset:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
   out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
   moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
   sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
 };
@@ -2669,23 +2709,41 @@ function pfGroup(p,label){
   if(label){const l=document.createElement('div');l.className='pfl';l.textContent=label;p.appendChild(l)}
   const g=document.createElement('div');g.className='pfg';p.appendChild(g);return g;
 }
+var PF={page:null};
 function renderProfile(){
   const p=$('pf-screen');if(!p)return;
-  const st=p.scrollTop;p.innerHTML='';
+  const st=PF.keep?p.scrollTop:0;PF.keep=false;p.innerHTML='';
+  if(PF.page==='settings'){renderSettings(p);p.scrollTop=st;return}
   /* testa: logo e nome */
   const h=document.createElement('div');h.className='pfhead';
-  h.innerHTML='<img alt="" src="'+LOGO_SRC+'"><div class="pfname">TradingCharts</div>';
+  h.innerHTML='<img alt="" src="'+LOGO_SRC+'"><div class="pfname">NexusCharts</div>';
   const sub=document.createElement('div');sub.className='pfsub';
   let sv='';try{sv=localStorage.getItem('tc_server')||''}catch(e){}
   sub.textContent=FRIEND?pt('fr')+' '+fshow(FRIEND):pt('own')+(sv?' · '+sv:'');
   h.appendChild(sub);p.appendChild(h);
-  /* aspetto */
+  let g=pfGroup(p,'');
+  const r=pfRow(g,PIC.gear,pt('settings'),pt('setsub'),()=>{PF.page='settings';renderProfile();p.firstChild&&p.firstChild.parentNode.classList.add('pfin');setTimeout(()=>p.classList.remove('pfin'),400)});
+  r.classList.add('chev');
+  if(!FRIEND){g=pfGroup(p,pt('friends'));pfRow(g,PIC.codes,ft('codes'),pt('codesub'),()=>openCodes()).classList.add('chev')}
+  g=pfGroup(p,pt('app'));
+  pfRow(g,PIC.refresh,t('refresh'),pt('refsub'),()=>doRefresh());
+  g=pfGroup(p,'');
+  pfRow(g,PIC.out,t('logout'),'',logout,'danger');
+  p.scrollTop=st;
+}
+function renderSettings(p){
+  const bar=document.createElement('div');bar.className='pfbar';
+  const bk=document.createElement('button');bk.className='pfback';bk.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span></span>';
+  bk.lastChild.textContent=pt('profile');
+  bk.onclick=()=>{PF.page=null;renderProfile();p.classList.add('pfout');setTimeout(()=>p.classList.remove('pfout'),400)};
+  const ti=document.createElement('div');ti.className='pftitle';ti.textContent=pt('settings');
+  bar.appendChild(bk);bar.appendChild(ti);p.appendChild(bar);
   let g=pfGroup(p,pt('look'));
   const th=document.documentElement.dataset.theme||'dark';
   const seg=document.createElement('div');seg.className='pfseg';
   [['dark',t('dark'),PIC.moon],['light',t('light'),PIC.sun]].forEach(([k,txt,ic])=>{
     const b=document.createElement('button');b.className=k===th?'on':'';b.innerHTML=ic+'<span></span>';b.lastChild.textContent=txt;
-    b.onclick=()=>{setTheme(k);renderProfile()};seg.appendChild(b);
+    b.onclick=()=>{setTheme(k);PF.keep=true;renderProfile()};seg.appendChild(b);
   });
   g.appendChild(seg);
   g=pfGroup(p,pt('language'));
@@ -2694,17 +2752,10 @@ function renderProfile(){
     b.innerHTML='<span class="fl2"></span><span class="pftx"><span></span></span>';
     b.firstChild.textContent=FLAGS[k];b.querySelector('.pftx span').textContent=NAMES[k];
     if(k===lang){const c=document.createElement('span');c.className='ck';c.textContent='✓';b.appendChild(c)}
-    b.onclick=()=>{lang=k;try{localStorage.setItem('lang',k)}catch(e){}applyLang();renderProfile()};
+    b.onclick=()=>{lang=k;try{localStorage.setItem('lang',k)}catch(e){}PF.keep=true;applyLang();renderProfile()};
     g.appendChild(b);
   });
-  /* amici: solo per chi entra con le proprie credenziali */
-  if(!FRIEND){g=pfGroup(p,pt('friends'));pfRow(g,PIC.codes,ft('codes'),pt('codesub'),()=>openCodes())}
-  /* app */
-  g=pfGroup(p,pt('app'));
-  pfRow(g,PIC.refresh,t('refresh'),pt('refsub'),()=>doRefresh());
+  g=pfGroup(p,pt('data'));
   pfRow(g,PIC.reset,t('reset'),pt('ressub'),()=>resetApp());
-  g=pfGroup(p,'');
-  pfRow(g,PIC.out,t('logout'),'',logout,'danger');
-  p.scrollTop=st;
 }
 if(window.renderAll&&$('tabpf'))$('tabpf').textContent=pt('profile');
