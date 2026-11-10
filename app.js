@@ -1,4 +1,4 @@
-const VERSION='0.15.0';
+const VERSION='0.16.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -54,11 +54,15 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #forget,#reset{background:transparent;border:0;color:var(--muted);font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
 #reset{color:var(--faint)}
 .lnk{background:transparent;border:0;color:var(--muted);font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
-#fopen{color:var(--goldfg);font-weight:600;font-size:14px;text-decoration:none;margin-top:6px}
+#fopen{color:#4d84ff;font-weight:600;font-size:14px;text-decoration:none;margin-top:6px}
+#fgo{background:var(--blue);color:#fff}
 #fform{margin:0}
 #fcode{text-align:center;font-size:22px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:13px}
 #fcode::placeholder{font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
 #flost{color:var(--goldfg)}
+.sh-i .bnd{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+.sh-i .bnd.on{color:var(--up)}
+.sh-i .bnd+.addb{margin-left:10px}
 .fcodebox{margin:6px 18px 4px;padding:14px 10px 6px;border-radius:18px;background:var(--glasssel);text-align:center}
 .fcodebig{font-size:30px;font-weight:800;letter-spacing:.16em;font-variant-numeric:tabular-nums;color:var(--goldfg);user-select:all;-webkit-user-select:all}
 #ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:var(--faint)}
@@ -563,7 +567,7 @@ function api(path,opt={}){
   return p;
 }
 const paused=()=>Date.now()<apiPauseUntil;
-const auth=()=>({Authorization:'Bearer '+tok,accNum:String(accNum)});
+const auth=()=>FRIEND?{Authorization:'Bearer '+tok,accNum:String(accNum),'X-Device':devId()}:{Authorization:'Bearer '+tok,accNum:String(accNum)};
 const SECS={'1m':60,'5m':300,'15m':900,'1H':3600,'4H':14400,'1D':86400};
 async function barsFor(it,reso,from,to){
   const q=new URLSearchParams({routeId:it.route,from:from,to:to,resolution:reso,tradableInstrumentId:it.tid});
@@ -1048,6 +1052,7 @@ async function authed(path){
   catch(e){
     if(e.status===401&&sess){await relogin();return await api(path,{headers:auth()})}
     if(e.status===401&&!sess){if(FRIEND)friendLost();else sessionLost()}
+    if(e.status===403&&FRIEND)friendLost('dev');
     throw e;
   }
 }
@@ -2455,24 +2460,33 @@ renderSymPillTF();
    (le credenziali del broker stanno solo li', mai nell'app)
    ===================================================================== */
 var FRT={
- it:{have:"Hai un codice amico?",ph:"Codice amico",enter:"Entra col codice",lost:"Codice perso? Richiedilo su Telegram",back:"Accedi con email e password",bad:"Codice non valido. Controllalo o richiedine uno nuovo.",expired:"Il tuo codice non è più valido. Richiedine uno nuovo su Telegram.",tgmsg:"Ciao, mi serve un codice per TradingCharts",
+ it:{other:"Questo codice è già usato su un altro telefono. Ogni codice vale per un solo telefono: richiedine uno nuovo su Telegram.",used:"in uso",free:"non ancora usato",have:"Hai un codice amico?",ph:"Codice amico",enter:"Entra col codice",lost:"Codice perso? Richiedilo su Telegram",back:"Accedi con email e password",bad:"Codice non valido. Controllalo o richiedine uno nuovo.",expired:"Il tuo codice non è più valido. Richiedine uno nuovo su Telegram.",tgmsg:"Ciao ALBAEXE, mi serve un codice per accedere a TradingCharts",
    codes:"Codici amici",keyq:"Scrivi la tua chiave amministratore (la ADMIN_KEY che hai messo su Cloudflare). Serve una volta sola: poi resta su questo iPhone.",keyph:"Chiave amministratore",keysave:"Salva chiave",keybad:"Chiave sbagliata.",name:"Nome dell'amico",gen:"Genera codice",newc:"Nuovo codice",copy:"Copia",copied:"Copiato.",send:"Invia",active:"Codici attivi",none:"Nessun codice attivo.",delq:"Disattivare questo codice? Chi lo usa non potrà più entrare.",forgetkey:"Dimentica la chiave su questo iPhone",share:"Ecco il tuo codice per TradingCharts: ",howto:"Apri l'app, tocca «Hai un codice amico?» e scrivilo.",noname:"senza nome",neterr:"Servizio amici non raggiungibile."},
- es:{have:"¿Tienes un código de amigo?",ph:"Código de amigo",enter:"Entrar con el código",lost:"¿Perdiste el código? Pídelo en Telegram",back:"Entrar con email y contraseña",bad:"Código no válido. Revísalo o pide uno nuevo.",expired:"Tu código ya no es válido. Pide uno nuevo en Telegram.",tgmsg:"Hola, necesito un código para TradingCharts",
+ es:{other:"Este código ya se usa en otro teléfono. Cada código vale para un solo teléfono: pide uno nuevo en Telegram.",used:"en uso",free:"sin usar",have:"¿Tienes un código de amigo?",ph:"Código de amigo",enter:"Entrar con el código",lost:"¿Perdiste el código? Pídelo en Telegram",back:"Entrar con email y contraseña",bad:"Código no válido. Revísalo o pide uno nuevo.",expired:"Tu código ya no es válido. Pide uno nuevo en Telegram.",tgmsg:"Hola ALBAEXE, necesito un código para entrar en TradingCharts",
    codes:"Códigos de amigos",keyq:"Escribe tu clave de administrador (la ADMIN_KEY de Cloudflare). Solo una vez: luego se queda en este iPhone.",keyph:"Clave de administrador",keysave:"Guardar clave",keybad:"Clave incorrecta.",name:"Nombre del amigo",gen:"Generar código",newc:"Código nuevo",copy:"Copiar",copied:"Copiado.",send:"Enviar",active:"Códigos activos",none:"No hay códigos activos.",delq:"¿Desactivar este código? Quien lo use ya no podrá entrar.",forgetkey:"Olvidar la clave en este iPhone",share:"Este es tu código para TradingCharts: ",howto:"Abre la app, toca «¿Tienes un código de amigo?» y escríbelo.",noname:"sin nombre",neterr:"Servicio de amigos no disponible."},
- en:{have:"Have a friend code?",ph:"Friend code",enter:"Enter with code",lost:"Lost your code? Ask on Telegram",back:"Sign in with email and password",bad:"Invalid code. Check it or ask for a new one.",expired:"Your code is no longer valid. Ask for a new one on Telegram.",tgmsg:"Hi, I need a code for TradingCharts",
+ en:{other:"This code is already used on another phone. Each code works on one phone only: ask for a new one on Telegram.",used:"in use",free:"not used yet",have:"Have a friend code?",ph:"Friend code",enter:"Enter with code",lost:"Lost your code? Ask on Telegram",back:"Sign in with email and password",bad:"Invalid code. Check it or ask for a new one.",expired:"Your code is no longer valid. Ask for a new one on Telegram.",tgmsg:"Hi ALBAEXE, I need a code to sign in to TradingCharts",
    codes:"Friend codes",keyq:"Type your admin key (the ADMIN_KEY you set on Cloudflare). Only once: then it stays on this iPhone.",keyph:"Admin key",keysave:"Save key",keybad:"Wrong key.",name:"Friend's name",gen:"Generate code",newc:"New code",copy:"Copy",copied:"Copied.",send:"Send",active:"Active codes",none:"No active codes.",delq:"Deactivate this code? Whoever uses it won't be able to sign in.",forgetkey:"Forget the key on this iPhone",share:"Here is your TradingCharts code: ",howto:"Open the app, tap “Have a friend code?” and type it.",noname:"no name",neterr:"Friend service unreachable."},
- fr:{have:"Tu as un code ami ?",ph:"Code ami",enter:"Entrer avec le code",lost:"Code perdu ? Demande-le sur Telegram",back:"Se connecter avec email et mot de passe",bad:"Code non valide. Vérifie-le ou demandes-en un nouveau.",expired:"Ton code n'est plus valide. Demandes-en un nouveau sur Telegram.",tgmsg:"Salut, il me faut un code pour TradingCharts",
+ fr:{other:"Ce code est déjà utilisé sur un autre téléphone. Chaque code ne vaut que pour un téléphone : demandes-en un nouveau sur Telegram.",used:"utilisé",free:"pas encore utilisé",have:"Tu as un code ami ?",ph:"Code ami",enter:"Entrer avec le code",lost:"Code perdu ? Demande-le sur Telegram",back:"Se connecter avec email et mot de passe",bad:"Code non valide. Vérifie-le ou demandes-en un nouveau.",expired:"Ton code n'est plus valide. Demandes-en un nouveau sur Telegram.",tgmsg:"Salut ALBAEXE, il me faut un code pour entrer dans TradingCharts",
    codes:"Codes amis",keyq:"Écris ta clé administrateur (l'ADMIN_KEY mise sur Cloudflare). Une seule fois : elle reste ensuite sur cet iPhone.",keyph:"Clé administrateur",keysave:"Enregistrer la clé",keybad:"Clé incorrecte.",name:"Nom de l'ami",gen:"Générer un code",newc:"Nouveau code",copy:"Copier",copied:"Copié.",send:"Envoyer",active:"Codes actifs",none:"Aucun code actif.",delq:"Désactiver ce code ? La personne qui l'utilise ne pourra plus entrer.",forgetkey:"Oublier la clé sur cet iPhone",share:"Voici ton code TradingCharts : ",howto:"Ouvre l'app, touche « Tu as un code ami ? » et écris-le.",noname:"sans nom",neterr:"Service amis injoignable."}
 };
 function ft(k){return(FRT[lang]&&FRT[lang][k])||FRT.it[k]||k}
+/* identita' di questo telefono: creata una volta, resta finche' non si ripristina l'app */
+function devId(){
+  let d=null;try{d=localStorage.getItem('tc_dev')}catch(e){}
+  if(!d||d.length<16){
+    d=[...crypto.getRandomValues(new Uint8Array(18))].map(x=>x.toString(16).padStart(2,'0')).join('');
+    try{localStorage.setItem('tc_dev',d)}catch(e){}
+  }
+  return d;
+}
 const fnorm=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const fshow=c=>{c=fnorm(c);return c.length===8?c.slice(0,4)+'-'+c.slice(4):c};
 
 function friendMode(code){FRIEND=fnorm(code);BASE=WORKER+'/tl';tok=FRIEND;accId='me';accNum='me';sess=null}
 function friendOff(){FRIEND=null;BASE=TL_BASE}
 /* codice tolto dall'amministratore mentre l'amico era dentro */
-function friendLost(){
-  try{localStorage.removeItem('tc_fcode');sessionStorage.setItem('noSplash','1');sessionStorage.setItem('tc_fexp','1')}catch(e){}
+function friendLost(why){
+  try{localStorage.removeItem('tc_fcode');sessionStorage.setItem('noSplash','1');sessionStorage.setItem('tc_fexp',why==='dev'?'dev':'1')}catch(e){}
   location.reload();
 }
 function friendUI(on){
@@ -2497,7 +2511,7 @@ async function friendEnter(code,auto){
     start();
   }catch(e){
     friendOff();
-    if(e&&e.status===401){try{localStorage.removeItem('tc_fcode')}catch(_){}msg(ft('bad'));friendUI(true)}
+    if(e&&(e.status===401||e.status===403)){try{localStorage.removeItem('tc_fcode')}catch(_){}msg(ft(e.status===403?'other':'bad'));friendUI(true)}
     else msg(e&&e.status?errText(e):ft('neterr'));
   }finally{fBusy=false}
 }
@@ -2517,10 +2531,10 @@ fTexts();
 /* all'apertura: l'amico che ha gia' un codice entra da solo */
 (function(){
   let exp=false,na=false;
-  try{exp=sessionStorage.getItem('tc_fexp')==='1';sessionStorage.removeItem('tc_fexp')}catch(e){}
+  try{exp=sessionStorage.getItem('tc_fexp');sessionStorage.removeItem('tc_fexp')}catch(e){}
   try{na=sessionStorage.getItem('noAutoF')==='1';sessionStorage.removeItem('noAutoF')}catch(e){}
   let code=null;try{code=localStorage.getItem('tc_fcode')}catch(e){}
-  if(exp){friendUI(true);setTimeout(()=>msg(ft('expired')),300);return}
+  if(exp){friendUI(true);setTimeout(()=>msg(ft(exp==='dev'?'other':'expired')),300);return}
   if(!code)return;
   friendUI(true);$('fcode').value=fshow(code);
   if(document.body.classList.contains('inapp')||FRIEND||window.__resume)return;   /* gia' dentro (ripresa dopo aggiornamento) */
@@ -2588,7 +2602,9 @@ function openCodes(fresh){
           try{await adm('DELETE','/codes/'+c.code);openCodes()}catch(er){msg(ft('neterr'))}
         };
         const d=c.created?new Date(c.created).toLocaleDateString(LOC[lang]||'it-IT',{day:'2-digit',month:'short'}):'';
-        shItem(list,(c.name||ft('noname'))+'  ·  '+fshow(c.code)+(d?'  ·  '+d:''),{right:del,on:()=>openCodes({code:c.code,name:c.name})});
+        const st=document.createElement('span');st.className='bnd'+(c.bound?' on':'');st.textContent=c.bound?ft('used'):ft('free');
+        const it=shItem(list,(c.name||ft('noname'))+'  ·  '+fshow(c.code)+(d?'  ·  '+d:''),{right:st,on:()=>openCodes({code:c.code,name:c.name})});
+        it.appendChild(del);
       });
     }).catch(e=>{if(e.status===403){try{localStorage.removeItem('tc_admin')}catch(_){}msg(ft('keybad'))}else shEl(list,'sh-note',ft('neterr'))});
     shEl(s,'sh-sep','');
