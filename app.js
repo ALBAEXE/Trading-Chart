@@ -1,4 +1,4 @@
-const VERSION='0.20.1';
+const VERSION='0.21.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -89,6 +89,8 @@ body:not(.inapp) #login,body:not(.inapp) #msg{max-width:340px;margin-left:auto;m
 #login .lnk{height:auto;margin:2px 0;padding:9px}
 body:not(.inapp) #root{display:flex;flex-direction:column;min-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
 body.inapp #reset{display:none}
+html.sa,html.sa body{touch-action:pan-x pan-y}
+html.sa #chartbox{touch-action:none}
 body:not(.inapp) #ver{position:static;text-align:center;margin-top:10px}
 #reset{position:relative;align-self:center;margin:auto auto 0!important;flex:0 0 auto;width:auto;height:auto!important;padding:9px 16px!important;display:flex;align-items:center;gap:7px;overflow:hidden;border-radius:999px!important;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.35);color:var(--danger);font-size:13px!important;font-weight:600;text-decoration:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
 #reset svg{width:15px;height:15px;position:relative}
@@ -2913,3 +2915,22 @@ function guideTexts(){if($('gdbtx'))$('gdbtx').textContent=gd('btn')}
 $('gdbtn').onclick=openGuide;
 $('gdbtn').hidden=isStandalone();
 guideTexts();
+
+
+/* =====================================================================
+   ZOOM: bloccato solo nell'app aperta dalla Home (a tutto schermo).
+   Nel browser resta lo zoom normale. Il grafico usa sempre il suo pizzico.
+   ===================================================================== */
+(function(){
+  if(!isStandalone())return;
+  document.documentElement.classList.add('sa');
+  /* niente ingrandimento automatico dei campi e niente zoom (Android lo rispetta) */
+  const vp=document.querySelector('meta[name="viewport"]');
+  if(vp)vp.setAttribute('content','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover');
+  const inChart=e=>{const c=$('chartbox');return c&&e.target&&c.contains(e.target)};
+  /* iPhone: annulla il gesto di zoom con due dita (il grafico usa i suoi tocchi, non questo) */
+  ['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+  /* due dita fuori dal grafico: niente zoom della pagina */
+  document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1&&!inChart(e))e.preventDefault()},{passive:false});
+  /* il doppio tocco che ingrandisce e' gia' bloccato dal CSS (touch-action) */
+})();
