@@ -1,4 +1,4 @@
-const VERSION='0.20.0';
+const VERSION='0.20.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -47,7 +47,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #brandimg{width:96px;height:96px;display:block;visibility:hidden;filter:var(--logo)}
 #brand.show #brandimg{visibility:visible}
 #fly{position:fixed;z-index:101;margin:0;padding:0;border:0;pointer-events:none;display:block;opacity:0;transform-origin:50% 50%;will-change:transform}
-#msg{min-height:22px;font-size:13px;color:var(--muted);word-break:break-word;margin:6px 0}
+#msg{min-height:22px;margin-bottom:34px!important;font-size:13px;color:var(--muted);word-break:break-word;margin:6px 0}
 #fid{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--surf);border:1px solid var(--gold);color:var(--goldfg);margin-bottom:10px}
 #fid svg{width:22px;height:22px;display:block}
 #lform{margin:0}
@@ -87,7 +87,10 @@ body:not(.inapp) #login,body:not(.inapp) #msg{max-width:340px;margin-left:auto;m
 #login #fcode::placeholder{font-size:20px;letter-spacing:.16em;color:var(--faint);text-transform:none}
 #fgo{background:var(--blue);color:#fff}
 #login .lnk{height:auto;margin:2px 0;padding:9px}
-#reset{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 30px);width:auto;height:auto!important;margin:0!important;padding:9px 16px!important;display:flex;align-items:center;gap:7px;overflow:hidden;border-radius:999px!important;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.35);color:var(--danger);font-size:13px!important;font-weight:600;text-decoration:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+body:not(.inapp) #root{display:flex;flex-direction:column;min-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+body.inapp #reset{display:none}
+body:not(.inapp) #ver{position:static;text-align:center;margin-top:10px}
+#reset{position:relative;align-self:center;margin:auto auto 0!important;flex:0 0 auto;width:auto;height:auto!important;padding:9px 16px!important;display:flex;align-items:center;gap:7px;overflow:hidden;border-radius:999px!important;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.35);color:var(--danger);font-size:13px!important;font-weight:600;text-decoration:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
 #reset svg{width:15px;height:15px;position:relative}
 #rstx{position:relative}
 #rsfill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,69,58,.28)}
@@ -380,9 +383,9 @@ document.getElementById('root').innerHTML=`
   <button id="fopen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg><span id="fopentx"></span></button>
   <form id="fform" novalidate hidden><div id="fhead"></div><input id="fcode" name="fcode" placeholder="Codice amico" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"><button id="fgo" type="submit"></button><button id="flost" type="button" class="lnk"></button><button id="fback" type="button" class="lnk"></button></form>
   <button id="forget" type="button" hidden></button>
-  <button id="reset" type="button"><span id="rsfill"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><span id="rstx"></span></button>
 </div>
 <div id="msg"></div>
+<button id="reset" type="button"><span id="rsfill"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><span id="rstx"></span></button>
 <div id="shell" hidden>
   <section id="wl-screen" class="screen">
     <div id="bar" hidden><span id="bartxt"></span><button id="barsave"></button><button id="barno" class="no"></button></div>
