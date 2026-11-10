@@ -1,4 +1,4 @@
-const VERSION='0.18.1';
+const VERSION='0.19.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -65,6 +65,33 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .sh-i .bnd+.addb{margin-left:10px}
 .fcodebox{margin:6px 18px 4px;padding:14px 10px 6px;border-radius:18px;background:var(--glasssel);text-align:center}
 .fcodebig{font-size:30px;font-weight:800;letter-spacing:.16em;font-variant-numeric:tabular-nums;color:var(--goldfg);user-select:all;-webkit-user-select:all}
+/* login 0.19: logo grande, tutto piu' in basso, campi compatti */
+body:not(.inapp) #login,body:not(.inapp) #msg{max-width:340px;margin-left:auto;margin-right:auto}
+#brand{flex-direction:column;align-items:center;margin:clamp(10px,6vh,60px) 0 clamp(14px,4vh,34px)}
+#brandimg{width:150px;height:150px}
+#brandname{margin-top:2px;font-size:27px;font-weight:800;letter-spacing:-.02em;opacity:0;transform:translateY(6px);transition:opacity .6s ease .1s,transform .6s ease .1s}
+#brand.show #brandname{opacity:1;transform:none}
+#login input{height:44px;padding:0 14px;margin:4px 0;border-radius:12px;font-size:15px;background:var(--surf);border:1px solid var(--line)}
+#login input:focus{outline:none;border-color:var(--goldfg)}
+#login button{height:46px;border-radius:13px;margin:6px 0;font-size:15.5px}
+#fid{height:46px;border-radius:13px;margin:0 0 10px}
+#go{margin-top:8px}
+#lor{display:flex;align-items:center;gap:12px;margin:14px 2px 6px;color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.08em}
+#lor::before,#lor::after{content:'';flex:1;height:1px;background:var(--line)}
+#lor[hidden]{display:none}
+#fopen{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--blue);color:#fff;font-weight:600;text-decoration:none;font-size:15.5px}
+#fopen[hidden]{display:none}
+#fopen svg{width:20px;height:20px}
+#fhead{text-align:center;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 0 8px}
+#login #fcode{height:56px;font-size:22px;font-weight:700;letter-spacing:.16em;text-align:center}
+#login #fcode::placeholder{font-size:20px;letter-spacing:.16em;color:var(--faint);text-transform:none}
+#fgo{background:var(--blue);color:#fff}
+#login .lnk{height:auto;margin:2px 0;padding:9px}
+#reset{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 30px);width:auto;height:auto!important;margin:0!important;padding:9px 16px!important;display:flex;align-items:center;gap:7px;overflow:hidden;border-radius:999px!important;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.35);color:var(--danger);font-size:13px!important;font-weight:600;text-decoration:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+#reset svg{width:15px;height:15px;position:relative}
+#rstx{position:relative}
+#rsfill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,69,58,.28)}
+#reset.hold #rsfill{width:100%;transition:width 1.3s linear}
 #ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:var(--faint)}
 body.inapp #ver{display:none}
 body.inapp #msg{pointer-events:none;position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 8px);z-index:70;margin:0;min-height:0;padding:10px 14px;border-radius:14px;color:var(--fg);font-size:14px;background:var(--glass2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--glassline)}
@@ -321,7 +348,7 @@ document.getElementById('root').innerHTML=`
     <div id="langmenu" hidden></div>
   </div>
 </div>
-<div id="brand"><img id="brandimg" alt="" src="${LOGO_SRC}"></div>
+<div id="brand"><img id="brandimg" alt="" src="${LOGO_SRC}"><div id="brandname">NexusCharts</div></div>
 <div id="login">
   <button id="fid" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 10v1.5M15 10v1.5M12 10v3.5h-1M9 16.2c1.8 1.4 4.2 1.4 6 0"/></svg><span id="fidtxt"></span></button>
   <form id="lform" autocomplete="on" novalidate>
@@ -330,10 +357,11 @@ document.getElementById('root').innerHTML=`
   <input id="server" name="server" placeholder="Server" autocomplete="off" autocapitalize="off" spellcheck="false">
   <button id="go" type="submit">Collegati</button>
   </form>
-  <button id="fopen" type="button" class="lnk"></button>
-  <form id="fform" novalidate hidden><input id="fcode" name="fcode" placeholder="Codice amico" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"><button id="fgo" type="submit"></button><button id="flost" type="button" class="lnk"></button><button id="fback" type="button" class="lnk"></button></form>
+  <div id="lor"><span id="lortx"></span></div>
+  <button id="fopen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg><span id="fopentx"></span></button>
+  <form id="fform" novalidate hidden><div id="fhead"></div><input id="fcode" name="fcode" placeholder="Codice amico" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"><button id="fgo" type="submit"></button><button id="flost" type="button" class="lnk"></button><button id="fback" type="button" class="lnk"></button></form>
   <button id="forget" type="button" hidden></button>
-  <button id="reset" type="button"></button>
+  <button id="reset" type="button"><span id="rsfill"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><span id="rstx"></span></button>
 </div>
 <div id="msg"></div>
 <div id="shell" hidden>
@@ -1209,7 +1237,7 @@ function refreshFid(){
   $('forget').hidden=true;
   $('fidtxt').textContent=t('faceid');
   $('forget').textContent=t('forget');
-  $('reset').textContent=t('reset');
+  $('rstx').textContent=t('reset');
 }
 function offerSave(){
   return; /* le passkey dalle app della Home non sono affidabili: ora il Face ID passa dal portachiavi di iPhone */
@@ -1258,7 +1286,17 @@ $('forget').onclick=async()=>{
   refreshFid();msg(t('forgot'));
 };
 $('fid').onclick=afLogin;
-$('reset').onclick=resetApp;
+(function(){
+  const b=$('reset');let tm=0,t0=0;
+  const stop=()=>{clearTimeout(tm);tm=0;b.classList.remove('hold')};
+  b.addEventListener('pointerdown',e=>{
+    t0=Date.now();b.classList.add('hold');
+    tm=setTimeout(()=>{tm=0;b.classList.remove('hold');haptic();resetApp()},1300);
+  });
+  b.addEventListener('pointerup',()=>{if(tm&&Date.now()-t0<1300){stop();msg(window.ft?ft('hold'):'')}});
+  b.addEventListener('pointerleave',stop);b.addEventListener('pointercancel',stop);
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+})();
 
 let loginBusy=false;
 $('lform').onsubmit=async ev=>{
@@ -2525,13 +2563,13 @@ renderSymPillTF();
    (le credenziali del broker stanno solo li', mai nell'app)
    ===================================================================== */
 var FRT={
- it:{other:"Questo codice è già usato su un altro telefono. Ogni codice vale per un solo telefono: richiedine uno nuovo su Telegram.",used:"in uso",free:"non ancora usato",have:"Hai un codice amico?",ph:"Codice amico",enter:"Entra col codice",lost:"Codice perso? Richiedilo su Telegram",back:"Accedi con email e password",bad:"Codice non valido. Controllalo o richiedine uno nuovo.",expired:"Il tuo codice non è più valido. Richiedine uno nuovo su Telegram.",tgmsg:"Ciao ALBAEXE, mi serve un codice per accedere a NexusCharts",
+ it:{nobroker:"Accedi senza broker",or:"oppure",hold:"Per sicurezza: tieni premuto il pulsante per ripristinare l'app.",other:"Questo codice è già usato su un altro telefono. Ogni codice vale per un solo telefono: richiedine uno nuovo su Telegram.",used:"in uso",free:"non ancora usato",have:"Hai un codice amico?",ph:"Codice amico",enter:"Entra col codice",lost:"Codice perso? Richiedilo su Telegram",back:"Accedi con email e password",bad:"Codice non valido. Controllalo o richiedine uno nuovo.",expired:"Il tuo codice non è più valido. Richiedine uno nuovo su Telegram.",tgmsg:"Ciao ALBAEXE, mi serve un codice per accedere a NexusCharts",
    codes:"Codici amici",keyq:"Scrivi la tua chiave amministratore (la ADMIN_KEY che hai messo su Cloudflare). Serve una volta sola: poi resta su questo iPhone.",keyph:"Chiave amministratore",keysave:"Salva chiave",keybad:"Chiave sbagliata.",name:"Nome dell'amico",gen:"Genera codice",newc:"Nuovo codice",copy:"Copia",copied:"Copiato.",send:"Invia",active:"Codici attivi",none:"Nessun codice attivo.",delq:"Disattivare questo codice? Chi lo usa non potrà più entrare.",forgetkey:"Dimentica la chiave su questo iPhone",share:"Ecco il tuo codice per NexusCharts: ",howto:"Apri l'app, tocca «Hai un codice amico?» e scrivilo.",noname:"senza nome",neterr:"Servizio amici non raggiungibile."},
- es:{other:"Este código ya se usa en otro teléfono. Cada código vale para un solo teléfono: pide uno nuevo en Telegram.",used:"en uso",free:"sin usar",have:"¿Tienes un código de amigo?",ph:"Código de amigo",enter:"Entrar con el código",lost:"¿Perdiste el código? Pídelo en Telegram",back:"Entrar con email y contraseña",bad:"Código no válido. Revísalo o pide uno nuevo.",expired:"Tu código ya no es válido. Pide uno nuevo en Telegram.",tgmsg:"Hola ALBAEXE, necesito un código para entrar en NexusCharts",
+ es:{nobroker:"Entrar sin bróker",or:"o",hold:"Por seguridad: mantén pulsado el botón para restablecer la app.",other:"Este código ya se usa en otro teléfono. Cada código vale para un solo teléfono: pide uno nuevo en Telegram.",used:"en uso",free:"sin usar",have:"¿Tienes un código de amigo?",ph:"Código de amigo",enter:"Entrar con el código",lost:"¿Perdiste el código? Pídelo en Telegram",back:"Entrar con email y contraseña",bad:"Código no válido. Revísalo o pide uno nuevo.",expired:"Tu código ya no es válido. Pide uno nuevo en Telegram.",tgmsg:"Hola ALBAEXE, necesito un código para entrar en NexusCharts",
    codes:"Códigos de amigos",keyq:"Escribe tu clave de administrador (la ADMIN_KEY de Cloudflare). Solo una vez: luego se queda en este iPhone.",keyph:"Clave de administrador",keysave:"Guardar clave",keybad:"Clave incorrecta.",name:"Nombre del amigo",gen:"Generar código",newc:"Código nuevo",copy:"Copiar",copied:"Copiado.",send:"Enviar",active:"Códigos activos",none:"No hay códigos activos.",delq:"¿Desactivar este código? Quien lo use ya no podrá entrar.",forgetkey:"Olvidar la clave en este iPhone",share:"Este es tu código para NexusCharts: ",howto:"Abre la app, toca «¿Tienes un código de amigo?» y escríbelo.",noname:"sin nombre",neterr:"Servicio de amigos no disponible."},
- en:{other:"This code is already used on another phone. Each code works on one phone only: ask for a new one on Telegram.",used:"in use",free:"not used yet",have:"Have a friend code?",ph:"Friend code",enter:"Enter with code",lost:"Lost your code? Ask on Telegram",back:"Sign in with email and password",bad:"Invalid code. Check it or ask for a new one.",expired:"Your code is no longer valid. Ask for a new one on Telegram.",tgmsg:"Hi ALBAEXE, I need a code to sign in to NexusCharts",
+ en:{nobroker:"Sign in without a broker",or:"or",hold:"For safety: press and hold the button to reset the app.",other:"This code is already used on another phone. Each code works on one phone only: ask for a new one on Telegram.",used:"in use",free:"not used yet",have:"Have a friend code?",ph:"Friend code",enter:"Enter with code",lost:"Lost your code? Ask on Telegram",back:"Sign in with email and password",bad:"Invalid code. Check it or ask for a new one.",expired:"Your code is no longer valid. Ask for a new one on Telegram.",tgmsg:"Hi ALBAEXE, I need a code to sign in to NexusCharts",
    codes:"Friend codes",keyq:"Type your admin key (the ADMIN_KEY you set on Cloudflare). Only once: then it stays on this iPhone.",keyph:"Admin key",keysave:"Save key",keybad:"Wrong key.",name:"Friend's name",gen:"Generate code",newc:"New code",copy:"Copy",copied:"Copied.",send:"Send",active:"Active codes",none:"No active codes.",delq:"Deactivate this code? Whoever uses it won't be able to sign in.",forgetkey:"Forget the key on this iPhone",share:"Here is your NexusCharts code: ",howto:"Open the app, tap “Have a friend code?” and type it.",noname:"no name",neterr:"Friend service unreachable."},
- fr:{other:"Ce code est déjà utilisé sur un autre téléphone. Chaque code ne vaut que pour un téléphone : demandes-en un nouveau sur Telegram.",used:"utilisé",free:"pas encore utilisé",have:"Tu as un code ami ?",ph:"Code ami",enter:"Entrer avec le code",lost:"Code perdu ? Demande-le sur Telegram",back:"Se connecter avec email et mot de passe",bad:"Code non valide. Vérifie-le ou demandes-en un nouveau.",expired:"Ton code n'est plus valide. Demandes-en un nouveau sur Telegram.",tgmsg:"Salut ALBAEXE, il me faut un code pour entrer dans NexusCharts",
+ fr:{nobroker:"Entrer sans courtier",or:"ou",hold:"Par sécurité : maintiens le bouton appuyé pour réinitialiser l'app.",other:"Ce code est déjà utilisé sur un autre téléphone. Chaque code ne vaut que pour un téléphone : demandes-en un nouveau sur Telegram.",used:"utilisé",free:"pas encore utilisé",have:"Tu as un code ami ?",ph:"Code ami",enter:"Entrer avec le code",lost:"Code perdu ? Demande-le sur Telegram",back:"Se connecter avec email et mot de passe",bad:"Code non valide. Vérifie-le ou demandes-en un nouveau.",expired:"Ton code n'est plus valide. Demandes-en un nouveau sur Telegram.",tgmsg:"Salut ALBAEXE, il me faut un code pour entrer dans NexusCharts",
    codes:"Codes amis",keyq:"Écris ta clé administrateur (l'ADMIN_KEY mise sur Cloudflare). Une seule fois : elle reste ensuite sur cet iPhone.",keyph:"Clé administrateur",keysave:"Enregistrer la clé",keybad:"Clé incorrecte.",name:"Nom de l'ami",gen:"Générer un code",newc:"Nouveau code",copy:"Copier",copied:"Copié.",send:"Envoyer",active:"Codes actifs",none:"Aucun code actif.",delq:"Désactiver ce code ? La personne qui l'utilise ne pourra plus entrer.",forgetkey:"Oublier la clé sur cet iPhone",share:"Voici ton code NexusCharts : ",howto:"Ouvre l'app, touche « Tu as un code ami ? » et écris-le.",noname:"sans nom",neterr:"Service amis injoignable."}
 };
 function ft(k){return(FRT[lang]&&FRT[lang][k])||FRT.it[k]||k}
@@ -2555,13 +2593,13 @@ function friendLost(why){
   location.reload();
 }
 function friendUI(on){
-  $('fform').hidden=!on;$('fopen').hidden=on;
+  $('fform').hidden=!on;$('fopen').hidden=on;$('lor').hidden=on;
   $('lform').hidden=on;$('fid').hidden=on;
   $('forget').hidden=true;
   if(on)setTimeout(()=>{if(!$('fcode').value)$('fcode').focus()},50);
 }
 function fTexts(){
-  $('fopen').textContent=ft('have');$('fcode').placeholder=ft('ph');
+  $('fopentx').textContent=ft('nobroker');$('lortx').textContent=ft('or');$('fhead').textContent=ft('ph');$('fcode').placeholder='XXXX-XXXX';
   $('fgo').textContent=ft('enter');$('flost').textContent=ft('lost');$('fback').textContent=ft('back');
 }
 let fBusy=false;
