@@ -1,4 +1,4 @@
-const VERSION='0.8.0';
+const VERSION='0.8.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -102,7 +102,7 @@ body.inapp #msg:empty{display:none}
 .tab svg{width:25px;height:25px;display:block}
 .tab.on{background:var(--glasssel)}
 
-#ch-screen{--tint:var(--bg);background:linear-gradient(180deg,var(--bg) 28%,var(--tint) 100%);transition:background .4s ease}
+#ch-screen{--tint:var(--bg);background:linear-gradient(180deg,var(--bg) 0,var(--tint) calc(100% - 158px - env(safe-area-inset-bottom)),var(--tint) 100%)}
 #ch-screen.tup{--tint:var(--tintup)}
 #ch-screen.tdn{--tint:var(--tintdn)}
 #chartbox{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 4px);bottom:calc(env(safe-area-inset-bottom) + 158px)}
@@ -642,10 +642,22 @@ function drawSpark(){
 }
 
 /* ---------- schermata grafico ---------- */
+/* colori pieni (#rrggbb): niente trasparenze, cosi' il grafico li accetta di sicuro */
+let chartSolid=false;
+function chartColors(){
+  const dark=(document.documentElement.dataset.theme||'dark')!=='light';
+  const q=QUOTE[cur],last=lastBars.length?lastBars[lastBars.length-1].c:(q?q.last:null);
+  const dv=q&&last!=null?last-q.prev:0;
+  const bg=dark?'#000000':'#ffffff';
+  const tintc=dv>0?(dark?'#062820':'#e8f6f2'):dv<0?(dark?'#2e0508':'#fdecee'):bg;
+  return{bg,tintc,text:dark?'#8e8e93':'#6b6b70',grid:dark?'#161616':'#eeeeee'};
+}
+function chartBg(){const c=chartColors();return chartSolid?{type:'solid',color:c.bg}:{type:'gradient',topColor:c.bg,bottomColor:c.tintc}}
 function chartOpts(){
+  const cc=chartColors();
   return{
-    layout:{background:{type:'solid',color:'transparent'},textColor:themeVar('--muted'),fontFamily:'-apple-system,system-ui,sans-serif'},
-    grid:{vertLines:{color:themeVar('--grid')},horzLines:{color:themeVar('--grid')}},
+    layout:{background:chartBg(),textColor:cc.text,fontFamily:'-apple-system,system-ui,sans-serif'},
+    grid:{vertLines:{color:cc.grid},horzLines:{color:cc.grid}},
     rightPriceScale:{borderVisible:false,scaleMargins:{top:0.2,bottom:0.06}},
     timeScale:{borderVisible:false,timeVisible:true,secondsVisible:false,rightOffset:6},
     localization:{priceFormatter:p=>fmt(p,dec)}
@@ -658,11 +670,9 @@ function setDec(d){
   if(chart)chart.applyOptions({localization:{priceFormatter:p=>fmt(p,dec)}});
 }
 function tint(){
-  const s=$('ch-screen'),q=QUOTE[cur];
-  s.classList.remove('tup','tdn');
-  if(!q)return;
-  const last=lastBars.length?lastBars[lastBars.length-1].c:q.last,dv=last-q.prev;
-  if(dv>0)s.classList.add('tup');else if(dv<0)s.classList.add('tdn');
+  const c=chartColors();
+  $('ch-screen').style.setProperty('--tint',chartSolid?c.bg:c.tintc);
+  if(chart){try{chart.applyOptions({layout:{background:chartBg()}})}catch(e){}}
 }
 function renderLegend(){
   const it=BYN[cur];if(!it)return;
@@ -864,11 +874,12 @@ function start(){
     const w=setInterval(()=>{if(window.LightweightCharts){clearInterval(w);start()}else if(++n>100){clearInterval(w);msg(t('nolib'))}},100);
     return;
   }
-  $('top').hidden=true;$('login').hidden=true;$('brand').hidden=true;
-  document.body.classList.add('inapp');
-  $('shell').hidden=false;
   if(!chart){
-    chart=LightweightCharts.createChart($('chart'),{autoSize:true,...chartOpts()});
+    try{chart=LightweightCharts.createChart($('chart'),{autoSize:true,...chartOpts()})}
+    catch(e){
+      chartSolid=true;$('chart').innerHTML='';
+      chart=LightweightCharts.createChart($('chart'),{autoSize:true,...chartOpts()});
+    }
     const UP=themeVar('--up'),DN=themeVar('--down');
     series=chart.addCandlestickSeries({upColor:UP,downColor:DN,borderVisible:false,wickUpColor:UP,wickDownColor:DN,
       lastValueVisible:false,priceLineVisible:true,priceLineStyle:1,priceLineWidth:1,priceLineColor:themeVar('--blue'),
@@ -876,6 +887,9 @@ function start(){
     setInterval(tick,5000);
     requestAnimationFrame(tagLoop);
   }
+  $('top').hidden=true;$('login').hidden=true;$('brand').hidden=true;
+  document.body.classList.add('inapp');
+  $('shell').hidden=false;
   renderAll();
   showTab(tab||'wl');
   load().then(()=>msg('')).catch(e=>msg(e.message));
@@ -1018,7 +1032,7 @@ async function faceLogin(auto){
   try{c=await unlock()}
   catch(e){
     /* auto: se il browser vuole un tocco o annulli, resta il pulsante, senza messaggi */
-    if(!auto)msg(t('fidfail'));
+    if(!auto||(e&&e.name!=='NotAllowedError'))msg(t('fidfail')+(e&&e.name?' ('+e.name+(e.message?': '+e.message:'')+')':''));
     return;
   }
   try{
@@ -1026,7 +1040,7 @@ async function faceLogin(auto){
     await connect(c);
     start();
   }catch(e){
-    msg(e instanceof TypeError?t('cors'):e.message);
+    msg(errText(e));
   }
 }
 $('barsave').onclick=async()=>{
@@ -1056,7 +1070,7 @@ $('go').onclick=async()=>{
     start();
     offerSave();
   }catch(e){
-    msg(e instanceof TypeError?t('cors'):e.message);
+    msg(errText(e));
   }
 };
 
@@ -1088,8 +1102,8 @@ function setTheme(th){
   document.documentElement.dataset.theme=th;
   try{localStorage.setItem('theme',th)}catch(e){}
   const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=themeVar('--bg');
-  if(chart)chart.applyOptions(chartOpts());
-  if(series)series.applyOptions({priceLineColor:themeVar('--blue')});
+  if(chart){try{chart.applyOptions(chartOpts())}catch(e){}}
+  tint();
   drawSpark();
 }
 /* esci: torna al login. L'accesso salvato con Face ID resta, si rientra col pulsante */
@@ -1109,4 +1123,11 @@ function takeSnap(){
 function sessionLost(){
   try{sessionStorage.setItem('noSplash','1')}catch(e){}
   location.reload();
+}
+
+/* testo dell'errore: blocco di rete oppure la causa precisa */
+function errText(e){
+  const m=(e&&e.message)||String(e);
+  if(e instanceof TypeError&&/fetch|load failed|network/i.test(m))return t('cors');
+  return m;
 }
