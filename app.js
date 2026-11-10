@@ -1,4 +1,4 @@
-const VERSION='v10';
+const VERSION='0.6.0';
 
 /* Logo ritagliato dall'ultimo fotogramma del video (quadrato 240x240, parte da x=240 y=515 nel video 720x1280).
    Si sovrappone al logo del video e poi scivola in cima alla pagina di login. */
@@ -35,6 +35,13 @@ button{background:#d9a441;color:#111;font-weight:600;border:0}
 #chart{height:68vh;margin-top:8px}
 #msg{min-height:22px;font-size:13px;color:#9a9a9a;word-break:break-word;margin:6px 0}
 #px{font-size:20px;font-weight:600;margin-left:8px}
+#fid{display:flex;align-items:center;justify-content:center;gap:10px;background:#111;border:1px solid #d9a441;color:#d9a441;margin-bottom:10px}
+#fid svg{width:22px;height:22px;display:block}
+#forget{background:transparent;border:0;color:#6b6b6b;font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
+#bar{display:flex;align-items:center;gap:8px;background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:8px 10px;margin:0 0 8px;font-size:13px;color:#cfcfcf}
+#bar span{flex:1}
+#bar button{width:auto;margin:0;padding:7px 12px;font-size:13px}
+#bar .no{background:transparent;color:#9a9a9a;border:1px solid #2a2a2a;font-weight:400}
 #ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:#555}
 `;
 const st=document.createElement('style');
@@ -56,13 +63,16 @@ document.getElementById('root').innerHTML=`
 </div>
 <div id="brand"><img id="brandimg" alt="" src="${LOGO_SRC}"></div>
 <div id="login">
+  <button id="fid" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 10v1.5M15 10v1.5M12 10v3.5h-1M9 16.2c1.8 1.4 4.2 1.4 6 0"/></svg><span id="fidtxt"></span></button>
   <input id="email" type="email" placeholder="Email" autocomplete="off">
   <input id="pass" type="password" placeholder="Password" autocomplete="off">
   <input id="server" placeholder="Server" autocomplete="off">
   <button id="go">Collegati</button>
+  <button id="forget" hidden></button>
 </div>
 <div id="msg"></div>
 <div id="app" hidden>
+  <div id="bar" hidden><span id="bartxt"></span><button id="barsave"></button><button id="barno" class="no"></button></div>
   <b id="sym"></b><span id="px"></span>
   <div id="tf"></div>
   <div id="chart"></div>
@@ -76,7 +86,7 @@ const BASE='https://demo.tradelocker.com/backend-api';
 const DAYS={'1m':2,'5m':7,'15m':14,'1H':60,'4H':200,'1D':1000};
 let tok,accNum,accId,tid,route,res='5m',chart,series;
 const msg=t=>$('msg').textContent=t;
-$('ver').textContent=VERSION;
+$('ver').textContent='v'+VERSION;
 
 /* ---------- lingue ---------- */
 const FLAGS={it:'🇮🇹',es:'🇪🇸',en:'🇬🇧',fr:'🇫🇷'};
@@ -85,25 +95,25 @@ const T={
   it:{email:'Email',pass:'Password',server:'Server',go:'Collegati',
     logging:'Accesso in corso...',finding:'Cerco XAUUSD...',nofind:'XAUUSD non trovato',
     nobars:'Nessuna candela ricevuta',upd:'Aggiornamento: ',ok:'Collegato.',
-    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',
+    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",
     nolib:'La libreria del grafico non si è caricata. Ricarica la pagina.',
     cors:'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'},
   es:{email:'Correo electrónico',pass:'Contraseña',server:'Servidor',go:'Conectar',
     logging:'Iniciando sesión...',finding:'Buscando XAUUSD...',nofind:'XAUUSD no encontrado',
     nobars:'No se recibió ninguna vela',upd:'Actualización: ',ok:'Conectado.',
-    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',
+    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",
     nolib:'La librería del gráfico no se cargó. Recarga la página.',
     cors:'El navegador bloqueó la solicitud (probable bloqueo CORS de TradeLocker).'},
   en:{email:'Email',pass:'Password',server:'Server',go:'Connect',
     logging:'Signing in...',finding:'Looking for XAUUSD...',nofind:'XAUUSD not found',
     nobars:'No candles received',upd:'Update: ',ok:'Connected.',
-    newver:'New version, reloading...',anim:'Animation interrupted: ',
+    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",
     nolib:'The chart library failed to load. Reload the page.',
     cors:'The browser blocked the request (probably a TradeLocker CORS block).'},
   fr:{email:'E-mail',pass:'Mot de passe',server:'Serveur',go:'Se connecter',
     logging:'Connexion en cours...',finding:'Recherche de XAUUSD...',nofind:'XAUUSD introuvable',
     nobars:'Aucune bougie reçue',upd:'Mise à jour : ',ok:'Connecté.',
-    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',
+    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",
     nolib:"La bibliothèque du graphique ne s'est pas chargée. Recharge la page.",
     cors:'Le navigateur a bloqué la requête (probable blocage CORS de TradeLocker).'}
 };
@@ -138,6 +148,7 @@ function applyLang(){
   $('server').placeholder=t('server');
   $('go').textContent=t('go');
   buildLangMenu();
+  try{refreshFid()}catch(e){}
 }
 $('langbtn').onclick=e=>{
   e.stopPropagation();
@@ -266,14 +277,14 @@ async function api(path,opt={}){
   const r=await fetch(BASE+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}});
   const tx=await r.text();let j;
   try{j=JSON.parse(tx)}catch(e){j=tx}
-  if(!r.ok)throw new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));
+  if(!r.ok){const er=new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));er.status=r.status;throw er}
   return j;
 }
 const auth=()=>({Authorization:'Bearer '+tok,accNum:String(accNum)});
 
 async function bars(from,to){
   const q=new URLSearchParams({routeId:route,from:from,to:to,resolution:res,tradableInstrumentId:tid});
-  const j=await api('/trade/history?'+q,{headers:auth()});
+  const j=await authed('/trade/history?'+q);
   const list=(j.d&&j.d.barDetails)||j.barDetails||[];
   const off=-new Date().getTimezoneOffset()*60;
   return list.map(b=>({time:Math.floor(b.t/1000)+off,open:+b.o,high:+b.h,low:+b.l,close:+b.c})).sort((a,b)=>a.time-b.time);
@@ -320,25 +331,188 @@ function start(){
   setInterval(tick,5000);
 }
 
-$('go').onclick=async()=>{
+/* ---------- accesso: collegamento, rinnovo automatico, Face ID ---------- */
+let sess=null;          /* email, password e server: solo in memoria, finche' l'app e' aperta */
+let relogging=null;
+
+async function connect(c){
+  const j=await api('/auth/jwt/token',{method:'POST',body:JSON.stringify({email:c.email,password:c.password,server:c.server})});
+  tok=j.accessToken;
+  const a=await api('/auth/jwt/all-accounts',{headers:{Authorization:'Bearer '+tok}});
+  const acc=(a.accounts||a)[0];
+  accId=acc.id;accNum=acc.accNum;
+  msg(t('finding'));
+  const i=await api('/trade/accounts/'+accId+'/instruments',{headers:auth()});
+  const g=((i.d&&i.d.instruments)||[]).find(x=>/^XAUUSD/i.test(x.name));
+  if(!g)throw new Error(t('nofind'));
+  tid=g.tradableInstrumentId;
+  route=g.routes.find(r=>r.type==='INFO').id;
+  $('sym').textContent=g.name;
+  sess=c;
+}
+/* se il token e' scaduto (401) l'app si ricollega da sola e riprova */
+function relogin(){
+  if(!relogging){
+    relogging=(async()=>{msg(t('relogin'));await connect(sess);msg(t('ok'))})().finally(()=>{relogging=null});
+  }
+  return relogging;
+}
+async function authed(path){
+  try{return await api(path,{headers:auth()})}
+  catch(e){
+    if(e.status===401&&sess){await relogin();return await api(path,{headers:auth()})}
+    throw e;
+  }
+}
+/* quando torni sull'app dopo un po', aggiorna subito i dati */
+let hid2=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hid2=Date.now();return}
+  if(!series)return;
+  (Date.now()-hid2>120000?load():tick()).catch(e=>msg(e.message));
+});
+
+/* ---------- Face ID: le credenziali restano cifrate solo su questo telefono ---------- */
+const CRED_KEY='tc_cred';
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const rnd=n=>crypto.getRandomValues(new Uint8Array(n));
+const fidOK=()=>!!(window.PublicKeyCredential&&navigator.credentials&&window.crypto&&crypto.subtle);
+const hasSaved=()=>{try{return !!localStorage.getItem(CRED_KEY)}catch(e){return false}};
+
+async function aesFromPrf(out){
+  const base=await crypto.subtle.importKey('raw',out,'HKDF',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'HKDF',hash:'SHA-256',salt:new Uint8Array(32),info:new TextEncoder().encode('trading-charts-v1')},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+function idb(){return new Promise((res,rej)=>{const r=indexedDB.open('tc',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbGet(k){const d=await idb();return new Promise((res,rej)=>{const q=d.transaction('k').objectStore('k').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+async function idbSet(k,v){const d=await idb();return new Promise((res,rej)=>{const x=d.transaction('k','readwrite');x.objectStore('k').put(v,k);x.oncomplete=()=>res();x.onerror=()=>rej(x.error)})}
+async function idbDel(k){const d=await idb();return new Promise((res,rej)=>{const x=d.transaction('k','readwrite');x.objectStore('k').delete(k);x.oncomplete=()=>res();x.onerror=()=>rej(x.error)})}
+
+async function saveCreds(){
+  const c=sess;if(!c)throw new Error('no session');
+  const salt=rnd(32);
+  const cred=await navigator.credentials.create({publicKey:{
+    rp:{name:'Trading Charts',id:location.hostname},
+    user:{id:rnd(16),name:'trading-charts',displayName:'Trading Charts'},
+    challenge:rnd(32),
+    pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+    authenticatorSelection:{authenticatorAttachment:'platform',residentKey:'preferred',userVerification:'required'},
+    timeout:60000,attestation:'none',
+    extensions:{prf:{eval:{first:salt}}}
+  }});
+  const id=new Uint8Array(cred.rawId);
+  let ext={};try{ext=cred.getClientExtensionResults()}catch(e){}
+  let prf=ext.prf&&ext.prf.results&&ext.prf.results.first;
+  if(!prf&&ext.prf&&ext.prf.enabled){
+    /* alcuni telefoni danno la chiave solo alla lettura: secondo Face ID */
+    const a=await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:'public-key',id}],userVerification:'required',timeout:60000,extensions:{prf:{eval:{first:salt}}}}});
+    const e2=a.getClientExtensionResults();
+    prf=e2.prf&&e2.prf.results&&e2.prf.results.first;
+  }
+  let key,mode;
+  if(prf){key=await aesFromPrf(prf);mode='prf'}
+  else{
+    /* il telefono non da' la chiave dal Face ID: chiave casuale non estraibile + Face ID come controllo */
+    key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+    await idbSet('k',key);mode='gate';
+  }
+  const iv=rnd(12);
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(c)));
+  localStorage.setItem(CRED_KEY,JSON.stringify({v:1,mode,id:b64(id),salt:b64(salt),iv:b64(iv),ct:b64(ct)}));
+  return mode;
+}
+async function unlock(){
+  const rec=JSON.parse(localStorage.getItem(CRED_KEY));
+  const id=unb64(rec.id),salt=unb64(rec.salt);
+  const pk={challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:'public-key',id}],userVerification:'required',timeout:60000};
+  if(rec.mode==='prf')pk.extensions={prf:{eval:{first:salt}}};
+  const a=await navigator.credentials.get({publicKey:pk});
+  let key;
+  if(rec.mode==='prf'){
+    const ex=a.getClientExtensionResults();
+    const out=ex.prf&&ex.prf.results&&ex.prf.results.first;
+    if(!out)throw new Error('prf');
+    key=await aesFromPrf(out);
+  }else{
+    key=await idbGet('k');
+    if(!key)throw new Error('key');
+  }
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(rec.iv)},key,unb64(rec.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+function refreshFid(){
+  const has=hasSaved();
+  $('fid').hidden=!(has&&fidOK());
+  $('forget').hidden=!has;
+  $('fidtxt').textContent=t('faceid');
+  $('forget').textContent=t('forget');
+}
+function offerSave(){
+  let no=false;try{no=sessionStorage.getItem('noOffer')==='1'}catch(e){}
+  if(!fidOK()||hasSaved()||no)return;
+  $('bartxt').textContent=t('save');
+  $('barsave').textContent=t('savebtn');
+  $('barno').textContent=t('later');
+  $('bar').hidden=false;
+}
+async function faceLogin(auto){
+  let c;
+  try{c=await unlock()}
+  catch(e){
+    /* auto: se il browser vuole un tocco o annulli, resta il pulsante, senza messaggi */
+    if(!auto)msg(t('fidfail'));
+    return;
+  }
   try{
     msg(t('logging'));
-    const j=await api('/auth/jwt/token',{method:'POST',body:JSON.stringify({
-      email:$('email').value.trim(),password:$('pass').value,server:$('server').value.trim()})});
-    tok=j.accessToken;
-    $('pass').value='';
-    const a=await api('/auth/jwt/all-accounts',{headers:{Authorization:'Bearer '+tok}});
-    const acc=(a.accounts||a)[0];
-    accId=acc.id;accNum=acc.accNum;
-    msg(t('finding'));
-    const i=await api('/trade/accounts/'+accId+'/instruments',{headers:auth()});
-    const g=((i.d&&i.d.instruments)||[]).find(x=>/^XAUUSD/i.test(x.name));
-    if(!g)throw new Error(t('nofind'));
-    tid=g.tradableInstrumentId;
-    route=g.routes.find(r=>r.type==='INFO').id;
-    $('sym').textContent=g.name;
+    await connect(c);
     start();
   }catch(e){
-    msg(e instanceof TypeError ? t('cors') : e.message);
+    msg(e instanceof TypeError?t('cors'):e.message);
+  }
+}
+$('barsave').onclick=async()=>{
+  try{
+    const mode=await saveCreds();
+    $('bar').hidden=true;
+    msg(t('saved')+' '+(mode==='prf'?t('savedkey'):t('savedgate')));
+    refreshFid();
+  }catch(e){
+    msg(t('nofid')+(e&&e.name?' ('+e.name+')':''));
   }
 };
+$('barno').onclick=()=>{$('bar').hidden=true;try{sessionStorage.setItem('noOffer','1')}catch(e){}};
+$('forget').onclick=async()=>{
+  try{localStorage.removeItem(CRED_KEY);await idbDel('k')}catch(e){}
+  refreshFid();msg(t('forgot'));
+};
+$('fid').onclick=()=>faceLogin(false);
+
+$('go').onclick=async()=>{
+  const c={email:$('email').value.trim(),password:$('pass').value,server:$('server').value.trim()};
+  try{
+    msg(t('logging'));
+    await connect(c);
+    $('pass').value='';
+    start();
+    offerSave();
+  }catch(e){
+    msg(e instanceof TypeError?t('cors'):e.message);
+  }
+};
+
+refreshFid();
+/* all'apertura, se c'e' un accesso salvato, chiede il Face ID appena finisce l'animazione */
+(function(){
+  if(!hasSaved()||!fidOK())return;
+  let n=0;
+  const w=setInterval(()=>{
+    n++;
+    if(!document.getElementById('splash')||n>200){
+      clearInterval(w);
+      if(n<=200)faceLogin(true);
+    }
+  },100);
+})();
