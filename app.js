@@ -1,4 +1,4 @@
-const VERSION='0.8.1';
+const VERSION='0.8.2';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -236,7 +236,11 @@ const $=id=>document.getElementById(id);
 const BASE='https://demo.tradelocker.com/backend-api';
 const DAYS={'1m':2,'5m':7,'15m':14,'1H':60,'4H':200,'1D':1000};
 let tok,accNum,accId,tid,route,res='5m',chart,series;
-const msg=t=>$('msg').textContent=t;
+let msgTimer=0;
+const msg=tx=>{
+  const el=$('msg');el.textContent=tx;clearTimeout(msgTimer);
+  if(tx&&document.body.classList.contains('inapp'))msgTimer=setTimeout(()=>{if(el.textContent===tx)el.textContent=''},5000);
+};
 $('ver').textContent='v'+VERSION;
 
 /* ---------- lingue ---------- */
@@ -246,25 +250,25 @@ const T={
   it:{email:'Email',pass:'Password',server:'Server',go:'Collegati',
     logging:'Accesso in corso...',finding:'Carico i mercati...',nofind:'XAUUSD non trovato',
     nobars:'Nessuna candela ricevuta',upd:'Aggiornamento: ',ok:'Collegato.',
-    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella versione 0.9.0, con il nuovo motore del grafico.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",
+    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella versione 0.9.0, con il nuovo motore del grafico.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",slow:"Connessione lenta con il broker, riprovo tra poco.",
     nolib:'La libreria del grafico non si è caricata. Ricarica la pagina.',
     cors:'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'},
   es:{email:'Correo electrónico',pass:'Contraseña',server:'Servidor',go:'Conectar',
     logging:'Iniciando sesión...',finding:'Cargando mercados...',nofind:'XAUUSD no encontrado',
     nobars:'No se recibió ninguna vela',upd:'Actualización: ',ok:'Conectado.',
-    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la versión 0.9.0, con el nuevo motor del gráfico.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",
+    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la versión 0.9.0, con el nuevo motor del gráfico.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",slow:"Conexión lenta con el bróker, reintento en breve.",
     nolib:'La librería del gráfico no se cargó. Recarga la página.',
     cors:'El navegador bloqueó la solicitud (probable bloqueo CORS de TradeLocker).'},
   en:{email:'Email',pass:'Password',server:'Server',go:'Connect',
     logging:'Signing in...',finding:'Loading markets...',nofind:'XAUUSD not found',
     nobars:'No candles received',upd:'Update: ',ok:'Connected.',
-    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in version 0.9.0, with the new chart engine.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",
+    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in version 0.9.0, with the new chart engine.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",slow:"Slow connection to the broker, retrying shortly.",
     nolib:'The chart library failed to load. Reload the page.',
     cors:'The browser blocked the request (probably a TradeLocker CORS block).'},
   fr:{email:'E-mail',pass:'Mot de passe',server:'Serveur',go:'Se connecter',
     logging:'Connexion en cours...',finding:'Chargement des marchés...',nofind:'XAUUSD introuvable',
     nobars:'Aucune bougie reçue',upd:'Mise à jour : ',ok:'Connecté.',
-    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la version 0.9.0, avec le nouveau moteur graphique.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",
+    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la version 0.9.0, avec le nouveau moteur graphique.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",slow:"Connexion lente avec le courtier, nouvel essai sous peu.",
     nolib:"La bibliothèque du graphique ne s'est pas chargée. Recharge la page.",
     cors:'Le navigateur a bloqué la requête (probable blocage CORS de TradeLocker).'}
 };
@@ -440,13 +444,30 @@ $('reload').onclick=async()=>{
 };
 
 /* ---------- dati TradeLocker ---------- */
-async function api(path,opt={}){
-  const r=await fetch(BASE+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}});
-  const tx=await r.text();let j;
-  try{j=JSON.parse(tx)}catch(e){j=tx}
-  if(!r.ok){const er=new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));er.status=r.status;throw er}
-  return j;
+/* una richiesta alla volta, distanziate; se il broker ne rifiuta una, pausa e poi riprova */
+const GAP=350;
+let apiChain=Promise.resolve(),apiLast=0,apiPauseUntil=0,apiBack=0;
+function backoff(){apiBack=Math.min(60000,apiBack?apiBack*2:5000);apiPauseUntil=Date.now()+apiBack}
+function api(path,opt={}){
+  const isAuth=path.startsWith('/auth/');
+  const run=async()=>{
+    const wait=Math.max(0,apiLast+GAP-Date.now(),isAuth?0:apiPauseUntil-Date.now());
+    if(wait)await new Promise(r=>setTimeout(r,wait));
+    apiLast=Date.now();
+    let r;
+    try{r=await fetch(BASE+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}})}
+    catch(e){if(!isAuth)backoff();throw e}
+    if(r.status===429)backoff();else if(r.ok)apiBack=0;
+    const tx=await r.text();let j;
+    try{j=JSON.parse(tx)}catch(e){j=tx}
+    if(!r.ok){const er=new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));er.status=r.status;throw er}
+    return j;
+  };
+  const p=apiChain.then(run,run);
+  apiChain=p.catch(()=>{});
+  return p;
 }
+const paused=()=>Date.now()<apiPauseUntil;
 const auth=()=>({Authorization:'Bearer '+tok,accNum:String(accNum)});
 const SECS={'1m':60,'5m':300,'15m':900,'1H':3600,'4H':14400,'1D':86400};
 async function barsFor(it,reso,from,to){
@@ -599,7 +620,8 @@ function renderWL(){
 let wlBusy=false,wlLast=0;
 async function refreshWL(force){
   if(wlBusy||!accId||!WATCH.length)return;
-  if(!force&&Date.now()-wlLast<9000)return;
+  if(!force&&Date.now()-wlLast<15000)return;
+  if(paused())return;
   wlBusy=true;
   try{
     for(const n of WATCH.slice()){
@@ -712,8 +734,9 @@ async function load(){
   series.setData(b.map(toChart));
   afterData();
 }
+let tickFails=0;
 async function tick(){
-  if(!series||!cur||!lastBars.length)return;
+  if(!series||!cur||!lastBars.length||paused()||document.hidden)return;
   try{
     const it=BYN[cur],want=cur+'|'+res,to=Date.now();
     const b=await barsFor(it,res,to-Math.max(72e5,SECS[res]*3000),to);
@@ -724,7 +747,12 @@ async function tick(){
     lastBars=[...map.values()].sort((a,c)=>a.t-c.t).slice(-5000);
     afterData();
     if(++tickN%6===0)quoteFor(cur).then(()=>{renderLegend();renderMini();tint()}).catch(()=>{});
-  }catch(e){msg(t('upd')+e.message)}
+    tickFails=0;
+  }catch(e){
+    /* errori passeggeri in silenzio; avviso solo se continuano */
+    if(e&&e.status===401)return;
+    if(++tickFails>=3){tickFails=0;msg(t('slow'))}
+  }
 }
 /* etichetta blu del prezzo con il conto alla rovescia della candela */
 function tagText(){
