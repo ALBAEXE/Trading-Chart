@@ -1,4 +1,4 @@
-const VERSION='0.11.0';
+const VERSION='0.13.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -69,6 +69,10 @@ html.vgap{--tbb:8px}
 #dban,#dedit{position:absolute;left:var(--side);right:var(--side);top:calc(env(safe-area-inset-top) + 6px);min-height:48px;border-radius:24px;display:flex;align-items:center;gap:6px;padding:0 6px 0 16px;z-index:9;color:var(--fg);font-size:14px}
 #dbantxt{flex:1;min-width:0}
 #dban button{width:auto;margin:0;padding:8px 14px;border-radius:18px;font-size:14px}
+#rpfade{position:absolute;top:0;z-index:2;pointer-events:none;background:var(--bg);opacity:.62}
+#rpline{position:absolute;top:0;width:0;z-index:2;pointer-events:none;border-left:1.5px dashed var(--blue)}
+#rpline::after{content:'';position:absolute;left:-6px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:var(--blue)}
+#rpdate{position:absolute;bottom:14px;left:0;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:12px;font-weight:600;padding:4px 9px;border-radius:9px;white-space:nowrap;font-variant-numeric:tabular-nums}
 #dbcancel{background:var(--glasssel);color:var(--fg)}
 #dedit{justify-content:flex-end;padding:0 6px}
 .dbtn{width:auto;min-width:42px;height:38px;margin:0;padding:0 12px;border-radius:19px;background:var(--glasssel);color:var(--fg);display:flex;align-items:center;justify-content:center;font-size:14px}
@@ -134,7 +138,14 @@ html.vgap{--tbb:8px}
 #chartbox{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 4px);bottom:var(--chb)}
 #chart{position:absolute;inset:0}
 #pxtag{position:absolute;right:0;z-index:4;background:var(--blue);color:#fff;font-size:13px;line-height:1.3;padding:3px 7px 4px;border-radius:3px;font-variant-numeric:tabular-nums;pointer-events:none;transform:translateY(-11px);box-sizing:border-box}
-#wm{position:absolute;left:14px;bottom:40px;width:46px;height:46px;opacity:.45;filter:var(--logo);z-index:3;pointer-events:none}
+#wm{position:absolute;left:12px;bottom:36px;height:42px;display:flex;align-items:center;z-index:3;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#wm[hidden]{display:none}
+#wm img{width:40px;height:40px;filter:var(--logo);opacity:.92;transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
+#wm.open img{transform:rotate(-12deg) scale(1.04)}
+#wmtx{overflow:hidden;max-width:0;transition:max-width .6s cubic-bezier(.2,.8,.2,1)}
+#wmtx b{display:block;padding:0 4px 0 7px;font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--fg);opacity:.92;white-space:nowrap;transform:translateX(-105%);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+#wm.open #wmtx{max-width:190px}
+#wm.open #wmtx b{transform:none}
 #legend{position:absolute;top:calc(env(safe-area-inset-top) + 10px);left:14px;right:96px;z-index:5}
 #lgtop{display:flex;align-items:center;gap:8px;font-size:18px;min-width:0}
 #lgtop .ic{flex-basis:28px}
@@ -200,6 +211,7 @@ html.vgap{--tbb:8px}
 .counts{font-size:13px;color:var(--muted);margin-top:6px}
 .tic{width:26px;height:26px;display:flex}.tic svg{width:26px;height:26px}
 .sh-note{padding:8px 18px 10px;color:var(--muted);font-size:14px;line-height:1.4}
+#lgohlc.xh{color:var(--up)}#lgohlc.xh.dn{color:var(--down)}
 #lgcmp{display:inline-block;margin-top:4px;font-size:13px;color:#ff9800;font-weight:600}
 /* fogli dal basso */
 #sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60}
@@ -275,7 +287,7 @@ document.getElementById('root').innerHTML=`
       <div id="chart"></div>
       <canvas id="draw"></canvas>
       <div id="pxtag" hidden><div id="tagpx"></div><div id="tagcd"></div></div>
-      <img id="wm" alt="" src="${LOGO_SRC}">
+      <div id="wm" role="button" aria-label="TradingCharts"><img alt="" src="${LOGO_SRC}"><span id="wmtx"><b>TradingCharts</b></span></div>
     </div>
     <div id="legend">
       <div id="lgtop"><div id="lgic"></div><span id="lgname"></span><span id="lgstat"><i id="lgdot"></i></span></div>
@@ -293,6 +305,7 @@ document.getElementById('root').innerHTML=`
         <button id="more" aria-label="More">${IC_MORE}</button>
       </div>
     </div>
+    <div id="rpfade" hidden></div><div id="rpline" hidden><span id="rpdate"></span></div>
     <div id="dban" class="glass" hidden><span id="dbantxt"></span><button id="dbdone" hidden></button><button id="dbcancel"></button></div>
     <div id="dedit" class="glass" hidden></div>
     <div id="rpbar" class="glass" hidden>
@@ -337,25 +350,25 @@ const T={
   it:{email:'Email',pass:'Password',server:'Server',go:'Collegati',
     logging:'Accesso in corso...',finding:'Carico i mercati...',nofind:'XAUUSD non trovato',
     nobars:'Nessuna candela ricevuta',upd:'Aggiornamento: ',ok:'Collegato.',
-    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella prossima versione, insieme all'editor per i tuoi script.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",slow:"Connessione lenta con il broker, riprovo tra poco.",sec_trend:"Strumenti analisi trend",sec_fore:"Previsione e misurazione",sec_geo:"Figure geometriche",sec_ann:"Annotazioni",d_trend:"Trendline",d_channel:"Canale parallelo",d_long:"Posizione long",d_short:"Posizione short",d_brush:"Pennello",d_arrow:"Freccia",d_rect:"Rettangolo",d_path:"Percorso",d_ellipse:"Ellisse",d_text:"Testo",d_note:"Nota",h_p1:"Tocca il primo punto, oppure trascina",h_p2:"Tocca il secondo punto",h_p3:"Tocca per la larghezza del canale",h_brush:"Disegna col dito",h_path:"Tocca i punti, poi Fine",h_one:"Tocca dove posizionarlo",cancel:"Annulla",done:"Fine",del:"Elimina",ok:"Fatto",color:"Colore",edtext:"Testo",delall:"Elimina tutti i disegni",txtph:"Scrivi qui",rp_pick:"Tocca la candela da cui far ripartire il grafico",rp_end:"Il replay è arrivato alla fine dei dati.",target:"Target",stop:"Stop",afhint:"Tocca il tuo account sopra la tastiera: iPhone usa il Face ID e l'app entra da sola. La prima volta scrivi email e password e, quando iPhone lo chiede, scegli «Salva password».",reset:"Ripristina l'app",resetq:"Cancellare tutti i dati salvati dall'app su questo iPhone (accesso col Face ID, tema, lingua, server) e ripartire da zero?",resave:"Accesso salvato da rifare: entra con email e password e salva di nuovo col Face ID.",waitfid:"Conferma con Face ID…",nofidresp:"iPhone non ha mostrato il Face ID. Controlla in Impostazioni › Generali › Compilazione automatica e password che password e passkey siano attive, con l'app Password.",fidset:"Controlla in Impostazioni › Generali › Compilazione automatica e password.",fidsave:"Accesso con Face ID",fidhint:"Se iPhone dice che non c'è nessuna passkey, tocca «Cancella accesso salvato», entra con email e password e salva di nuovo.",
+    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella prossima versione, insieme all'editor per i tuoi script.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",slow:"Connessione lenta con il broker, riprovo tra poco.",sec_trend:"Strumenti analisi trend",sec_fore:"Previsione e misurazione",sec_geo:"Figure geometriche",sec_ann:"Annotazioni",d_trend:"Trendline",d_channel:"Canale parallelo",d_long:"Posizione long",d_short:"Posizione short",d_brush:"Pennello",d_arrow:"Freccia",d_rect:"Rettangolo",d_path:"Percorso",d_ellipse:"Ellisse",d_text:"Testo",d_note:"Nota",h_p1:"Tocca il primo punto, oppure trascina",h_p2:"Tocca il secondo punto",h_p3:"Tocca per la larghezza del canale",h_brush:"Disegna col dito",h_path:"Tocca i punti, poi Fine",h_one:"Tocca dove posizionarlo",cancel:"Annulla",done:"Fine",del:"Elimina",ok:"Fatto",color:"Colore",edtext:"Testo",delall:"Elimina tutti i disegni",txtph:"Scrivi qui",rp_pick:"Porta la candela sulla linea",rp_go:"Avvia da qui",rp_end:"Il replay è arrivato alla fine dei dati.",target:"Target",stop:"Stop",afhint:"Tocca il tuo account sopra la tastiera: iPhone usa il Face ID e l'app entra da sola. La prima volta scrivi email e password e, quando iPhone lo chiede, scegli «Salva password».",reset:"Ripristina l'app",resetq:"Cancellare tutti i dati salvati dall'app su questo iPhone (accesso col Face ID, tema, lingua, server) e ripartire da zero?",resave:"Accesso salvato da rifare: entra con email e password e salva di nuovo col Face ID.",waitfid:"Conferma con Face ID…",nofidresp:"iPhone non ha mostrato il Face ID. Controlla in Impostazioni › Generali › Compilazione automatica e password che password e passkey siano attive, con l'app Password.",fidset:"Controlla in Impostazioni › Generali › Compilazione automatica e password.",fidsave:"Accesso con Face ID",fidhint:"Se iPhone dice che non c'è nessuna passkey, tocca «Cancella accesso salvato», entra con email e password e salva di nuovo.",
     nolib:'La libreria del grafico non si è caricata. Ricarica la pagina.',
     cors:'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'},
   es:{email:'Correo electrónico',pass:'Contraseña',server:'Servidor',go:'Conectar',
     logging:'Iniciando sesión...',finding:'Cargando mercados...',nofind:'XAUUSD no encontrado',
     nobars:'No se recibió ninguna vela',upd:'Actualización: ',ok:'Conectado.',
-    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la próxima versión, junto con el editor para tus scripts.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",slow:"Conexión lenta con el bróker, reintento en breve.",sec_trend:"Herramientas de tendencia",sec_fore:"Previsión y medición",sec_geo:"Formas geométricas",sec_ann:"Anotaciones",d_trend:"Línea de tendencia",d_channel:"Canal paralelo",d_long:"Posición larga",d_short:"Posición corta",d_brush:"Pincel",d_arrow:"Flecha",d_rect:"Rectángulo",d_path:"Trayectoria",d_ellipse:"Elipse",d_text:"Texto",d_note:"Nota",h_p1:"Toca el primer punto o arrastra",h_p2:"Toca el segundo punto",h_p3:"Toca para el ancho del canal",h_brush:"Dibuja con el dedo",h_path:"Toca los puntos y luego Fin",h_one:"Toca dónde colocarlo",cancel:"Cancelar",done:"Fin",del:"Eliminar",ok:"Listo",color:"Color",edtext:"Texto",delall:"Eliminar todos los dibujos",txtph:"Escribe aquí",rp_pick:"Toca la vela desde la que reiniciar el gráfico",rp_end:"El replay llegó al final de los datos.",target:"Objetivo",stop:"Stop",afhint:"Toca tu cuenta encima del teclado: el iPhone usa Face ID y la app entra sola. La primera vez escribe correo y contraseña y, cuando el iPhone lo pida, elige «Guardar contraseña».",reset:"Restablecer la app",resetq:"¿Borrar todos los datos guardados por la app en este iPhone (acceso con Face ID, tema, idioma, servidor) y empezar de cero?",resave:"Hay que rehacer el acceso guardado: entra con correo y contraseña y guarda de nuevo con Face ID.",waitfid:"Confirma con Face ID…",nofidresp:"El iPhone no mostró Face ID. Revisa en Ajustes › General › Autorrelleno y contraseñas que las contraseñas y llaves de acceso estén activas, con la app Contraseñas.",fidset:"Revisa Ajustes › General › Autorrelleno y contraseñas.",fidsave:"Acceso con Face ID",fidhint:"Si el iPhone dice que no hay ninguna llave de acceso, toca «Borrar acceso guardado», entra con correo y contraseña y guarda de nuevo.",
+    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la próxima versión, junto con el editor para tus scripts.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",slow:"Conexión lenta con el bróker, reintento en breve.",sec_trend:"Herramientas de tendencia",sec_fore:"Previsión y medición",sec_geo:"Formas geométricas",sec_ann:"Anotaciones",d_trend:"Línea de tendencia",d_channel:"Canal paralelo",d_long:"Posición larga",d_short:"Posición corta",d_brush:"Pincel",d_arrow:"Flecha",d_rect:"Rectángulo",d_path:"Trayectoria",d_ellipse:"Elipse",d_text:"Texto",d_note:"Nota",h_p1:"Toca el primer punto o arrastra",h_p2:"Toca el segundo punto",h_p3:"Toca para el ancho del canal",h_brush:"Dibuja con el dedo",h_path:"Toca los puntos y luego Fin",h_one:"Toca dónde colocarlo",cancel:"Cancelar",done:"Fin",del:"Eliminar",ok:"Listo",color:"Color",edtext:"Texto",delall:"Eliminar todos los dibujos",txtph:"Escribe aquí",rp_pick:"Lleva la vela a la línea",rp_go:"Empezar aquí",rp_end:"El replay llegó al final de los datos.",target:"Objetivo",stop:"Stop",afhint:"Toca tu cuenta encima del teclado: el iPhone usa Face ID y la app entra sola. La primera vez escribe correo y contraseña y, cuando el iPhone lo pida, elige «Guardar contraseña».",reset:"Restablecer la app",resetq:"¿Borrar todos los datos guardados por la app en este iPhone (acceso con Face ID, tema, idioma, servidor) y empezar de cero?",resave:"Hay que rehacer el acceso guardado: entra con correo y contraseña y guarda de nuevo con Face ID.",waitfid:"Confirma con Face ID…",nofidresp:"El iPhone no mostró Face ID. Revisa en Ajustes › General › Autorrelleno y contraseñas que las contraseñas y llaves de acceso estén activas, con la app Contraseñas.",fidset:"Revisa Ajustes › General › Autorrelleno y contraseñas.",fidsave:"Acceso con Face ID",fidhint:"Si el iPhone dice que no hay ninguna llave de acceso, toca «Borrar acceso guardado», entra con correo y contraseña y guarda de nuevo.",
     nolib:'La librería del gráfico no se cargó. Recarga la página.',
     cors:'El navegador bloqueó la solicitud (probable bloqueo CORS de TradeLocker).'},
   en:{email:'Email',pass:'Password',server:'Server',go:'Connect',
     logging:'Signing in...',finding:'Loading markets...',nofind:'XAUUSD not found',
     nobars:'No candles received',upd:'Update: ',ok:'Connected.',
-    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in the next version, together with the editor for your scripts.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",slow:"Slow connection to the broker, retrying shortly.",sec_trend:"Trend tools",sec_fore:"Forecasting & measurement",sec_geo:"Shapes",sec_ann:"Annotations",d_trend:"Trend line",d_channel:"Parallel channel",d_long:"Long position",d_short:"Short position",d_brush:"Brush",d_arrow:"Arrow",d_rect:"Rectangle",d_path:"Path",d_ellipse:"Ellipse",d_text:"Text",d_note:"Note",h_p1:"Tap the first point, or drag",h_p2:"Tap the second point",h_p3:"Tap for the channel width",h_brush:"Draw with your finger",h_path:"Tap the points, then Done",h_one:"Tap where to place it",cancel:"Cancel",done:"Done",del:"Delete",ok:"Done",color:"Color",edtext:"Text",delall:"Delete all drawings",txtph:"Type here",rp_pick:"Tap the candle to restart the chart from",rp_end:"Replay reached the end of the data.",target:"Target",stop:"Stop",afhint:"Tap your account above the keyboard: the iPhone uses Face ID and the app signs in by itself. The first time, type email and password and, when the iPhone asks, choose “Save Password”.",reset:"Reset the app",resetq:"Delete all data the app saved on this iPhone (Face ID sign-in, theme, language, server) and start from scratch?",resave:"Saved sign-in must be redone: sign in with email and password and save again with Face ID.",waitfid:"Confirm with Face ID…",nofidresp:"The iPhone did not show Face ID. Check Settings › General › AutoFill & Passwords: passwords and passkeys must be on, with the Passwords app.",fidset:"Check Settings › General › AutoFill & Passwords.",fidsave:"Sign in with Face ID",fidhint:"If the iPhone says there is no passkey, tap “Delete saved sign-in”, sign in with email and password and save again.",
+    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in the next version, together with the editor for your scripts.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",slow:"Slow connection to the broker, retrying shortly.",sec_trend:"Trend tools",sec_fore:"Forecasting & measurement",sec_geo:"Shapes",sec_ann:"Annotations",d_trend:"Trend line",d_channel:"Parallel channel",d_long:"Long position",d_short:"Short position",d_brush:"Brush",d_arrow:"Arrow",d_rect:"Rectangle",d_path:"Path",d_ellipse:"Ellipse",d_text:"Text",d_note:"Note",h_p1:"Tap the first point, or drag",h_p2:"Tap the second point",h_p3:"Tap for the channel width",h_brush:"Draw with your finger",h_path:"Tap the points, then Done",h_one:"Tap where to place it",cancel:"Cancel",done:"Done",del:"Delete",ok:"Done",color:"Color",edtext:"Text",delall:"Delete all drawings",txtph:"Type here",rp_pick:"Move the candle to the line",rp_go:"Start here",rp_end:"Replay reached the end of the data.",target:"Target",stop:"Stop",afhint:"Tap your account above the keyboard: the iPhone uses Face ID and the app signs in by itself. The first time, type email and password and, when the iPhone asks, choose “Save Password”.",reset:"Reset the app",resetq:"Delete all data the app saved on this iPhone (Face ID sign-in, theme, language, server) and start from scratch?",resave:"Saved sign-in must be redone: sign in with email and password and save again with Face ID.",waitfid:"Confirm with Face ID…",nofidresp:"The iPhone did not show Face ID. Check Settings › General › AutoFill & Passwords: passwords and passkeys must be on, with the Passwords app.",fidset:"Check Settings › General › AutoFill & Passwords.",fidsave:"Sign in with Face ID",fidhint:"If the iPhone says there is no passkey, tap “Delete saved sign-in”, sign in with email and password and save again.",
     nolib:'The chart library failed to load. Reload the page.',
     cors:'The browser blocked the request (probably a TradeLocker CORS block).'},
   fr:{email:'E-mail',pass:'Mot de passe',server:'Serveur',go:'Se connecter',
     logging:'Connexion en cours...',finding:'Chargement des marchés...',nofind:'XAUUSD introuvable',
     nobars:'Aucune bougie reçue',upd:'Mise à jour : ',ok:'Connecté.',
-    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la prochaine version, avec l'éditeur pour tes scripts.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",slow:"Connexion lente avec le courtier, nouvel essai sous peu.",sec_trend:"Outils de tendance",sec_fore:"Prévision et mesure",sec_geo:"Formes",sec_ann:"Annotations",d_trend:"Ligne de tendance",d_channel:"Canal parallèle",d_long:"Position longue",d_short:"Position courte",d_brush:"Pinceau",d_arrow:"Flèche",d_rect:"Rectangle",d_path:"Chemin",d_ellipse:"Ellipse",d_text:"Texte",d_note:"Note",h_p1:"Touche le premier point ou fais glisser",h_p2:"Touche le second point",h_p3:"Touche pour la largeur du canal",h_brush:"Dessine avec le doigt",h_path:"Touche les points, puis Fin",h_one:"Touche où le placer",cancel:"Annuler",done:"Fin",del:"Supprimer",ok:"OK",color:"Couleur",edtext:"Texte",delall:"Supprimer tous les dessins",txtph:"Écris ici",rp_pick:"Touche la bougie à partir de laquelle relancer le graphique",rp_end:"Le replay est arrivé à la fin des données.",target:"Objectif",stop:"Stop",afhint:"Touche ton compte au-dessus du clavier : l'iPhone utilise Face ID et l'app se connecte toute seule. La première fois, saisis e-mail et mot de passe et, quand l'iPhone le demande, choisis « Enregistrer le mot de passe ».",reset:"Réinitialiser l'app",resetq:"Effacer toutes les données enregistrées par l'app sur cet iPhone (accès Face ID, thème, langue, serveur) et repartir de zéro ?",resave:"L'accès enregistré est à refaire : connecte-toi avec e-mail et mot de passe et enregistre à nouveau avec Face ID.",waitfid:"Confirme avec Face ID…",nofidresp:"L'iPhone n'a pas affiché Face ID. Vérifie dans Réglages › Général › Remplissage automatique et mots de passe que les mots de passe et clés d'accès sont activés, avec l'app Mots de passe.",fidset:"Vérifie Réglages › Général › Remplissage automatique et mots de passe.",fidsave:"Accès avec Face ID",fidhint:"Si l'iPhone indique qu'il n'y a aucune clé d'accès, touche « Supprimer l'accès enregistré », connecte-toi avec e-mail et mot de passe et enregistre à nouveau.",
+    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la prochaine version, avec l'éditeur pour tes scripts.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",slow:"Connexion lente avec le courtier, nouvel essai sous peu.",sec_trend:"Outils de tendance",sec_fore:"Prévision et mesure",sec_geo:"Formes",sec_ann:"Annotations",d_trend:"Ligne de tendance",d_channel:"Canal parallèle",d_long:"Position longue",d_short:"Position courte",d_brush:"Pinceau",d_arrow:"Flèche",d_rect:"Rectangle",d_path:"Chemin",d_ellipse:"Ellipse",d_text:"Texte",d_note:"Note",h_p1:"Touche le premier point ou fais glisser",h_p2:"Touche le second point",h_p3:"Touche pour la largeur du canal",h_brush:"Dessine avec le doigt",h_path:"Touche les points, puis Fin",h_one:"Touche où le placer",cancel:"Annuler",done:"Fin",del:"Supprimer",ok:"OK",color:"Couleur",edtext:"Texte",delall:"Supprimer tous les dessins",txtph:"Écris ici",rp_pick:"Amène la bougie sur la ligne",rp_go:"Démarrer ici",rp_end:"Le replay est arrivé à la fin des données.",target:"Objectif",stop:"Stop",afhint:"Touche ton compte au-dessus du clavier : l'iPhone utilise Face ID et l'app se connecte toute seule. La première fois, saisis e-mail et mot de passe et, quand l'iPhone le demande, choisis « Enregistrer le mot de passe ».",reset:"Réinitialiser l'app",resetq:"Effacer toutes les données enregistrées par l'app sur cet iPhone (accès Face ID, thème, langue, serveur) et repartir de zéro ?",resave:"L'accès enregistré est à refaire : connecte-toi avec e-mail et mot de passe et enregistre à nouveau avec Face ID.",waitfid:"Confirme avec Face ID…",nofidresp:"L'iPhone n'a pas affiché Face ID. Vérifie dans Réglages › Général › Remplissage automatique et mots de passe que les mots de passe et clés d'accès sont activés, avec l'app Mots de passe.",fidset:"Vérifie Réglages › Général › Remplissage automatique et mots de passe.",fidsave:"Accès avec Face ID",fidhint:"Si l'iPhone indique qu'il n'y a aucune clé d'accès, touche « Supprimer l'accès enregistré », connecte-toi avec e-mail et mot de passe et enregistre à nouveau.",
     nolib:"La bibliothèque du graphique ne s'est pas chargée. Recharge la page.",
     cors:'Le navigateur a bloqué la requête (probable blocage CORS de TradeLocker).'}
 };
@@ -776,6 +789,7 @@ function chartOpts(){
     grid:{vertLines:{color:cc.grid},horzLines:{color:cc.grid}},
     rightPriceScale:{borderVisible:false,scaleMargins:{top:0.2,bottom:0.06}},
     timeScale:{borderVisible:false,timeVisible:true,secondsVisible:false,rightOffset:6},
+    crosshair:{mode:0,vertLine:{labelBackgroundColor:'#3a3a3e'},horzLine:{labelBackgroundColor:'#3a3a3e'}},
     localization:{priceFormatter:p=>fmt(p,dec)}
   };
 }
@@ -1537,7 +1551,7 @@ function dMove(d,o,dt,dp){
 /* ---- stato: libero, sto disegnando, sto modificando, scelgo la candela del replay ---- */
 function setMode(m){
   dMode=m;
-  const active=m!=='idle';
+  const active=m==='place'||m==='edit';
   dcv.style.pointerEvents=active?'auto':'none';
   try{chart.applyOptions({handleScroll:!active,handleScale:!active})}catch(e){}
   $('dban').hidden=!(m==='place'||m==='pick');
@@ -1559,14 +1573,19 @@ function hintFor(){
   return t('h_p1');
 }
 function startTool(tool){
-  closeSheet();
+  closeSheet();closeHub();
   if(RP.on&&dMode==='pick')return;
   dTool=tool;dTemp=null;dStage=0;dSel=null;
   setMode('place');banner(hintFor(),tool==='path');
 }
 function cancelPlace(){
   dTemp=null;dStage=0;dTool=null;
-  if(dMode==='pick'){setMode('idle');if(RP.on&&!RP.started)rpExit();return}
+  if(dMode==='pick'){
+    setMode('idle');
+    if(RP.on&&!RP.started)rpExit();
+    else if(RP.on){lastBars=RP.full.slice(0,RP.idx+1);setSeriesData(lastBars);try{chart.timeScale().scrollToRealTime()}catch(e){}afterData()}
+    return;
+  }
   setMode('idle');
 }
 function finishTemp(){
@@ -1655,6 +1674,14 @@ dcv.addEventListener('pointercancel',()=>{dDown=null;dDrag=null});
 
 /* tocco sul grafico quando non stai disegnando: seleziona il disegno toccato */
 function dClick(param){
+  if(dMode==='pick'&&param&&param.point){
+    try{
+      const ts=chart.timeScale(),g=rpGuideX();if(!g)return;
+      const d=Math.round(ts.coordinateToLogical(param.point.x))-g.i,r=ts.getVisibleLogicalRange();
+      if(d&&r)ts.setVisibleLogicalRange({from:r.from+d,to:r.to+d});
+    }catch(e){}
+    return;
+  }
   if(dMode!=='idle'||!param||!param.point)return;
   const{x,y}=param.point;
   const d=[...drawings].reverse().find(d=>dHit(d,x,y));
@@ -1740,9 +1767,11 @@ function dFrame(){
 }
 requestAnimationFrame(dFrame);
 
-$('pencil').onclick=openDrawTools;
 $('dbcancel').onclick=cancelPlace;
-$('dbdone').onclick=()=>{if(dTool==='path')finishTemp()};
+$('dbdone').onclick=()=>{
+  if(dMode==='pick'){const g=rpGuideX();if(g)rpPickAt(g.x);return}
+  if(dTool==='path')finishTemp();
+};
 
 /* =====================================================================
    BAR REPLAY
@@ -1752,14 +1781,48 @@ var RP_SPEEDS=[1,2,3,5,10];
 var IC_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>';
 var IC_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1"/><rect x="13.5" y="5" width="4" height="14" rx="1"/></svg>';
 function rpStart(){
-  closeSheet();
+  closeSheet();if(HUB.open)closeHub();
   if(!lastBars.length||!series)return;
   if(dMode!=='idle'){dTemp=null;dSel=null;setMode('idle')}
   RP.on=true;RP.started=false;RP.full=lastBars.slice();RP.idx=RP.full.length-1;rpPause();
   $('chbar').hidden=true;$('rpbar').hidden=false;rpRender();
   rpPick();
 }
-function rpPick(){rpPause();setMode('pick');banner(t('rp_pick'),false)}
+function rpPick(){
+  rpPause();
+  /* se il replay era gia' partito rimetto tutte le candele, cosi' puoi scegliere anche piu' avanti */
+  if(RP.started){lastBars=RP.full.slice();setSeriesData(lastBars);afterData()}
+  setMode('pick');banner(t('rp_pick'),true);$('dbdone').textContent=t('rp_go');
+  rpGuide();
+}
+/* linea fissa al centro: la candela sotto la linea e' quella da cui riparte il replay */
+var RPG={x:null};
+function rpGuideX(){
+  const box=$('chartbox').getBoundingClientRect();
+  let pw=0;try{pw=chart.priceScale('right').width()}catch(e){}
+  const mid=(box.width-pw)/2,ts=chart.timeScale();
+  const l=ts.coordinateToLogical(mid);if(l==null)return null;
+  const n=RP.full.length,i=Math.max(0,Math.min(n-1,Math.round(l)));
+  const x=ts.logicalToCoordinate(i);
+  return{x:x==null?mid:x,i,pw,w:box.width,h:box.height};
+}
+function rpGuide(){
+  const on=dMode==='pick'&&RP.on&&chart;
+  $('rpline').hidden=!on;$('rpfade').hidden=!on;
+  if(!on){RPG.x=null;return}
+  requestAnimationFrame(rpGuide);
+  const g=rpGuideX();if(!g)return;
+  let th=26;try{th=chart.timeScale().height()}catch(e){}
+  RPG.x=g.x;
+  const L=$('rpline');L.style.left=g.x+'px';L.style.height=(g.h-th)+'px';
+  const F=$('rpfade');F.style.left=(g.x+3)+'px';F.style.width=Math.max(0,g.w-g.pw-g.x-3)+'px';F.style.height=(g.h-th)+'px';
+  const b=RP.full[g.i];
+  if(b&&RPG.t!==b.t){
+    RPG.t=b.t;
+    $('rpdate').textContent=new Date(b.t).toLocaleString(LOC[lang]||'it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    haptic();
+  }
+}
 function rpPickAt(x){
   const l=chart.timeScale().coordinateToLogical(x);
   if(l==null)return;
@@ -1811,10 +1874,10 @@ $('rpspeed').onclick=rpSpeed;
    HUB DEL GRAFICO (tre puntini nel grafico)
    ===================================================================== */
 var HUBT={
- it:{hub:"Hub del grafico",back:"Indietro",sec_layout:"Layout",sec_chart:"Grafico",sec_anal:"Analisi",sec_sym:"Simbolo",l_new:"Nuovo",l_save:"Salva",l_open:"Apri",c_type:"Tipologia di grafico",c_set:"Impostazioni grafico",c_tree:"Albero oggetti",a_ind:"Indicatori",a_cmp:"Confronta",a_rp:"Bar Replay",a_alert:"Alert",a_tech:"Tecnici",a_editor:"Editor script",s_det:"Dettagli simbolo",t_candles:"Candele",t_bars:"Barre",t_line:"Linea",t_area:"Area",t_ha:"Heikin Ashi",st_grid:"Griglia",st_pline:"Linea del prezzo",st_cd:"Conto alla rovescia della candela",st_wm:"Logo in filigrana",st_pal:"Colori delle candele",pal_tv:"Verde e rosso",pal_classic:"Classici",pal_mono:"Bianco e grigio",tr_empty:"Nessun disegno su questo simbolo.",dt_sym:"Simbolo",dt_desc:"Descrizione",dt_cat:"Categoria",dt_last:"Ultimo prezzo",dt_chg:"Variazione oggi",dt_open:"Apertura",dt_high:"Massimo",dt_low:"Minimo",dt_prev:"Chiusura precedente",dt_dec:"Decimali",al_new:"Nuovo alert",al_price:"Prezzo",al_add:"Crea alert",al_list:"Alert",al_none:"Nessun alert.",al_above:"sopra",al_below:"sotto",al_note:"Gli alert suonano solo mentre l'app è aperta.",al_fired:"Alert",al_done:"scattato",cm_hint:"Scegli un simbolo da confrontare: le due linee diventano in percentuale.",cm_off:"Togli il confronto",te_ssell:"Forte vendita",te_sell:"Vendita",te_neu:"Neutrale",te_buy:"Acquisto",te_sbuy:"Forte acquisto",te_osc:"Oscillatori",te_ma:"Medie mobili",te_few:"Servono più candele: prova un timeframe più basso.",te_sum:"Riepilogo",ly_name:"Nome del layout",ly_saved:"Layout salvato.",ly_none:"Nessun layout salvato.",ly_newq:"Cancellare i disegni di questo simbolo e tornare alle impostazioni iniziali del grafico?",ly_yes:"Sì, ricomincia",sh_fail:"Tieni premuta l'immagine per salvarla o condividerla.",ed_soon:"L'editor per i tuoi script e gli indicatori arrivano nella prossima versione."},
- es:{hub:"Centro del gráfico",back:"Atrás",sec_layout:"Diseño",sec_chart:"Gráfico",sec_anal:"Análisis",sec_sym:"Símbolo",l_new:"Nuevo",l_save:"Guardar",l_open:"Abrir",c_type:"Tipo de gráfico",c_set:"Ajustes del gráfico",c_tree:"Árbol de objetos",a_ind:"Indicadores",a_cmp:"Comparar",a_rp:"Bar Replay",a_alert:"Alertas",a_tech:"Técnicos",a_editor:"Editor de scripts",s_det:"Detalles del símbolo",t_candles:"Velas",t_bars:"Barras",t_line:"Línea",t_area:"Área",t_ha:"Heikin Ashi",st_grid:"Cuadrícula",st_pline:"Línea de precio",st_cd:"Cuenta atrás de la vela",st_wm:"Logo de fondo",st_pal:"Colores de las velas",pal_tv:"Verde y rojo",pal_classic:"Clásicos",pal_mono:"Blanco y gris",tr_empty:"No hay dibujos en este símbolo.",dt_sym:"Símbolo",dt_desc:"Descripción",dt_cat:"Categoría",dt_last:"Último precio",dt_chg:"Variación hoy",dt_open:"Apertura",dt_high:"Máximo",dt_low:"Mínimo",dt_prev:"Cierre anterior",dt_dec:"Decimales",al_new:"Nueva alerta",al_price:"Precio",al_add:"Crear alerta",al_list:"Alertas",al_none:"No hay alertas.",al_above:"por encima",al_below:"por debajo",al_note:"Las alertas solo suenan con la app abierta.",al_fired:"Alerta",al_done:"activada",cm_hint:"Elige un símbolo para comparar: las dos líneas pasan a porcentaje.",cm_off:"Quitar comparación",te_ssell:"Venta fuerte",te_sell:"Venta",te_neu:"Neutral",te_buy:"Compra",te_sbuy:"Compra fuerte",te_osc:"Osciladores",te_ma:"Medias móviles",te_few:"Hacen falta más velas: prueba una temporalidad más baja.",te_sum:"Resumen",ly_name:"Nombre del diseño",ly_saved:"Diseño guardado.",ly_none:"No hay diseños guardados.",ly_newq:"¿Borrar los dibujos de este símbolo y volver a los ajustes iniciales del gráfico?",ly_yes:"Sí, empezar de nuevo",sh_fail:"Mantén pulsada la imagen para guardarla o compartirla.",ed_soon:"El editor de scripts y los indicadores llegan en la próxima versión."},
- en:{hub:"Chart hub",back:"Back",sec_layout:"Layout",sec_chart:"Chart",sec_anal:"Analysis",sec_sym:"Symbol",l_new:"New",l_save:"Save",l_open:"Open",c_type:"Chart type",c_set:"Chart settings",c_tree:"Object tree",a_ind:"Indicators",a_cmp:"Compare",a_rp:"Bar Replay",a_alert:"Alerts",a_tech:"Technicals",a_editor:"Script editor",s_det:"Symbol details",t_candles:"Candles",t_bars:"Bars",t_line:"Line",t_area:"Area",t_ha:"Heikin Ashi",st_grid:"Grid",st_pline:"Price line",st_cd:"Candle countdown",st_wm:"Watermark logo",st_pal:"Candle colors",pal_tv:"Green and red",pal_classic:"Classic",pal_mono:"White and grey",tr_empty:"No drawings on this symbol.",dt_sym:"Symbol",dt_desc:"Description",dt_cat:"Category",dt_last:"Last price",dt_chg:"Change today",dt_open:"Open",dt_high:"High",dt_low:"Low",dt_prev:"Previous close",dt_dec:"Decimals",al_new:"New alert",al_price:"Price",al_add:"Create alert",al_list:"Alerts",al_none:"No alerts.",al_above:"above",al_below:"below",al_note:"Alerts only ring while the app is open.",al_fired:"Alert",al_done:"triggered",cm_hint:"Pick a symbol to compare: both lines switch to percent.",cm_off:"Remove comparison",te_ssell:"Strong sell",te_sell:"Sell",te_neu:"Neutral",te_buy:"Buy",te_sbuy:"Strong buy",te_osc:"Oscillators",te_ma:"Moving averages",te_few:"More candles needed: try a lower timeframe.",te_sum:"Summary",ly_name:"Layout name",ly_saved:"Layout saved.",ly_none:"No saved layouts.",ly_newq:"Delete this symbol's drawings and reset the chart settings?",ly_yes:"Yes, start over",sh_fail:"Press and hold the image to save or share it.",ed_soon:"The script editor and indicators come in the next version."},
- fr:{hub:"Hub du graphique",back:"Retour",sec_layout:"Mise en page",sec_chart:"Graphique",sec_anal:"Analyse",sec_sym:"Symbole",l_new:"Nouveau",l_save:"Enregistrer",l_open:"Ouvrir",c_type:"Type de graphique",c_set:"Réglages du graphique",c_tree:"Arbre des objets",a_ind:"Indicateurs",a_cmp:"Comparer",a_rp:"Bar Replay",a_alert:"Alertes",a_tech:"Techniques",a_editor:"Éditeur de scripts",s_det:"Détails du symbole",t_candles:"Bougies",t_bars:"Barres",t_line:"Ligne",t_area:"Aire",t_ha:"Heikin Ashi",st_grid:"Grille",st_pline:"Ligne de prix",st_cd:"Compte à rebours de la bougie",st_wm:"Logo en filigrane",st_pal:"Couleurs des bougies",pal_tv:"Vert et rouge",pal_classic:"Classiques",pal_mono:"Blanc et gris",tr_empty:"Aucun dessin sur ce symbole.",dt_sym:"Symbole",dt_desc:"Description",dt_cat:"Catégorie",dt_last:"Dernier prix",dt_chg:"Variation du jour",dt_open:"Ouverture",dt_high:"Plus haut",dt_low:"Plus bas",dt_prev:"Clôture précédente",dt_dec:"Décimales",al_new:"Nouvelle alerte",al_price:"Prix",al_add:"Créer l'alerte",al_list:"Alertes",al_none:"Aucune alerte.",al_above:"au-dessus",al_below:"en dessous",al_note:"Les alertes ne sonnent que quand l'app est ouverte.",al_fired:"Alerte",al_done:"déclenchée",cm_hint:"Choisis un symbole à comparer : les deux lignes passent en pourcentage.",cm_off:"Retirer la comparaison",te_ssell:"Vente forte",te_sell:"Vente",te_neu:"Neutre",te_buy:"Achat",te_sbuy:"Achat fort",te_osc:"Oscillateurs",te_ma:"Moyennes mobiles",te_few:"Il faut plus de bougies : essaie une unité de temps plus basse.",te_sum:"Résumé",ly_name:"Nom de la mise en page",ly_saved:"Mise en page enregistrée.",ly_none:"Aucune mise en page enregistrée.",ly_newq:"Supprimer les dessins de ce symbole et revenir aux réglages initiaux ?",ly_yes:"Oui, recommencer",sh_fail:"Appuie longuement sur l'image pour l'enregistrer ou la partager.",ed_soon:"L'éditeur de scripts et les indicateurs arrivent dans la prochaine version."}
+ it:{hub:"Hub del grafico",back:"Indietro",sec_layout:"Layout",sec_chart:"Grafico",sec_anal:"Analisi",sec_sym:"Simbolo",l_new:"Nuovo",l_save:"Salva",l_open:"Apri",c_type:"Tipologia di grafico",c_set:"Impostazioni grafico",c_tree:"Albero oggetti",a_ind:"Indicatori",a_cmp:"Confronta",a_rp:"Bar Replay",a_alert:"Alert",a_tech:"Tecnici",a_editor:"Editor script",s_det:"Dettagli simbolo",t_candles:"Candele",t_bars:"Barre",t_line:"Linea",t_area:"Area",t_ha:"Heikin Ashi",st_grid:"Griglia",st_pline:"Linea del prezzo",st_cd:"Conto alla rovescia della candela",st_wm:"Logo in filigrana",st_pal:"Colori delle candele",pal_tv:"Verde e rosso",pal_classic:"Classici",pal_mono:"Bianco e grigio",tr_empty:"Nessun disegno su questo simbolo.",dt_sym:"Simbolo",dt_desc:"Descrizione",dt_cat:"Categoria",dt_last:"Ultimo prezzo",dt_chg:"Variazione oggi",dt_open:"Apertura",dt_high:"Massimo",dt_low:"Minimo",dt_prev:"Chiusura precedente",dt_dec:"Decimali",al_new:"Nuovo alert",al_price:"Prezzo",al_add:"Crea alert",al_list:"Alert",al_none:"Nessun alert.",al_above:"sopra",al_below:"sotto",al_note:"Gli alert suonano solo mentre l'app è aperta.",al_fired:"Alert",al_done:"scattato",cm_hint:"Scegli un simbolo da confrontare: le due linee diventano in percentuale.",cm_off:"Togli il confronto",te_ssell:"Forte vendita",te_sell:"Vendita",te_neu:"Neutrale",te_buy:"Acquisto",te_sbuy:"Forte acquisto",te_osc:"Oscillatori",te_ma:"Medie mobili",te_few:"Servono più candele: prova un timeframe più basso.",te_sum:"Riepilogo",ly_name:"Nome del layout",ly_saved:"Layout salvato.",ly_none:"Nessun layout salvato.",ly_newq:"Cancellare i disegni di questo simbolo e tornare alle impostazioni iniziali del grafico?",ly_yes:"Sì, ricomincia",sh_fail:"Tieni premuta l'immagine per salvarla o condividerla.",draw:"Disegni",ed_soon:"L'editor per i tuoi script e gli indicatori arrivano nella prossima versione."},
+ es:{hub:"Centro del gráfico",back:"Atrás",sec_layout:"Diseño",sec_chart:"Gráfico",sec_anal:"Análisis",sec_sym:"Símbolo",l_new:"Nuevo",l_save:"Guardar",l_open:"Abrir",c_type:"Tipo de gráfico",c_set:"Ajustes del gráfico",c_tree:"Árbol de objetos",a_ind:"Indicadores",a_cmp:"Comparar",a_rp:"Bar Replay",a_alert:"Alertas",a_tech:"Técnicos",a_editor:"Editor de scripts",s_det:"Detalles del símbolo",t_candles:"Velas",t_bars:"Barras",t_line:"Línea",t_area:"Área",t_ha:"Heikin Ashi",st_grid:"Cuadrícula",st_pline:"Línea de precio",st_cd:"Cuenta atrás de la vela",st_wm:"Logo de fondo",st_pal:"Colores de las velas",pal_tv:"Verde y rojo",pal_classic:"Clásicos",pal_mono:"Blanco y gris",tr_empty:"No hay dibujos en este símbolo.",dt_sym:"Símbolo",dt_desc:"Descripción",dt_cat:"Categoría",dt_last:"Último precio",dt_chg:"Variación hoy",dt_open:"Apertura",dt_high:"Máximo",dt_low:"Mínimo",dt_prev:"Cierre anterior",dt_dec:"Decimales",al_new:"Nueva alerta",al_price:"Precio",al_add:"Crear alerta",al_list:"Alertas",al_none:"No hay alertas.",al_above:"por encima",al_below:"por debajo",al_note:"Las alertas solo suenan con la app abierta.",al_fired:"Alerta",al_done:"activada",cm_hint:"Elige un símbolo para comparar: las dos líneas pasan a porcentaje.",cm_off:"Quitar comparación",te_ssell:"Venta fuerte",te_sell:"Venta",te_neu:"Neutral",te_buy:"Compra",te_sbuy:"Compra fuerte",te_osc:"Osciladores",te_ma:"Medias móviles",te_few:"Hacen falta más velas: prueba una temporalidad más baja.",te_sum:"Resumen",ly_name:"Nombre del diseño",ly_saved:"Diseño guardado.",ly_none:"No hay diseños guardados.",ly_newq:"¿Borrar los dibujos de este símbolo y volver a los ajustes iniciales del gráfico?",ly_yes:"Sí, empezar de nuevo",sh_fail:"Mantén pulsada la imagen para guardarla o compartirla.",draw:"Dibujos",ed_soon:"El editor de scripts y los indicadores llegan en la próxima versión."},
+ en:{hub:"Chart hub",back:"Back",sec_layout:"Layout",sec_chart:"Chart",sec_anal:"Analysis",sec_sym:"Symbol",l_new:"New",l_save:"Save",l_open:"Open",c_type:"Chart type",c_set:"Chart settings",c_tree:"Object tree",a_ind:"Indicators",a_cmp:"Compare",a_rp:"Bar Replay",a_alert:"Alerts",a_tech:"Technicals",a_editor:"Script editor",s_det:"Symbol details",t_candles:"Candles",t_bars:"Bars",t_line:"Line",t_area:"Area",t_ha:"Heikin Ashi",st_grid:"Grid",st_pline:"Price line",st_cd:"Candle countdown",st_wm:"Watermark logo",st_pal:"Candle colors",pal_tv:"Green and red",pal_classic:"Classic",pal_mono:"White and grey",tr_empty:"No drawings on this symbol.",dt_sym:"Symbol",dt_desc:"Description",dt_cat:"Category",dt_last:"Last price",dt_chg:"Change today",dt_open:"Open",dt_high:"High",dt_low:"Low",dt_prev:"Previous close",dt_dec:"Decimals",al_new:"New alert",al_price:"Price",al_add:"Create alert",al_list:"Alerts",al_none:"No alerts.",al_above:"above",al_below:"below",al_note:"Alerts only ring while the app is open.",al_fired:"Alert",al_done:"triggered",cm_hint:"Pick a symbol to compare: both lines switch to percent.",cm_off:"Remove comparison",te_ssell:"Strong sell",te_sell:"Sell",te_neu:"Neutral",te_buy:"Buy",te_sbuy:"Strong buy",te_osc:"Oscillators",te_ma:"Moving averages",te_few:"More candles needed: try a lower timeframe.",te_sum:"Summary",ly_name:"Layout name",ly_saved:"Layout saved.",ly_none:"No saved layouts.",ly_newq:"Delete this symbol's drawings and reset the chart settings?",ly_yes:"Yes, start over",sh_fail:"Press and hold the image to save or share it.",draw:"Drawings",ed_soon:"The script editor and indicators come in the next version."},
+ fr:{hub:"Hub du graphique",back:"Retour",sec_layout:"Mise en page",sec_chart:"Graphique",sec_anal:"Analyse",sec_sym:"Symbole",l_new:"Nouveau",l_save:"Enregistrer",l_open:"Ouvrir",c_type:"Type de graphique",c_set:"Réglages du graphique",c_tree:"Arbre des objets",a_ind:"Indicateurs",a_cmp:"Comparer",a_rp:"Bar Replay",a_alert:"Alertes",a_tech:"Techniques",a_editor:"Éditeur de scripts",s_det:"Détails du symbole",t_candles:"Bougies",t_bars:"Barres",t_line:"Ligne",t_area:"Aire",t_ha:"Heikin Ashi",st_grid:"Grille",st_pline:"Ligne de prix",st_cd:"Compte à rebours de la bougie",st_wm:"Logo en filigrane",st_pal:"Couleurs des bougies",pal_tv:"Vert et rouge",pal_classic:"Classiques",pal_mono:"Blanc et gris",tr_empty:"Aucun dessin sur ce symbole.",dt_sym:"Symbole",dt_desc:"Description",dt_cat:"Catégorie",dt_last:"Dernier prix",dt_chg:"Variation du jour",dt_open:"Ouverture",dt_high:"Plus haut",dt_low:"Plus bas",dt_prev:"Clôture précédente",dt_dec:"Décimales",al_new:"Nouvelle alerte",al_price:"Prix",al_add:"Créer l'alerte",al_list:"Alertes",al_none:"Aucune alerte.",al_above:"au-dessus",al_below:"en dessous",al_note:"Les alertes ne sonnent que quand l'app est ouverte.",al_fired:"Alerte",al_done:"déclenchée",cm_hint:"Choisis un symbole à comparer : les deux lignes passent en pourcentage.",cm_off:"Retirer la comparaison",te_ssell:"Vente forte",te_sell:"Vente",te_neu:"Neutre",te_buy:"Achat",te_sbuy:"Achat fort",te_osc:"Oscillateurs",te_ma:"Moyennes mobiles",te_few:"Il faut plus de bougies : essaie une unité de temps plus basse.",te_sum:"Résumé",ly_name:"Nom de la mise en page",ly_saved:"Mise en page enregistrée.",ly_none:"Aucune mise en page enregistrée.",ly_newq:"Supprimer les dessins de ce symbole et revenir aux réglages initiaux ?",ly_yes:"Oui, recommencer",sh_fail:"Appuie longuement sur l'image pour l'enregistrer ou la partager.",draw:"Dessins",ed_soon:"L'éditeur de scripts et les indicateurs arrivent dans la prochaine version."}
 };
 function th(k){return(HUBT[lang]&&HUBT[lang][k])||HUBT.it[k]||k}
 function lsGet(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
@@ -2010,7 +2073,7 @@ function showShot(url){
 }
 
 /* ---------- il pannello: si trascina su e giu', condividi e X ---------- */
-var HUB={stack:[],y:0,open:false};
+var HUB={stack:[],y:0,open:false,mode:'hub'};
 var HIC={
   new:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="15" height="14" rx="2"/><path d="M6 14l3-3 3 2 4-5M19 15v6M16 18h6"/></svg>',
   save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.6 1.5A3.5 3.5 0 0 1 17.5 18"/><path d="M12 12v8M9 15l3-3 3 3"/></svg>',
@@ -2030,13 +2093,15 @@ var HIC={
 };
 function hubSetY(y,anim){const h=$('hub');h.style.transition=anim?'transform .28s cubic-bezier(.2,.8,.2,1)':'none';HUB.y=Math.max(0,y);h.style.transform='translateY('+HUB.y+'px)'}
 function hubHalf(){return Math.round($('hub').getBoundingClientRect().height*0.42)}
-function openHub(){
+function openHub(mode){
+  mode=mode==='draw'?'draw':'hub';
   if(window.dMode&&dMode!=='idle'){dTemp=null;dSel=null;setMode('idle')}
-  HUB.open=true;HUB.stack=[];
+  HUB.open=true;HUB.stack=[];HUB.mode=mode;
+  $('hub').classList.toggle('draw',mode==='draw');
   $('hubbg').hidden=false;$('hub').hidden=false;
   hubSetY(window.innerHeight,false);
   hubRender();
-  requestAnimationFrame(()=>requestAnimationFrame(()=>hubSetY(0,true)));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>hubSetY(mode==='draw'?hubHalf():0,true)));
 }
 function closeHub(){
   if(!HUB.open)return;HUB.open=false;
@@ -2047,10 +2112,12 @@ function hubPage(title,build){HUB.stack.push({title,build});hubRender()}
 function hubBack(){HUB.stack.pop();hubRender()}
 function hubRender(){
   const top=HUB.stack[HUB.stack.length-1];
-  $('hubtitle').textContent=top?top.title:th('hub');
+  const dr=HUB.mode==='draw';
+  $('hubtitle').textContent=top?top.title:(dr?th('draw'):th('hub'));
   const L=$('hubleft');L.innerHTML=top?HIC.back:HIC.share;L.setAttribute('aria-label',top?th('back'):'Share');
+  L.style.visibility=!top&&dr?'hidden':'';
   const b=$('hubbody');b.innerHTML='';b.scrollTop=0;
-  if(top)top.build(b);else hubRoot(b);
+  if(top)top.build(b);else if(dr)drawRoot(b);else hubRoot(b);
 }
 function tilesInto(b,cls,items){
   const g=document.createElement('div');g.className='htiles'+(cls?' '+cls:'');
@@ -2225,8 +2292,59 @@ function pageOpen(b){
 })();
 $('hubbg').onclick=closeHub;
 $('hubx').onclick=closeHub;
-$('hubleft').onclick=()=>{if(HUB.stack.length)hubBack();else shareChart()};
-$('more').onclick=openHub;
+$('hubleft').onclick=()=>{if(HUB.stack.length)hubBack();else if(HUB.mode==='hub')shareChart()};
+$('more').onclick=()=>openHub('hub');
+function drawRoot(b){
+  DTOOLS.forEach(g=>{
+    shEl(b,'sh-l',t(g.sec));
+    const grid=document.createElement('div');grid.className='tgrid';
+    g.items.forEach(k=>{
+      const x=document.createElement('button');x.className='tile';
+      x.innerHTML=DICON[k]+'<span></span>';x.lastChild.textContent=t('d_'+k);
+      x.onclick=()=>startTool(k);grid.appendChild(x);
+    });
+    b.appendChild(grid);
+  });
+  if(drawings.length){
+    shEl(b,'sh-sep','');
+    shItem(b,t('delall')+' ('+cur+')',{danger:true,on:()=>{drawings=[];dSel=null;dSave();setMode('idle');closeHub()}});
+  }
+}
+
+$('pencil').onclick=()=>openHub('draw');
+
+/* logo in filigrana: un tocco fa uscire la scritta, un altro la fa rientrare */
+(function(){
+  const w=$('wm');
+  try{if(localStorage.getItem('tc_wmtx')==='1')w.classList.add('open')}catch(e){}
+  w.addEventListener('click',e=>{
+    e.stopPropagation();
+    const o=w.classList.toggle('open');haptic();
+    try{localStorage.setItem('tc_wmtx',o?'1':'0')}catch(_){}
+  });
+})();
+
+/* legenda: col mirino mostra apertura, massimo, minimo e chiusura della candela toccata */
+var XH={on:false,map:null,len:0};
+function xhBar(time){
+  if(!XH.map||XH.len!==lastBars.length||XH.last!==lastBars[lastBars.length-1]){
+    XH.map=new Map();lastBars.forEach(b=>XH.map.set(toChart(b).time,b));XH.len=lastBars.length;XH.last=lastBars[lastBars.length-1];
+  }
+  return XH.map.get(time);
+}
+function xhMove(p){
+  const b=p&&p.time!=null&&p.point?xhBar(p.time):null;
+  if(!b){if(XH.on){XH.on=false;$('lgohlc').hidden=!$('lgbtn').classList.contains('open');$('lgohlc').classList.remove('xh');renderLegend()}return}
+  XH.on=true;
+  const up=b.c>=b.o,o=$('lgohlc');
+  o.hidden=false;o.classList.add('xh');o.classList.toggle('dn',!up);
+  o.textContent='O '+fmt(b.o,dec)+'   H '+fmt(b.h,dec)+'   L '+fmt(b.l,dec)+'   C '+fmt(b.c,dec);
+  $('lgpx').textContent=fmt(b.c,dec);
+}
+(function hook(){
+  if(!chart){setTimeout(hook,500);return}
+  try{chart.subscribeCrosshairMove(xhMove)}catch(e){}
+})();
 
 
 /* =====================================================================
