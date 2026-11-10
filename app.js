@@ -1,4 +1,4 @@
-const VERSION='0.19.0';
+const VERSION='0.20.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -92,6 +92,24 @@ body:not(.inapp) #login,body:not(.inapp) #msg{max-width:340px;margin-left:auto;m
 #rstx{position:relative}
 #rsfill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,69,58,.28)}
 #reset.hold #rsfill{width:100%;transition:width 1.3s linear}
+#gdbtn{margin:0 auto 0 0;width:auto;height:38px;padding:0 13px 0 10px;display:flex;align-items:center;gap:7px;border-radius:10px;background:var(--surf);color:var(--fg);border:1px solid var(--line);font-size:14px;font-weight:600}
+#gdbtn svg{width:19px;height:19px;color:var(--goldfg)}
+#gdbtn[hidden]{display:none}
+#sheet.guide{padding-bottom:calc(env(safe-area-inset-bottom) + 14px)}
+.gdhead{display:flex;flex-direction:column;align-items:center;text-align:center;padding:4px 22px 6px}
+.gdhead img{width:64px;height:64px;filter:var(--logo);margin-bottom:4px}
+.gdt{font-size:21px;font-weight:800;letter-spacing:-.01em}
+.gdi{font-size:14px;color:var(--muted);line-height:1.45;margin-top:6px}
+.gdseg{margin:10px 18px 4px;background:var(--glasssel);border-radius:14px}
+.gdsteps{list-style:none;counter-reset:gd;margin:8px 0 0;padding:0 18px}
+.gdsteps li{counter-increment:gd;display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--sep);font-size:15px;line-height:1.45}
+.gdsteps li:last-child{border-bottom:0}
+.gdsteps li::before{content:counter(gd);flex:0 0 26px;height:26px;border-radius:50%;background:var(--gold);color:var(--ongold);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-top:-1px}
+.gdsteps b{font-weight:700}
+.gdic{display:inline-flex;vertical-align:-5px;width:24px;height:24px;margin:0 2px;border-radius:7px;background:var(--glasssel);align-items:center;justify-content:center;color:#3d82ff}
+.gdic svg{width:16px;height:16px}
+.gdtip{margin:8px 18px 4px;padding:12px 14px;border-radius:14px;background:rgba(41,98,255,.12);color:var(--fg);font-size:13.5px;line-height:1.45}
+.gdok{display:block;width:calc(100% - 36px);margin:12px 18px 0;height:46px;border-radius:13px;background:var(--blue);color:#fff;font-size:15.5px}
 #ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:var(--faint)}
 body.inapp #ver{display:none}
 body.inapp #msg{pointer-events:none;position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 8px);z-index:70;margin:0;min-height:0;padding:10px 14px;border-radius:14px;color:var(--fg);font-size:14px;background:var(--glass2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--glassline)}
@@ -337,6 +355,7 @@ const IC_BARS='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="
 
 document.getElementById('root').innerHTML=`
 <div id="top">
+  <button id="gdbtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3M10.5 18.5h3"/></svg><span id="gdbtx"></span></button>
   <button id="reload" aria-label="Refresh">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
   </button>
@@ -489,6 +508,7 @@ function buildLangMenu(){
 }
 function applyLang(){
   document.documentElement.lang=lang;
+  if(window.GD)guideTexts();
   if(window.FRT)fTexts();
   $('langflag').textContent=FLAGS[lang];
   $('email').placeholder=t('email');
@@ -1000,7 +1020,7 @@ function openSheet(build){
   build(s);
   $('sheetbg').hidden=false;s.hidden=false;s.scrollTop=0;
 }
-function closeSheet(){$('sheet').hidden=true;$('sheetbg').hidden=true}
+function closeSheet(){$('sheet').hidden=true;$('sheetbg').hidden=true;$('sheet').classList.remove('guide')}
 $('sheetbg').onclick=closeSheet;
 function shEl(s,cls,txt){const d=document.createElement('div');d.className=cls;d.textContent=txt;s.appendChild(d);return d}
 function shItem(s,txt,o={}){
@@ -2797,3 +2817,96 @@ function renderSettings(p){
   pfRow(g,PIC.reset,t('reset'),pt('ressub'),()=>resetApp());
 }
 if(window.renderAll&&$('tabpf'))$('tabpf').textContent=pt('profile');
+
+
+/* =====================================================================
+   GUIDA: come installare NexusCharts sulla schermata Home
+   ===================================================================== */
+var GD={
+ it:{btn:"Installa",title:"Installa NexusCharts",intro:"Aggiungi NexusCharts alla schermata Home: si aprirà a tutto schermo come una vera app, con la sua icona, sempre aggiornata.",ios:"iPhone",and:"Android",
+  i:["Apri questa pagina con <b>Safari</b>.",
+     "Tocca il pulsante <b>Condividi</b> {share} nella barra di Safari. Se hai iOS 26 tocca prima i <b>tre puntini</b> {dots} accanto all'indirizzo, poi <b>Condividi</b>.",
+     "Scorri verso il basso e tocca <b>Aggiungi alla schermata Home</b> {plus}. Se non lo vedi, tocca <b>Visualizza altro</b>.",
+     "Lascia attivo <b>Apri come app web</b>, controlla che il nome sia <b>NexusCharts</b> e tocca <b>Aggiungi</b>.",
+     "Chiudi Safari e apri <b>NexusCharts</b> dalla schermata Home."],
+  a:["Apri questa pagina con <b>Chrome</b>.",
+     "Tocca i <b>tre puntini</b> {vdots} in alto a destra.",
+     "Tocca <b>Aggiungi a schermata Home</b> oppure <b>Installa app</b> {plus}.",
+     "Conferma con <b>Installa</b> (o <b>Aggiungi</b>): il nome è già <b>NexusCharts</b>.",
+     "Apri <b>NexusCharts</b> dalla schermata Home o dall'elenco delle app."],
+  tip:"Da quel momento entra sempre dall'icona sulla Home, non dal browser: l'app si apre a schermo intero, ricorda il tuo accesso e si aggiorna da sola.",ok:"Ho capito"},
+ es:{btn:"Instalar",title:"Instala NexusCharts",intro:"Añade NexusCharts a la pantalla de inicio: se abrirá a pantalla completa como una app de verdad, con su icono y siempre actualizada.",ios:"iPhone",and:"Android",
+  i:["Abre esta página con <b>Safari</b>.",
+     "Toca el botón <b>Compartir</b> {share} en la barra de Safari. Con iOS 26 toca primero los <b>tres puntos</b> {dots} junto a la dirección y luego <b>Compartir</b>.",
+     "Desliza hacia abajo y toca <b>Añadir a pantalla de inicio</b> {plus}. Si no aparece, toca <b>Ver más</b>.",
+     "Deja activado <b>Abrir como app web</b>, comprueba que el nombre sea <b>NexusCharts</b> y toca <b>Añadir</b>.",
+     "Cierra Safari y abre <b>NexusCharts</b> desde la pantalla de inicio."],
+  a:["Abre esta página con <b>Chrome</b>.",
+     "Toca los <b>tres puntos</b> {vdots} arriba a la derecha.",
+     "Toca <b>Añadir a pantalla de inicio</b> o <b>Instalar app</b> {plus}.",
+     "Confirma con <b>Instalar</b> (o <b>Añadir</b>): el nombre ya es <b>NexusCharts</b>.",
+     "Abre <b>NexusCharts</b> desde la pantalla de inicio o la lista de apps."],
+  tip:"A partir de ahí entra siempre desde el icono, no desde el navegador: la app se abre a pantalla completa, recuerda tu acceso y se actualiza sola.",ok:"Entendido"},
+ en:{btn:"Install",title:"Install NexusCharts",intro:"Add NexusCharts to your Home Screen: it opens full screen like a real app, with its own icon, always up to date.",ios:"iPhone",and:"Android",
+  i:["Open this page in <b>Safari</b>.",
+     "Tap the <b>Share</b> button {share} in Safari's bar. On iOS 26, first tap the <b>three dots</b> {dots} next to the address, then <b>Share</b>.",
+     "Scroll down and tap <b>Add to Home Screen</b> {plus}. If you don't see it, tap <b>View More</b>.",
+     "Keep <b>Open as Web App</b> on, check the name is <b>NexusCharts</b> and tap <b>Add</b>.",
+     "Close Safari and open <b>NexusCharts</b> from your Home Screen."],
+  a:["Open this page in <b>Chrome</b>.",
+     "Tap the <b>three dots</b> {vdots} at the top right.",
+     "Tap <b>Add to Home screen</b> or <b>Install app</b> {plus}.",
+     "Confirm with <b>Install</b> (or <b>Add</b>): the name is already <b>NexusCharts</b>.",
+     "Open <b>NexusCharts</b> from your Home screen or app drawer."],
+  tip:"From then on always open it from the icon, not the browser: it runs full screen, remembers your sign-in and updates itself.",ok:"Got it"},
+ fr:{btn:"Installer",title:"Installer NexusCharts",intro:"Ajoute NexusCharts à l'écran d'accueil : elle s'ouvre en plein écran comme une vraie app, avec son icône, toujours à jour.",ios:"iPhone",and:"Android",
+  i:["Ouvre cette page avec <b>Safari</b>.",
+     "Touche le bouton <b>Partager</b> {share} dans la barre de Safari. Avec iOS 26, touche d'abord les <b>trois points</b> {dots} à côté de l'adresse, puis <b>Partager</b>.",
+     "Fais défiler vers le bas et touche <b>Sur l'écran d'accueil</b> {plus}. Si tu ne le vois pas, touche <b>Afficher plus</b>.",
+     "Laisse <b>Ouvrir comme app web</b> activé, vérifie que le nom est <b>NexusCharts</b> et touche <b>Ajouter</b>.",
+     "Ferme Safari et ouvre <b>NexusCharts</b> depuis l'écran d'accueil."],
+  a:["Ouvre cette page avec <b>Chrome</b>.",
+     "Touche les <b>trois points</b> {vdots} en haut à droite.",
+     "Touche <b>Ajouter à l'écran d'accueil</b> ou <b>Installer l'application</b> {plus}.",
+     "Confirme avec <b>Installer</b> (ou <b>Ajouter</b>) : le nom est déjà <b>NexusCharts</b>.",
+     "Ouvre <b>NexusCharts</b> depuis l'écran d'accueil ou la liste des apps."],
+  tip:"Ensuite, entre toujours depuis l'icône et non depuis le navigateur : l'app s'ouvre en plein écran, se souvient de ta connexion et se met à jour toute seule.",ok:"Compris"}
+};
+var GIC={
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>',
+  dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+  vdots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+  inst:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3M10.5 18.5h3"/></svg>'
+};
+function gd(k){return(GD[lang]&&GD[lang][k])||GD.it[k]}
+const isStandalone=()=>!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+var GUIDE={os:/android/i.test(navigator.userAgent)?'a':'i'};
+function openGuide(){
+  openSheet(s=>{
+    s.classList.add('guide');
+    const h=document.createElement('div');h.className='gdhead';
+    h.innerHTML='<img alt="" src="'+LOGO_SRC+'"><div class="gdt"></div><div class="gdi"></div>';
+    h.querySelector('.gdt').textContent=gd('title');h.querySelector('.gdi').textContent=gd('intro');
+    s.appendChild(h);
+    const seg=document.createElement('div');seg.className='pfseg gdseg';
+    [['i',gd('ios')],['a',gd('and')]].forEach(([k,txt])=>{
+      const b=document.createElement('button');b.className=GUIDE.os===k?'on':'';b.textContent=txt;
+      b.onclick=()=>{GUIDE.os=k;openGuide()};seg.appendChild(b);
+    });
+    s.appendChild(seg);
+    const ol=document.createElement('ol');ol.className='gdsteps';
+    gd(GUIDE.os).forEach(tx=>{
+      const li=document.createElement('li');
+      li.innerHTML='<span class="gdtx">'+tx.replace(/\{(\w+)\}/g,(m,k)=>'<i class="gdic">'+(GIC[k]||'')+'</i>')+'</span>';
+      ol.appendChild(li);
+    });
+    s.appendChild(ol);
+    const tip=document.createElement('div');tip.className='gdtip';tip.textContent=gd('tip');s.appendChild(tip);
+    const ok=document.createElement('button');ok.className='gdok';ok.textContent=gd('ok');ok.onclick=closeSheet;s.appendChild(ok);
+  });
+}
+function guideTexts(){if($('gdbtx'))$('gdbtx').textContent=gd('btn')}
+$('gdbtn').onclick=openGuide;
+$('gdbtn').hidden=isStandalone();
+guideTexts();
