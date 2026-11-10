@@ -1,4 +1,4 @@
-const VERSION='0.10.0';
+const VERSION='0.11.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -148,12 +148,27 @@ html.vgap{--tbb:8px}
 #lgbtn.open svg{transform:rotate(180deg)}
 #lgohlc{font-size:12px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;line-height:1.6}
 #chbar{position:absolute;left:var(--side);right:var(--side);bottom:calc(var(--tbb) + var(--tbh) + var(--gapb));display:flex;gap:8px;z-index:6}
-#sympill{flex:1.1;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:center;gap:9px;margin:0;padding:0 12px 0 6px;position:relative;overflow:hidden;color:var(--fg);font-weight:600;font-size:16px;text-align:left}
+#sympill{flex:1.4;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:stretch;margin:0;padding:0;position:relative;overflow:hidden;color:var(--fg);font-weight:600;font-size:16px;text-align:left}
+#spsym,#sptf{position:relative;display:flex;align-items:center;min-width:0;height:100%;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:pointer;transition:background .15s}
+#spsym{flex:1 1 auto;gap:9px;padding:0 10px 0 6px;border-radius:25px 0 0 25px}
+#sptf{flex:0 0 auto;min-width:58px;justify-content:center;padding:0 14px 0 12px;border-radius:0 25px 25px 0}
+#spsym.press,#sptf.press{background:var(--glasssel)}
+#spdiv{flex:0 0 1px;align-self:center;height:26px;background:currentColor;opacity:.22;border-radius:1px}
 #sympill .ic{flex-basis:38px}
-#sptxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sptxt,#sttxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #sympill .ghost{position:absolute;left:53px;font-size:13px;opacity:.32;font-weight:600;white-space:nowrap;pointer-events:none}
-#spg1{top:-6px}
-#spg2{bottom:-6px}
+#sptf .ghost{left:0;right:0;text-align:center;padding-right:2px}
+#spg1,#stg1{top:-6px}
+#spg2,#stg2{bottom:-6px}
+#wheelbg{position:fixed;inset:0;z-index:56;background:transparent}
+#wheel{position:fixed;z-index:57;border-radius:24px;padding:0;overflow:hidden;color:var(--fg);background:var(--glass2);opacity:0;transform:translateY(10px) scale(.96);transform-origin:var(--wo,50%) 100%;transition:opacity .16s,transform .18s cubic-bezier(.2,.8,.2,1)}
+#wheel.show{opacity:1;transform:none}
+#whband{position:absolute;left:8px;right:8px;top:84px;height:42px;border-radius:13px;background:var(--glasssel);pointer-events:none}
+#whl{position:relative;height:210px;overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:y mandatory;padding:84px 0;box-sizing:border-box;scrollbar-width:none;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 34%,#000 66%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 34%,#000 66%,transparent 100%)}
+#whl::-webkit-scrollbar{display:none}
+.wrow{height:42px;display:flex;align-items:center;gap:10px;padding:0 18px;scroll-snap-align:center;font-size:17px;font-weight:500;opacity:.55;white-space:nowrap;cursor:pointer;transition:opacity .12s}
+.wrow.on{opacity:1;font-weight:600}
+.wrow .ic{flex-basis:26px}
 #tools{flex:1;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:center;justify-content:space-around;padding:0 4px}
 #tools button{width:36px;height:42px;margin:0;padding:0;background:transparent;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:50%}
 #tools svg{width:24px;height:24px;display:block}
@@ -270,7 +285,7 @@ document.getElementById('root').innerHTML=`
       <div id="lgcmp" hidden></div>
     </div>
     <div id="chbar">
-      <button id="sympill" class="glass"><span id="spg1" class="ghost"></span><div id="spic"></div><span id="sptxt"></span><span id="spg2" class="ghost"></span></button>
+      <div id="sympill" class="glass"><div id="spsym" role="button" aria-label="Symbol"><span id="spg1" class="ghost"></span><div id="spic"></div><span id="sptxt"></span><span id="spg2" class="ghost"></span></div><i id="spdiv"></i><div id="sptf" role="button" aria-label="Timeframe"><span id="stg1" class="ghost"></span><span id="sttxt"></span><span id="stg2" class="ghost"></span></div></div>
       <div id="tools" class="glass">
         <button id="pencil" aria-label="Drawing">${IC_PEN}</button>
         <button id="replay" aria-label="Bar Replay">${IC_RP}</button>
@@ -297,6 +312,8 @@ document.getElementById('root').innerHTML=`
 <div id="sheetbg" hidden></div>
 <div id="hubbg" hidden></div>
 <div id="hub" class="glass" hidden><div id="hubhead"><div class="sh-h"></div><button id="hubleft"></button><div id="hubtitle"></div><button id="hubx" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div id="hubbody"></div></div>
+<div id="wheelbg" hidden></div>
+<div id="wheel" class="glass" hidden><div id="whband"></div><div id="whl"></div></div>
 <div id="sheet" class="glass" hidden></div>
 <div id="ver"></div>
 `;
@@ -785,10 +802,11 @@ function renderLegend(){
 function renderSymPill(){
   const it=BYN[cur];if(!it)return;
   swapIcon('spic',38);
-  $('sptxt').textContent=it.name+' '+res;
+  $('sptxt').textContent=it.name;
   const i=WATCH.indexOf(cur);
-  $('spg1').textContent=i>0?WATCH[i-1]+' '+res:'';
-  $('spg2').textContent=i>=0&&i<WATCH.length-1?WATCH[i+1]+' '+res:'';
+  $('spg1').textContent=i>0?WATCH[i-1]:'';
+  $('spg2').textContent=i>=0&&i<WATCH.length-1?WATCH[i+1]:'';
+  if(window.renderSymPillTF)renderSymPillTF();
 }
 function afterData(){
   const last=lastBars[lastBars.length-1];
@@ -856,22 +874,6 @@ function tagLoop(){
   tg.style.minWidth=chart.priceScale('right').width()+'px';
 }
 $('lgbtn').onclick=()=>{$('lgohlc').hidden=!$('lgohlc').hidden;$('lgbtn').classList.toggle('open',!$('lgohlc').hidden)};
-
-/* scorri in su o in giu' sulla pillola per cambiare simbolo */
-(function(){
-  let y0=null,moved=false;
-  const p=$('sympill');
-  p.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;moved=false},{passive:true});
-  p.addEventListener('touchend',e=>{
-    if(y0==null)return;
-    const dy=e.changedTouches[0].clientY-y0;y0=null;
-    if(Math.abs(dy)<28)return;
-    moved=true;
-    const i=WATCH.indexOf(cur),j=i+(dy<0?1:-1);
-    if(j>=0&&j<WATCH.length){setCur(WATCH[j]);haptic()}
-  });
-  p.addEventListener('click',()=>{if(moved){moved=false;return}openTF()});
-})();
 
 /* ---------- schede in basso ---------- */
 function showTab(x){
@@ -2225,3 +2227,110 @@ $('hubbg').onclick=closeHub;
 $('hubx').onclick=closeHub;
 $('hubleft').onclick=()=>{if(HUB.stack.length)hubBack();else shareChart()};
 $('more').onclick=openHub;
+
+
+/* =====================================================================
+   RUOTA DI SCELTA (simbolo e timeframe) sulla pillola in basso
+   - tieni premuto e trascina su/giu': scegli e lasci il dito
+   - tocco semplice: la ruota resta aperta, la scorri e tocchi la voce
+   ===================================================================== */
+var TFN={
+ it:{'1m':'1 minuto','5m':'5 minuti','15m':'15 minuti','1H':'1 ora','4H':'4 ore','1D':'1 giorno'},
+ es:{'1m':'1 minuto','5m':'5 minutos','15m':'15 minutos','1H':'1 hora','4H':'4 horas','1D':'1 día'},
+ en:{'1m':'1 minute','5m':'5 minutes','15m':'15 minutes','1H':'1 hour','4H':'4 hours','1D':'1 day'},
+ fr:{'1m':'1 minute','5m':'5 minutes','15m':'15 minutes','1H':'1 heure','4H':'4 heures','1D':'1 jour'}
+};
+var WROW=42,WVIS=5;
+var WH={open:false,kind:null,items:[],idx:0,start:0,drag:false,y0:0,pid:null,last:-1,timer:null};
+function tfList(){return Object.keys(SECS)}
+function renderSymPillTF(){
+  const L=tfList(),i=L.indexOf(res);
+  $('sttxt').textContent=res;
+  $('stg1').textContent=i>0?L[i-1]:'';
+  $('stg2').textContent=i>=0&&i<L.length-1?L[i+1]:'';
+}
+function wheelBuild(kind){
+  const w=$('wheel'),list=$('whl');
+  WH.kind=kind;
+  WH.items=kind==='sym'?WATCH.filter(n=>BYN[n]):tfList();
+  WH.idx=Math.max(0,WH.items.indexOf(kind==='sym'?cur:res));WH.start=WH.idx;WH.last=WH.idx;
+  list.innerHTML='';
+  WH.items.forEach((k,i)=>{
+    const r=document.createElement('div');r.className='wrow';r.dataset.i=i;
+    if(kind==='sym'){r.appendChild(iconEl(BYN[k],26));const s=document.createElement('span');s.textContent=k;r.appendChild(s)}
+    else{const s=document.createElement('span');s.textContent=(TFN[lang]||TFN.it)[k]||k;r.appendChild(s)}
+    r.onclick=()=>{if(WH.drag)return;wheelTo(i,true);setTimeout(()=>wheelClose(true),200)};
+    list.appendChild(r);
+  });
+  /* posizione: sopra la parte della pillola che hai premuto */
+  const z=$(kind==='sym'?'spsym':'sptf').getBoundingClientRect(),bar=$('chbar').getBoundingClientRect();
+  const W=kind==='sym'?Math.max(200,Math.min(240,z.width)):170;
+  let left=kind==='sym'?z.left:z.left+z.width/2-W/2;
+  left=Math.max(10,Math.min(window.innerWidth-W-10,left));
+  w.style.width=W+'px';w.style.left=left+'px';
+  w.style.bottom=(window.innerHeight-bar.top+12)+'px';
+  w.style.setProperty('--wo',(z.left+z.width/2-left)+'px');
+}
+function wheelMark(){
+  [...$('whl').children].forEach((r,i)=>r.classList.toggle('on',i===WH.idx));
+}
+function wheelTo(i,smooth){
+  i=Math.max(0,Math.min(WH.items.length-1,i));
+  WH.idx=i;wheelMark();
+  const l=$('whl');
+  try{l.scrollTo({top:i*WROW,behavior:smooth?'smooth':'auto'})}catch(e){l.scrollTop=i*WROW}
+  if(i!==WH.last){WH.last=i;haptic()}
+}
+function wheelOpen(kind){
+  if(WH.open)wheelClose(false);
+  wheelBuild(kind);
+  WH.open=true;
+  $('wheel').hidden=false;$('wheelbg').hidden=false;
+  $(kind==='sym'?'spsym':'sptf').classList.add('press');
+  wheelTo(WH.idx,false);WH.last=WH.idx;
+  requestAnimationFrame(()=>$('wheel').classList.add('show'));
+}
+function wheelClose(apply){
+  if(!WH.open)return;
+  WH.open=false;WH.drag=false;
+  const w=$('wheel');w.classList.remove('show');$('wheelbg').hidden=true;
+  $('spsym').classList.remove('press');$('sptf').classList.remove('press');
+  setTimeout(()=>{if(!WH.open)w.hidden=true},180);
+  if(apply&&WH.idx!==WH.start){
+    const v=WH.items[WH.idx];
+    if(WH.kind==='sym')setCur(v);else setRes(v);
+  }
+}
+/* scorrimento libero della ruota: la voce al centro e' quella scelta */
+$('whl').addEventListener('scroll',()=>{
+  if(!WH.open||WH.drag)return;
+  const i=Math.max(0,Math.min(WH.items.length-1,Math.round($('whl').scrollTop/WROW)));
+  if(i!==WH.idx){WH.idx=i;wheelMark();if(i!==WH.last){WH.last=i;haptic()}}
+},{passive:true});
+$('wheelbg').addEventListener('click',()=>wheelClose(true));
+
+/* tieni premuto e trascina sulla pillola */
+['spsym','sptf'].forEach(id=>{
+  const z=$(id),kind=id==='spsym'?'sym':'tf';
+  z.addEventListener('pointerdown',e=>{
+    if(e.button>0)return;
+    if(WH.open&&WH.kind===kind){wheelClose(true);WH.pid=null;return}
+    wheelOpen(kind);haptic();
+    WH.drag=false;WH.y0=e.clientY;WH.pid=e.pointerId;
+    try{z.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  z.addEventListener('pointermove',e=>{
+    if(WH.pid!==e.pointerId||!WH.open)return;
+    const dy=e.clientY-WH.y0;
+    if(!WH.drag&&Math.abs(dy)>8)WH.drag=true;
+    if(WH.drag)wheelTo(WH.start+Math.round(-dy/(WROW*0.75)),false);
+  });
+  const up=e=>{
+    if(WH.pid!==e.pointerId)return;WH.pid=null;
+    if(WH.drag){WH.drag=false;setTimeout(()=>wheelClose(true),120)}
+    /* tocco semplice: la ruota resta aperta per scorrerla col dito */
+  };
+  z.addEventListener('pointerup',up);
+  z.addEventListener('pointercancel',e=>{if(WH.pid===e.pointerId){WH.pid=null;WH.drag=false}});
+});
+renderSymPillTF();
