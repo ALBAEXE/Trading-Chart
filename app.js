@@ -1,4 +1,4 @@
-const VERSION='0.8.3';
+const VERSION='0.8.4';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -48,6 +48,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #msg{min-height:22px;font-size:13px;color:var(--muted);word-break:break-word;margin:6px 0}
 #fid{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--surf);border:1px solid var(--gold);color:var(--goldfg);margin-bottom:10px}
 #fid svg{width:22px;height:22px;display:block}
+#lform{margin:0}
 #forget{background:transparent;border:0;color:var(--muted);font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
 #ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:var(--faint)}
 body.inapp #ver{display:none}
@@ -181,11 +182,13 @@ document.getElementById('root').innerHTML=`
 </div>
 <div id="brand"><img id="brandimg" alt="" src="${LOGO_SRC}"></div>
 <div id="login">
-  <button id="fid" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 10v1.5M15 10v1.5M12 10v3.5h-1M9 16.2c1.8 1.4 4.2 1.4 6 0"/></svg><span id="fidtxt"></span></button>
-  <input id="email" type="email" placeholder="Email" autocomplete="off">
-  <input id="pass" type="password" placeholder="Password" autocomplete="off">
-  <input id="server" placeholder="Server" autocomplete="off">
-  <button id="go">Collegati</button>
+  <button id="fid" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 10v1.5M15 10v1.5M12 10v3.5h-1M9 16.2c1.8 1.4 4.2 1.4 6 0"/></svg><span id="fidtxt"></span></button>
+  <form id="lform" autocomplete="on" novalidate>
+  <input id="email" name="email" type="email" placeholder="Email" autocomplete="username" autocapitalize="off" spellcheck="false">
+  <input id="pass" name="password" type="password" placeholder="Password" autocomplete="current-password">
+  <input id="server" name="server" placeholder="Server" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button id="go" type="submit">Collegati</button>
+  </form>
   <button id="forget" hidden></button>
 </div>
 <div id="msg"></div>
@@ -248,25 +251,25 @@ const T={
   it:{email:'Email',pass:'Password',server:'Server',go:'Collegati',
     logging:'Accesso in corso...',finding:'Carico i mercati...',nofind:'XAUUSD non trovato',
     nobars:'Nessuna candela ricevuta',upd:'Aggiornamento: ',ok:'Collegato.',
-    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella versione 0.9.0, con il nuovo motore del grafico.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",slow:"Connessione lenta con il broker, riprovo tra poco.",
+    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella versione 0.9.0, con il nuovo motore del grafico.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",slow:"Connessione lenta con il broker, riprovo tra poco.",fidhint:"Se iPhone dice che non c'è nessuna passkey, tocca «Cancella accesso salvato», entra con email e password e salva di nuovo.",
     nolib:'La libreria del grafico non si è caricata. Ricarica la pagina.',
     cors:'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'},
   es:{email:'Correo electrónico',pass:'Contraseña',server:'Servidor',go:'Conectar',
     logging:'Iniciando sesión...',finding:'Cargando mercados...',nofind:'XAUUSD no encontrado',
     nobars:'No se recibió ninguna vela',upd:'Actualización: ',ok:'Conectado.',
-    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la versión 0.9.0, con el nuevo motor del gráfico.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",slow:"Conexión lenta con el bróker, reintento en breve.",
+    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la versión 0.9.0, con el nuevo motor del gráfico.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",slow:"Conexión lenta con el bróker, reintento en breve.",fidhint:"Si el iPhone dice que no hay ninguna llave de acceso, toca «Borrar acceso guardado», entra con correo y contraseña y guarda de nuevo.",
     nolib:'La librería del gráfico no se cargó. Recarga la página.',
     cors:'El navegador bloqueó la solicitud (probable bloqueo CORS de TradeLocker).'},
   en:{email:'Email',pass:'Password',server:'Server',go:'Connect',
     logging:'Signing in...',finding:'Loading markets...',nofind:'XAUUSD not found',
     nobars:'No candles received',upd:'Update: ',ok:'Connected.',
-    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in version 0.9.0, with the new chart engine.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",slow:"Slow connection to the broker, retrying shortly.",
+    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in version 0.9.0, with the new chart engine.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",slow:"Slow connection to the broker, retrying shortly.",fidhint:"If the iPhone says there is no passkey, tap “Delete saved sign-in”, sign in with email and password and save again.",
     nolib:'The chart library failed to load. Reload the page.',
     cors:'The browser blocked the request (probably a TradeLocker CORS block).'},
   fr:{email:'E-mail',pass:'Mot de passe',server:'Serveur',go:'Se connecter',
     logging:'Connexion en cours...',finding:'Chargement des marchés...',nofind:'XAUUSD introuvable',
     nobars:'Aucune bougie reçue',upd:'Mise à jour : ',ok:'Connecté.',
-    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la version 0.9.0, avec le nouveau moteur graphique.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",slow:"Connexion lente avec le courtier, nouvel essai sous peu.",
+    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la version 0.9.0, avec le nouveau moteur graphique.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",slow:"Connexion lente avec le courtier, nouvel essai sous peu.",fidhint:"Si l'iPhone indique qu'il n'y a aucune clé d'accès, touche « Supprimer l'accès enregistré », connecte-toi avec e-mail et mot de passe et enregistre à nouveau.",
     nolib:"La bibliothèque du graphique ne s'est pas chargée. Recharge la page.",
     cors:'Le navigateur a bloqué la requête (probable blocage CORS de TradeLocker).'}
 };
@@ -431,7 +434,7 @@ async function doRefresh(){
     location.reload();
     return;
   }
-  try{await load();refreshWL(true)}catch(e){msg(e.message)}
+  await loadSafe();refreshWL(true);
 }
 $('reload').onclick=async()=>{
   const b=$('reload');
@@ -445,7 +448,8 @@ $('reload').onclick=async()=>{
 /* una richiesta alla volta, distanziate; se il broker ne rifiuta una, pausa e poi riprova */
 const GAP=350;
 let apiChain=Promise.resolve(),apiLast=0,apiPauseUntil=0,apiBack=0;
-function backoff(){apiBack=Math.min(60000,apiBack?apiBack*2:5000);apiPauseUntil=Date.now()+apiBack}
+/* rete caduta: pausa breve (1,5 s, poi di piu' se continua); troppe richieste (429): pausa piu' lunga */
+function backoff(first){apiBack=Math.min(30000,apiBack?apiBack*2:first);apiPauseUntil=Date.now()+apiBack}
 function api(path,opt={}){
   const isAuth=path.startsWith('/auth/');
   const run=async()=>{
@@ -454,8 +458,8 @@ function api(path,opt={}){
     apiLast=Date.now();
     let r;
     try{r=await fetch(BASE+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}})}
-    catch(e){if(!isAuth)backoff();throw e}
-    if(r.status===429)backoff();else if(r.ok)apiBack=0;
+    catch(e){if(!isAuth)backoff(1500);throw e}
+    if(r.status===429)backoff(5000);else if(r.ok)apiBack=0;
     const tx=await r.text();let j;
     try{j=JSON.parse(tx)}catch(e){j=tx}
     if(!r.ok){const er=new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));er.status=r.status;throw er}
@@ -531,10 +535,10 @@ function setCur(name,doLoad=true){
   const changed=name!==cur;
   cur=name;tid=BYN[name].tid;route=BYN[name].route;
   try{localStorage.setItem('tc_sym',name)}catch(e){}
-  if(changed){lastBars=[];lastMove=0}
+  if(changed){lastBars=[];lastMove=0;if(series){try{series.setData([])}catch(e){}}}
   renderLegend();renderSymPill();renderMini();tint();
   if(doLoad&&series){
-    load().catch(e=>msg(e.message));
+    loadSafe();
     quoteFor(name).then(()=>{renderLegend();renderMini();tint()}).catch(()=>{});
   }
 }
@@ -542,7 +546,7 @@ function setRes(r){
   if(!SECS[r])return;
   res=r;lastBars=[];lastMove=0;
   renderSymPill();
-  if(series)load().catch(e=>msg(e.message));
+  if(series){try{series.setData([])}catch(e){}loadSafe()}
 }
 
 /* ---------- icone e descrizioni ---------- */
@@ -731,6 +735,7 @@ async function load(){
   lastBars=b;afterData.prev=null;
   setDec(decOf(b.slice(-200).flatMap(x=>[x.o,x.h,x.l,x.c])));
   series.setData(b.map(toChart));
+  try{chart.priceScale('right').applyOptions({autoScale:true});chart.timeScale().scrollToRealTime()}catch(e){}
   afterData();
 }
 let tickFails=0;
@@ -916,9 +921,10 @@ function start(){
   $('top').hidden=true;$('login').hidden=true;$('brand').hidden=true;
   document.body.classList.add('inapp');
   $('shell').hidden=false;
+  msg('');
   renderAll();
   showTab(tab||'wl');
-  load().then(()=>msg('')).catch(e=>msg(e.message));
+  loadSafe();
   quoteFor(cur).then(()=>{renderLegend();renderMini();tint()}).catch(()=>{});
   refreshWL(true);
 }
@@ -964,7 +970,7 @@ let hid2=0;
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){hid2=Date.now();return}
   if(!series)return;
-  (Date.now()-hid2>120000?load():tick()).catch(e=>msg(e.message));
+  if(Date.now()-hid2>120000)loadSafe();else tick();
 });
 
 /* ---------- Face ID: le credenziali restano cifrate solo su questo telefono ---------- */
@@ -984,44 +990,32 @@ async function idbGet(k){const d=await idb();return new Promise((res,rej)=>{cons
 async function idbSet(k,v){const d=await idb();return new Promise((res,rej)=>{const x=d.transaction('k','readwrite');x.objectStore('k').put(v,k);x.oncomplete=()=>res();x.onerror=()=>rej(x.error)})}
 async function idbDel(k){const d=await idb();return new Promise((res,rej)=>{const x=d.transaction('k','readwrite');x.objectStore('k').delete(k);x.oncomplete=()=>res();x.onerror=()=>rej(x.error)})}
 
+/* SALVA: un solo Face ID, crea la passkey e basta (niente seconda richiesta subito dopo).
+   Email e password vengono cifrate con una chiave casuale che resta solo su questo iPhone. */
 async function saveCreds(){
   const c=sess;if(!c)throw new Error('no session');
-  const salt=rnd(32);
   const cred=await navigator.credentials.create({publicKey:{
     rp:{name:'Trading Charts',id:location.hostname},
-    user:{id:rnd(16),name:'trading-charts',displayName:'Trading Charts'},
+    user:{id:rnd(16),name:'Trading Charts',displayName:'Trading Charts'},
     challenge:rnd(32),
     pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
-    authenticatorSelection:{authenticatorAttachment:'platform',residentKey:'preferred',userVerification:'required'},
-    timeout:60000,attestation:'none',
-    extensions:{prf:{eval:{first:salt}}}
+    authenticatorSelection:{authenticatorAttachment:'platform',residentKey:'required',requireResidentKey:true,userVerification:'required'},
+    timeout:60000,attestation:'none'
   }});
+  if(!cred||!cred.rawId)throw new Error('passkey');
   const id=new Uint8Array(cred.rawId);
-  let ext={};try{ext=cred.getClientExtensionResults()}catch(e){}
-  let prf=ext.prf&&ext.prf.results&&ext.prf.results.first;
-  if(!prf&&ext.prf&&ext.prf.enabled){
-    /* alcuni telefoni danno la chiave solo alla lettura: secondo Face ID */
-    const a=await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:'public-key',id}],userVerification:'required',timeout:60000,extensions:{prf:{eval:{first:salt}}}}});
-    const e2=a.getClientExtensionResults();
-    prf=e2.prf&&e2.prf.results&&e2.prf.results.first;
-  }
-  let key,mode;
-  if(prf){key=await aesFromPrf(prf);mode='prf'}
-  else{
-    /* il telefono non da' la chiave dal Face ID: chiave casuale non estraibile + Face ID come controllo */
-    key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
-    await idbSet('k',key);mode='gate';
-  }
+  const key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  await idbSet('k',key);
   const iv=rnd(12);
   const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(c)));
-  localStorage.setItem(CRED_KEY,JSON.stringify({v:1,mode,id:b64(id),salt:b64(salt),iv:b64(iv),ct:b64(ct)}));
-  return mode;
+  localStorage.setItem(CRED_KEY,JSON.stringify({v:2,mode:'gate',id:b64(id),iv:b64(iv),ct:b64(ct)}));
+  return 'gate';
 }
+/* ENTRA: un solo Face ID, poi l'app apre i dati salvati */
 async function unlock(){
   const rec=JSON.parse(localStorage.getItem(CRED_KEY));
-  const id=unb64(rec.id),salt=unb64(rec.salt);
-  const pk={challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:'public-key',id}],userVerification:'required',timeout:60000};
-  if(rec.mode==='prf')pk.extensions={prf:{eval:{first:salt}}};
+  const pk={challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:'public-key',id:unb64(rec.id)}],userVerification:'required',timeout:60000};
+  if(rec.mode==='prf'&&rec.salt)pk.extensions={prf:{eval:{first:unb64(rec.salt)}}};
   const a=await navigator.credentials.get({publicKey:pk});
   let key;
   if(rec.mode==='prf'){
@@ -1057,7 +1051,7 @@ async function faceLogin(auto){
   try{c=await unlock()}
   catch(e){
     /* auto: se il browser vuole un tocco o annulli, resta il pulsante, senza messaggi */
-    if(!auto||(e&&e.name!=='NotAllowedError'))msg(t('fidfail')+(e&&e.name?' ('+e.name+(e.message?': '+e.message:'')+')':''));
+    if(!auto||(e&&e.name!=='NotAllowedError'))msg(t('fidfail')+' '+t('fidhint'));
     return;
   }
   try{
@@ -1075,7 +1069,7 @@ $('barsave').onclick=async()=>{
   try{
     const mode=await saveCreds();
     $('bar').hidden=true;
-    msg(t('saved')+' '+(mode==='prf'?t('savedkey'):t('savedgate')));
+    msg(t('saved'));
     setTimeout(()=>msg(''),5000);
     refreshFid();
   }catch(e){
@@ -1090,12 +1084,15 @@ $('forget').onclick=async()=>{
 };
 $('fid').onclick=()=>faceLogin(false);
 
-$('go').onclick=async()=>{
+$('lform').onsubmit=async ev=>{
+  ev.preventDefault();
   const c={email:$('email').value.trim(),password:$('pass').value,server:$('server').value.trim()};
+  if(!c.email||!c.password||!c.server)return;
   try{
     msg(t('logging'));
     await connect(c);
-    $('pass').value='';
+    try{localStorage.setItem('tc_server',c.server)}catch(e){}
+    setTimeout(()=>{$('pass').value=''},1500);
     start();
     offerSave();
   }catch(e){
@@ -1104,6 +1101,8 @@ $('go').onclick=async()=>{
 };
 
 refreshFid();
+/* il server non e' un dato segreto: l'app lo ricorda */
+try{const sv=localStorage.getItem('tc_server');if(sv&&!$('server').value)$('server').value=sv}catch(e){}
 /* all'apertura, se c'e' un accesso salvato, chiede il Face ID appena finisce l'animazione */
 (function(){
   const snap=takeSnap();
@@ -1159,4 +1158,15 @@ function errText(e){
   const m=(e&&e.message)||String(e);
   if(e instanceof TypeError&&/fetch|load failed|network/i.test(m))return t('cors');
   return m;
+}
+
+/* carica il grafico; se la rete o il broker fanno i capricci riprova da solo */
+async function loadSafe(n=0){
+  try{await load()}
+  catch(e){
+    if(e&&e.status===401)return;
+    const net=e instanceof TypeError||(e&&(e.status===429||e.status>=500));
+    if(net&&n<6){setTimeout(()=>loadSafe(n+1),Math.min(10000,800*(n+1)));return}
+    msg(net?t('slow'):errText(e));
+  }
 }
