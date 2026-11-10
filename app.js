@@ -1,4 +1,6 @@
-const VERSION='0.6.0';
+const VERSION='0.7.0';
+/* tema salvato sul telefono: scuro (predefinito) o bianco */
+try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
 /* Logo ritagliato dall'ultimo fotogramma del video (quadrato 240x240, parte da x=240 y=515 nel video 720x1280).
    Si sovrappone al logo del video e poi scivola in cima alla pagina di login. */
@@ -9,40 +11,56 @@ const FLY_MS=1000;      /* durata dello spostamento */
 
 /* ---------- interfaccia ---------- */
 const APP_CSS=`
-body{padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));color:#e6e9ee;font:15px -apple-system,system-ui,sans-serif}
-input,button{font:inherit;width:100%;padding:11px;margin:5px 0;border-radius:8px;border:1px solid #2a2a2a;background:#111;color:inherit}
-button{background:#d9a441;color:#111;font-weight:600;border:0}
+:root{--bg:#000;--surf:#111;--surf2:#1c1c1c;--line:#2a2a2a;--fg:#e6e9ee;--muted:#9a9a9a;--faint:#555;--gold:#d9a441;--goldfg:#d9a441;--ongold:#111;--grid:#141414;--shadow:rgba(0,0,0,.7);--danger:#e5675f;--logo:none}
+html[data-theme="light"]{--bg:#fff;--surf:#f3f3f1;--surf2:#e9e9e6;--line:#d9d9d4;--fg:#141414;--muted:#6b6b6b;--faint:#a3a3a3;--gold:#d9a441;--goldfg:#a87720;--ongold:#111;--grid:#efefec;--shadow:rgba(0,0,0,.14);--danger:#c8413a;--logo:invert(1)}
+html,body{background:var(--bg)}
+#root{color:var(--fg)}
+body{padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));color:var(--fg);font:15px -apple-system,system-ui,sans-serif;transition:background-color .3s ease,color .3s ease}
+input,button{font:inherit;width:100%;padding:11px;margin:5px 0;border-radius:8px;border:1px solid var(--line);background:var(--surf);color:inherit}
+input::placeholder{color:var(--muted)}
+button{background:var(--gold);color:var(--ongold);font-weight:600;border:0}
 #top{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px}
-#reload{width:38px;height:38px;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#111;color:#d9a441;border:1px solid #2a2a2a}
+#reload{width:38px;height:38px;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--surf);color:var(--goldfg);border:1px solid var(--line)}
 #reload svg{width:20px;height:20px;display:block}
 #reload.spin svg{animation:rot .8s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
 #langbox{position:relative}
-#langbtn{width:auto;height:38px;margin:0;padding:0 10px;display:flex;align-items:center;gap:6px;border-radius:10px;background:#111;color:#9a9a9a;border:1px solid #2a2a2a;font-size:20px;font-weight:400}
+#langbtn{width:auto;height:38px;margin:0;padding:0 10px;display:flex;align-items:center;gap:6px;border-radius:10px;background:var(--surf);color:var(--muted);border:1px solid var(--line);font-size:20px;font-weight:400}
 #langbtn svg{width:11px;height:11px}
-#langmenu{position:absolute;right:0;top:calc(100% + 6px);min-width:170px;background:#111;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.7)}
-#langmenu button{display:flex;align-items:center;gap:12px;width:100%;margin:0;padding:12px 14px;border:0;border-radius:0;background:transparent;color:#e6e9ee;font-size:15px;font-weight:400;text-align:left}
-#langmenu button+button{border-top:1px solid #2a2a2a}
-#langmenu button.sel{background:#1c1c1c;color:#d9a441}
+#langmenu{position:absolute;right:0;top:calc(100% + 6px);min-width:170px;background:var(--surf);border:1px solid var(--line);border-radius:12px;overflow:hidden;z-index:20;box-shadow:0 8px 24px var(--shadow)}
+#langmenu button{display:flex;align-items:center;gap:12px;width:100%;margin:0;padding:12px 14px;border:0;border-radius:0;background:transparent;color:var(--fg);font-size:15px;font-weight:400;text-align:left}
+#langmenu button+button{border-top:1px solid var(--line)}
+#langmenu button.sel{background:var(--surf2);color:var(--goldfg)}
 #langmenu .fl{font-size:22px;line-height:1}
+#menubox{position:relative;margin-right:auto}
+#menubtn{width:44px;height:44px;margin:0;padding:0;background:transparent;border:0;border-radius:10px;display:flex;align-items:center;justify-content:center}
+#menubtn img{width:44px;height:44px;display:block;filter:var(--logo)}
+#menu{position:absolute;left:0;top:calc(100% + 6px);min-width:210px;background:var(--surf);border:1px solid var(--line);border-radius:12px;overflow:hidden;z-index:20;box-shadow:0 8px 24px var(--shadow)}
+#menu .lbl{padding:12px 14px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#menu button{display:flex;align-items:center;gap:10px;width:100%;margin:0;padding:12px 14px;border:0;border-radius:0;background:transparent;color:var(--fg);font-size:15px;font-weight:400;text-align:left}
+#menu button .ck{margin-left:auto;color:var(--goldfg);font-weight:600}
+#menu .sep{height:1px;background:var(--line);margin-top:6px}
+#menu #logout{color:var(--danger)}
 #brand{display:flex;justify-content:center;margin:-6px 0 4px}
-#brandimg{width:96px;height:96px;display:block;visibility:hidden}
+#brandimg{width:96px;height:96px;display:block;visibility:hidden;filter:var(--logo)}
 #brand.show #brandimg{visibility:visible}
 #fly{position:fixed;z-index:101;margin:0;padding:0;border:0;pointer-events:none;display:block;opacity:0;transform-origin:50% 50%;will-change:transform}
 #tf{display:flex;gap:6px;margin-top:8px}
-#tf button{background:#111;color:#e6e9ee;border:1px solid #2a2a2a;padding:8px 0;margin:0}
-#tf button.on{background:#d9a441;color:#111}
+#tf button{background:var(--surf);color:var(--fg);border:1px solid var(--line);padding:8px 0;margin:0}
+#tf button.on{background:var(--gold);color:var(--ongold);border-color:var(--gold)}
 #chart{height:68vh;margin-top:8px}
-#msg{min-height:22px;font-size:13px;color:#9a9a9a;word-break:break-word;margin:6px 0}
+#msg{min-height:22px;font-size:13px;color:var(--muted);word-break:break-word;margin:6px 0}
 #px{font-size:20px;font-weight:600;margin-left:8px}
-#fid{display:flex;align-items:center;justify-content:center;gap:10px;background:#111;border:1px solid #d9a441;color:#d9a441;margin-bottom:10px}
+#fid{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--surf);border:1px solid var(--gold);color:var(--goldfg);margin-bottom:10px}
 #fid svg{width:22px;height:22px;display:block}
-#forget{background:transparent;border:0;color:#6b6b6b;font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
-#bar{display:flex;align-items:center;gap:8px;background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:8px 10px;margin:0 0 8px;font-size:13px;color:#cfcfcf}
+#forget{background:transparent;border:0;color:var(--muted);font-weight:400;font-size:13px;text-decoration:underline;margin:2px 0;padding:8px}
+#bar{display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:0 0 8px;font-size:13px;color:var(--fg)}
 #bar span{flex:1}
 #bar button{width:auto;margin:0;padding:7px 12px;font-size:13px}
-#bar .no{background:transparent;color:#9a9a9a;border:1px solid #2a2a2a;font-weight:400}
-#ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:#555}
+#bar .no{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:400}
+#ver{position:fixed;left:14px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:11px;color:var(--faint)}
+body.inapp #ver{display:none}
+body.inapp #msg:empty{display:none}
 `;
 const st=document.createElement('style');
 st.textContent=APP_CSS;
@@ -50,6 +68,7 @@ document.head.appendChild(st);
 
 document.getElementById('root').innerHTML=`
 <div id="top">
+  <div id="menubox" hidden><button id="menubtn" aria-label="Menu"><img alt="" src="${LOGO_SRC}"></button><div id="menu" hidden></div></div>
   <button id="reload" aria-label="Refresh">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
   </button>
@@ -95,25 +114,25 @@ const T={
   it:{email:'Email',pass:'Password',server:'Server',go:'Collegati',
     logging:'Accesso in corso...',finding:'Cerco XAUUSD...',nofind:'XAUUSD non trovato',
     nobars:'Nessuna candela ricevuta',upd:'Aggiornamento: ',ok:'Collegato.',
-    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",
+    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",
     nolib:'La libreria del grafico non si è caricata. Ricarica la pagina.',
     cors:'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'},
   es:{email:'Correo electrónico',pass:'Contraseña',server:'Servidor',go:'Conectar',
     logging:'Iniciando sesión...',finding:'Buscando XAUUSD...',nofind:'XAUUSD no encontrado',
     nobars:'No se recibió ninguna vela',upd:'Actualización: ',ok:'Conectado.',
-    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",
+    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",
     nolib:'La librería del gráfico no se cargó. Recarga la página.',
     cors:'El navegador bloqueó la solicitud (probable bloqueo CORS de TradeLocker).'},
   en:{email:'Email',pass:'Password',server:'Server',go:'Connect',
     logging:'Signing in...',finding:'Looking for XAUUSD...',nofind:'XAUUSD not found',
     nobars:'No candles received',upd:'Update: ',ok:'Connected.',
-    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",
+    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",
     nolib:'The chart library failed to load. Reload the page.',
     cors:'The browser blocked the request (probably a TradeLocker CORS block).'},
   fr:{email:'E-mail',pass:'Mot de passe',server:'Serveur',go:'Se connecter',
     logging:'Connexion en cours...',finding:'Recherche de XAUUSD...',nofind:'XAUUSD introuvable',
     nobars:'Aucune bougie reçue',upd:'Mise à jour : ',ok:'Connecté.',
-    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",
+    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",
     nolib:"La bibliothèque du graphique ne s'est pas chargée. Recharge la page.",
     cors:'Le navigateur a bloqué la requête (probable blocage CORS de TradeLocker).'}
 };
@@ -149,6 +168,7 @@ function applyLang(){
   $('go').textContent=t('go');
   buildLangMenu();
   try{refreshFid()}catch(e){}
+  try{buildMenu()}catch(e){}
 }
 $('langbtn').onclick=e=>{
   e.stopPropagation();
@@ -217,10 +237,11 @@ applyLang();
       const dx=(b.left+b.width/2)-(g.left+g.size/2);
       const dy=(b.top+b.height/2)-(g.top+g.size/2);
       const sc=b.width/g.size;
-      fly.style.transition='transform '+FLY_MS+'ms cubic-bezier(.65,0,.25,1)';
+      fly.style.transition='transform '+FLY_MS+'ms cubic-bezier(.65,0,.25,1), filter '+FLY_MS+'ms ease';
       fly.getBoundingClientRect();
       requestAnimationFrame(()=>{
         fly.style.transform='translate('+dx+'px,'+dy+'px) scale('+sc+')';
+        if(document.documentElement.dataset.theme==='light')fly.style.filter='invert(1)';
         fadeOut();
       });
       let landed=false;
@@ -309,10 +330,10 @@ async function tick(){
 function start(){
   if(!window.LightweightCharts){msg(t('nolib'));return}
   $('login').hidden=true;$('brand').hidden=true;$('app').hidden=false;
+  document.body.classList.add('inapp');$('menubox').hidden=false;
   chart=LightweightCharts.createChart($('chart'),{
     autoSize:true,
-    layout:{background:{color:'#000000'},textColor:'#9a9a9a'},
-    grid:{vertLines:{color:'#141414'},horzLines:{color:'#141414'}},
+    ...chartColors(),
     timeScale:{timeVisible:true,secondsVisible:false}
   });
   series=chart.addCandlestickSeries();
@@ -327,7 +348,7 @@ function start(){
     };
     $('tf').appendChild(b);
   });
-  load().then(()=>msg(t('ok'))).catch(e=>msg(e.message));
+  load().then(()=>msg('')).catch(e=>msg(e.message));
   setInterval(tick,5000);
 }
 
@@ -353,7 +374,7 @@ async function connect(c){
 /* se il token e' scaduto (401) l'app si ricollega da sola e riprova */
 function relogin(){
   if(!relogging){
-    relogging=(async()=>{msg(t('relogin'));await connect(sess);msg(t('ok'))})().finally(()=>{relogging=null});
+    relogging=(async()=>{msg(t('relogin'));await connect(sess);msg('')})().finally(()=>{relogging=null});
   }
   return relogging;
 }
@@ -478,6 +499,7 @@ $('barsave').onclick=async()=>{
     const mode=await saveCreds();
     $('bar').hidden=true;
     msg(t('saved')+' '+(mode==='prf'?t('savedkey'):t('savedgate')));
+    setTimeout(()=>msg(''),5000);
     refreshFid();
   }catch(e){
     msg(t('nofid')+(e&&e.name?' ('+e.name+')':''));
@@ -506,7 +528,8 @@ $('go').onclick=async()=>{
 refreshFid();
 /* all'apertura, se c'e' un accesso salvato, chiede il Face ID appena finisce l'animazione */
 (function(){
-  if(!hasSaved()||!fidOK())return;
+  let na=false;try{na=sessionStorage.getItem('noAuto')==='1';sessionStorage.removeItem('noAuto')}catch(e){}
+  if(na||!hasSaved()||!fidOK())return;
   let n=0;
   const w=setInterval(()=>{
     n++;
@@ -516,3 +539,45 @@ refreshFid();
     }
   },100);
 })();
+
+/* ---------- menu dell'app: tema ed esci ---------- */
+function themeVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function chartColors(){
+  return{layout:{background:{color:themeVar('--bg')},textColor:themeVar('--muted')},
+    grid:{vertLines:{color:themeVar('--grid')},horzLines:{color:themeVar('--grid')}}};
+}
+function setTheme(th){
+  document.documentElement.dataset.theme=th;
+  try{localStorage.setItem('theme',th)}catch(e){}
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=themeVar('--bg');
+  if(chart)chart.applyOptions(chartColors());
+  buildMenu();
+}
+function buildMenu(){
+  const m=$('menu');
+  const cur=document.documentElement.dataset.theme||'dark';
+  m.innerHTML='';
+  const lbl=document.createElement('div');lbl.className='lbl';lbl.textContent=t('theme');m.appendChild(lbl);
+  [['dark',t('dark')],['light',t('light')]].forEach(([k,txt])=>{
+    const b=document.createElement('button');
+    const s1=document.createElement('span');s1.textContent=txt;
+    const s2=document.createElement('span');s2.className='ck';s2.textContent=k===cur?'✓':'';
+    b.appendChild(s1);b.appendChild(s2);
+    b.onclick=e=>{e.stopPropagation();setTheme(k)};
+    m.appendChild(b);
+  });
+  const sep=document.createElement('div');sep.className='sep';m.appendChild(sep);
+  const out=document.createElement('button');out.id='logout';out.textContent=t('logout');
+  out.onclick=e=>{e.stopPropagation();logout()};
+  m.appendChild(out);
+}
+/* esci: torna al login. L'accesso salvato con Face ID resta, si rientra col pulsante */
+function logout(){
+  try{sessionStorage.setItem('noSplash','1');sessionStorage.setItem('noAuto','1')}catch(e){}
+  location.reload();
+}
+$('menubtn').onclick=e=>{e.stopPropagation();$('langmenu').hidden=true;$('menu').hidden=!$('menu').hidden};
+document.addEventListener('click',e=>{if(!$('menubox').contains(e.target))$('menu').hidden=true});
+buildMenu();
+/* aprendo le lingue si chiude il menu del logo */
+(function(){const lb=$('langbtn').onclick;$('langbtn').onclick=e=>{$('menu').hidden=true;lb(e)}})();
