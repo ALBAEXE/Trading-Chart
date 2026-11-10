@@ -1,4 +1,4 @@
-const VERSION='0.8.9';
+const VERSION='0.9.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -65,6 +65,26 @@ body.inapp #msg:empty{display:none}
 #shell{position:fixed;inset:0}
 /* iPhone disegna l'app solo fino alla fascia nera in basso: le barre scendono fino al fondo della parte visibile */
 html.vgap{--tbb:8px}
+#draw{position:absolute;left:0;top:0;z-index:2;pointer-events:none;touch-action:none}
+#dban,#dedit{position:absolute;left:var(--side);right:var(--side);top:calc(env(safe-area-inset-top) + 6px);min-height:48px;border-radius:24px;display:flex;align-items:center;gap:6px;padding:0 6px 0 16px;z-index:9;color:var(--fg);font-size:14px}
+#dbantxt{flex:1;min-width:0}
+#dban button{width:auto;margin:0;padding:8px 14px;border-radius:18px;font-size:14px}
+#dbcancel{background:var(--glasssel);color:var(--fg)}
+#dedit{justify-content:flex-end;padding:0 6px}
+.dbtn{width:auto;min-width:42px;height:38px;margin:0;padding:0 12px;border-radius:19px;background:var(--glasssel);color:var(--fg);display:flex;align-items:center;justify-content:center;font-size:14px}
+.dbtn svg{width:20px;height:20px;display:block}
+.dbtn.danger{color:var(--danger)}
+.dbtn.on{background:var(--gold);color:var(--ongold)}
+.dbtn .dot{width:20px;height:20px;border-radius:50%;display:block;box-shadow:0 0 0 2px var(--glassline)}
+#rpbar{position:absolute;left:var(--side);right:var(--side);bottom:calc(var(--tbb) + var(--tbh) + var(--gapb));height:var(--rowh);border-radius:25px;display:flex;align-items:center;justify-content:space-around;padding:0 6px;z-index:6}
+#rpbar button{width:44px;height:42px;margin:0;padding:0;background:transparent;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:21px}
+#rpbar button:disabled{opacity:.35}
+#rpbar svg{width:24px;height:24px;display:block}
+#rpbar #rpspeed{width:auto;padding:0 14px;background:var(--glasssel);font-weight:700}
+.tgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:6px 18px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin:0;padding:16px 4px 12px;border-radius:16px;background:var(--glasssel);color:var(--fg);border:0;font-weight:500;font-size:13px;text-align:center}
+.tile svg{width:30px;height:30px;display:block}
+#dtxt{display:block;margin:4px 18px 6px;width:calc(100% - 36px);min-height:84px;font:inherit;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surf);color:var(--fg);resize:none}
 .screen{position:absolute;inset:0}
 #wl-screen{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 8px) 0 calc(var(--tbb) + var(--tbh) + var(--gapb) + var(--rowh) + 24px)}
 #wlhead{display:flex;align-items:center;justify-content:space-between;padding:0 16px}
@@ -128,14 +148,14 @@ html.vgap{--tbb:8px}
 #lgbtn.open svg{transform:rotate(180deg)}
 #lgohlc{font-size:12px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;line-height:1.6}
 #chbar{position:absolute;left:var(--side);right:var(--side);bottom:calc(var(--tbb) + var(--tbh) + var(--gapb));display:flex;gap:8px;z-index:6}
-#sympill{flex:1.35;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:center;gap:9px;margin:0;padding:0 12px 0 6px;position:relative;overflow:hidden;color:var(--fg);font-weight:600;font-size:16px;text-align:left}
+#sympill{flex:1.1;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:center;gap:9px;margin:0;padding:0 12px 0 6px;position:relative;overflow:hidden;color:var(--fg);font-weight:600;font-size:16px;text-align:left}
 #sympill .ic{flex-basis:38px}
 #sptxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #sympill .ghost{position:absolute;left:53px;font-size:13px;opacity:.32;font-weight:600;white-space:nowrap;pointer-events:none}
 #spg1{top:-6px}
 #spg2{bottom:-6px}
 #tools{flex:1;min-width:0;height:var(--rowh);border-radius:25px;display:flex;align-items:center;justify-content:space-around;padding:0 4px}
-#tools button{width:42px;height:42px;margin:0;padding:0;background:transparent;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:50%}
+#tools button{width:36px;height:42px;margin:0;padding:0;background:transparent;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:50%}
 #tools svg{width:24px;height:24px;display:block}
 
 /* fogli dal basso */
@@ -168,6 +188,7 @@ const IC_WL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const IC_CH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v4M7 15v6M17 4v5M17 17v3"/><rect x="5" y="7" width="4" height="8" rx="1"/><rect x="15" y="9" width="4" height="8" rx="1"/></svg>';
 const IC_PEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L9 18l-4 1z"/><path d="M14.5 6.5l3 3"/><path d="M3 22c3-1.2 5 .8 8-.2"/></svg>';
 const IC_IND='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14l4-5 4 4 4-6 6 7"/><path d="M3 19l4-4 4 3 4-5 6 5"/></svg>';
+const IC_RP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5v14"/><path d="M19 6l-9 6 9 6z"/></svg>';
 const IC_MORE='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>';
 const IC_CHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
 const IC_BARS='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"><path d="M8.6 5.5h6.8l1.6 4.8H7z"/><path d="M3.6 13.2h6.8l1.6 4.8H2z"/><path d="M13.6 13.2h6.8l1.6 4.8H12z"/></svg>';
@@ -209,6 +230,7 @@ document.getElementById('root').innerHTML=`
   <section id="ch-screen" class="screen" hidden>
     <div id="chartbox">
       <div id="chart"></div>
+      <canvas id="draw"></canvas>
       <div id="pxtag" hidden><div id="tagpx"></div><div id="tagcd"></div></div>
       <img id="wm" alt="" src="${LOGO_SRC}">
     </div>
@@ -222,9 +244,19 @@ document.getElementById('root').innerHTML=`
       <button id="sympill" class="glass"><span id="spg1" class="ghost"></span><div id="spic"></div><span id="sptxt"></span><span id="spg2" class="ghost"></span></button>
       <div id="tools" class="glass">
         <button id="pencil" aria-label="Drawing">${IC_PEN}</button>
+        <button id="replay" aria-label="Bar Replay">${IC_RP}</button>
         <button id="inds" aria-label="Indicators">${IC_IND}</button>
         <button id="more" aria-label="More">${IC_MORE}</button>
       </div>
+    </div>
+    <div id="dban" class="glass" hidden><span id="dbantxt"></span><button id="dbdone" hidden></button><button id="dbcancel"></button></div>
+    <div id="dedit" class="glass" hidden></div>
+    <div id="rpbar" class="glass" hidden>
+      <button id="rpexit" aria-label="Exit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button id="rppick" aria-label="Pick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+      <button id="rpplay" aria-label="Play"></button>
+      <button id="rpstep" aria-label="Step"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5.5v13l9-6.5z"/><rect x="16" y="5" width="2.6" height="14" rx="1"/></svg></button>
+      <button id="rpspeed">1x</button>
     </div>
   </section>
   <button id="mini" class="glass"><div id="mnic"></div><div id="mntxt"><div id="mna"></div><div id="mnb"></div></div><canvas id="mnsp"></canvas></button>
@@ -257,25 +289,25 @@ const T={
   it:{email:'Email',pass:'Password',server:'Server',go:'Collegati',
     logging:'Accesso in corso...',finding:'Carico i mercati...',nofind:'XAUUSD non trovato',
     nobars:'Nessuna candela ricevuta',upd:'Aggiornamento: ',ok:'Collegato.',
-    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella versione 0.9.0, con il nuovo motore del grafico.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",slow:"Connessione lenta con il broker, riprovo tra poco.",afhint:"Tocca il tuo account sopra la tastiera: iPhone usa il Face ID e l'app entra da sola. La prima volta scrivi email e password e, quando iPhone lo chiede, scegli «Salva password».",reset:"Ripristina l'app",resetq:"Cancellare tutti i dati salvati dall'app su questo iPhone (accesso col Face ID, tema, lingua, server) e ripartire da zero?",resave:"Accesso salvato da rifare: entra con email e password e salva di nuovo col Face ID.",waitfid:"Conferma con Face ID…",nofidresp:"iPhone non ha mostrato il Face ID. Controlla in Impostazioni › Generali › Compilazione automatica e password che password e passkey siano attive, con l'app Password.",fidset:"Controlla in Impostazioni › Generali › Compilazione automatica e password.",fidsave:"Accesso con Face ID",fidhint:"Se iPhone dice che non c'è nessuna passkey, tocca «Cancella accesso salvato», entra con email e password e salva di nuovo.",
+    newver:'Nuova versione, ricarico...',anim:'Animazione interrotta: ',faceid:"Entra con Face ID",save:"Salvare l'accesso con Face ID?",savebtn:"Salva",later:"Non ora",saved:"Accesso salvato.",savedkey:"Chiave protetta dal Face ID.",savedgate:"Controllo con Face ID.",forget:"Cancella accesso salvato",forgot:"Accesso salvato cancellato.",fidfail:"Face ID non riuscito. Usa email e password.",nofid:"Non riesco a usare il Face ID qui.",relogin:"Sessione scaduta, mi ricollego...",theme:"Tema",dark:"Scuro",light:"Bianco",logout:"Esci",wl:"Watchlist",ch:"Grafico",cat_fx:"Forex",cat_com:"Commodity",cat_cry:"Cripto",cat_idx:"Indici",cat_stk:"Azioni",cat_oth:"Altro",search:"Cerca simbolo",searchph:"Cerca",tf:"Timeframe",symbols:"Simboli",tools:"Strumenti di disegno",inds:"Indicatori",soon:"Arrivano nella prossima versione, insieme all'editor per i tuoi script.",tl_trend:"Linea di tendenza",tl_h:"Linea orizzontale",tl_rect:"Rettangolo",tl_fib:"Ritracciamento di Fibonacci",tl_text:"Testo",in_ma:"Medie mobili",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bande di Bollinger",in_mine:"I miei script",refresh:"Aggiorna",language:"Lingua",today:"oggi",noinst:"Nessuno strumento disponibile",noresult:"Nessun risultato",slow:"Connessione lenta con il broker, riprovo tra poco.",sec_trend:"Strumenti analisi trend",sec_fore:"Previsione e misurazione",sec_geo:"Figure geometriche",sec_ann:"Annotazioni",d_trend:"Trendline",d_channel:"Canale parallelo",d_long:"Posizione long",d_short:"Posizione short",d_brush:"Pennello",d_arrow:"Freccia",d_rect:"Rettangolo",d_path:"Percorso",d_ellipse:"Ellisse",d_text:"Testo",d_note:"Nota",h_p1:"Tocca il primo punto, oppure trascina",h_p2:"Tocca il secondo punto",h_p3:"Tocca per la larghezza del canale",h_brush:"Disegna col dito",h_path:"Tocca i punti, poi Fine",h_one:"Tocca dove posizionarlo",cancel:"Annulla",done:"Fine",del:"Elimina",ok:"Fatto",color:"Colore",edtext:"Testo",delall:"Elimina tutti i disegni",txtph:"Scrivi qui",rp_pick:"Tocca la candela da cui far ripartire il grafico",rp_end:"Il replay è arrivato alla fine dei dati.",target:"Target",stop:"Stop",afhint:"Tocca il tuo account sopra la tastiera: iPhone usa il Face ID e l'app entra da sola. La prima volta scrivi email e password e, quando iPhone lo chiede, scegli «Salva password».",reset:"Ripristina l'app",resetq:"Cancellare tutti i dati salvati dall'app su questo iPhone (accesso col Face ID, tema, lingua, server) e ripartire da zero?",resave:"Accesso salvato da rifare: entra con email e password e salva di nuovo col Face ID.",waitfid:"Conferma con Face ID…",nofidresp:"iPhone non ha mostrato il Face ID. Controlla in Impostazioni › Generali › Compilazione automatica e password che password e passkey siano attive, con l'app Password.",fidset:"Controlla in Impostazioni › Generali › Compilazione automatica e password.",fidsave:"Accesso con Face ID",fidhint:"Se iPhone dice che non c'è nessuna passkey, tocca «Cancella accesso salvato», entra con email e password e salva di nuovo.",
     nolib:'La libreria del grafico non si è caricata. Ricarica la pagina.',
     cors:'Il browser ha bloccato la richiesta (probabile blocco CORS di TradeLocker).'},
   es:{email:'Correo electrónico',pass:'Contraseña',server:'Servidor',go:'Conectar',
     logging:'Iniciando sesión...',finding:'Cargando mercados...',nofind:'XAUUSD no encontrado',
     nobars:'No se recibió ninguna vela',upd:'Actualización: ',ok:'Conectado.',
-    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la versión 0.9.0, con el nuevo motor del gráfico.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",slow:"Conexión lenta con el bróker, reintento en breve.",afhint:"Toca tu cuenta encima del teclado: el iPhone usa Face ID y la app entra sola. La primera vez escribe correo y contraseña y, cuando el iPhone lo pida, elige «Guardar contraseña».",reset:"Restablecer la app",resetq:"¿Borrar todos los datos guardados por la app en este iPhone (acceso con Face ID, tema, idioma, servidor) y empezar de cero?",resave:"Hay que rehacer el acceso guardado: entra con correo y contraseña y guarda de nuevo con Face ID.",waitfid:"Confirma con Face ID…",nofidresp:"El iPhone no mostró Face ID. Revisa en Ajustes › General › Autorrelleno y contraseñas que las contraseñas y llaves de acceso estén activas, con la app Contraseñas.",fidset:"Revisa Ajustes › General › Autorrelleno y contraseñas.",fidsave:"Acceso con Face ID",fidhint:"Si el iPhone dice que no hay ninguna llave de acceso, toca «Borrar acceso guardado», entra con correo y contraseña y guarda de nuevo.",
+    newver:'Nueva versión, recargando...',anim:'Animación interrumpida: ',faceid:"Entrar con Face ID",save:"¿Guardar el acceso con Face ID?",savebtn:"Guardar",later:"Ahora no",saved:"Acceso guardado.",savedkey:"Clave protegida por Face ID.",savedgate:"Control con Face ID.",forget:"Borrar acceso guardado",forgot:"Acceso guardado borrado.",fidfail:"Face ID no funcionó. Usa correo y contraseña.",nofid:"No puedo usar Face ID aquí.",relogin:"Sesión caducada, reconectando...",theme:"Tema",dark:"Oscuro",light:"Blanco",logout:"Salir",wl:"Watchlist",ch:"Gráfico",cat_fx:"Forex",cat_com:"Materias primas",cat_cry:"Cripto",cat_idx:"Índices",cat_stk:"Acciones",cat_oth:"Otros",search:"Buscar símbolo",searchph:"Buscar",tf:"Temporalidad",symbols:"Símbolos",tools:"Herramientas de dibujo",inds:"Indicadores",soon:"Llegan en la próxima versión, junto con el editor para tus scripts.",tl_trend:"Línea de tendencia",tl_h:"Línea horizontal",tl_rect:"Rectángulo",tl_fib:"Retroceso de Fibonacci",tl_text:"Texto",in_ma:"Medias móviles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandas de Bollinger",in_mine:"Mis scripts",refresh:"Actualizar",language:"Idioma",today:"hoy",noinst:"No hay instrumentos disponibles",noresult:"Sin resultados",slow:"Conexión lenta con el bróker, reintento en breve.",sec_trend:"Herramientas de tendencia",sec_fore:"Previsión y medición",sec_geo:"Formas geométricas",sec_ann:"Anotaciones",d_trend:"Línea de tendencia",d_channel:"Canal paralelo",d_long:"Posición larga",d_short:"Posición corta",d_brush:"Pincel",d_arrow:"Flecha",d_rect:"Rectángulo",d_path:"Trayectoria",d_ellipse:"Elipse",d_text:"Texto",d_note:"Nota",h_p1:"Toca el primer punto o arrastra",h_p2:"Toca el segundo punto",h_p3:"Toca para el ancho del canal",h_brush:"Dibuja con el dedo",h_path:"Toca los puntos y luego Fin",h_one:"Toca dónde colocarlo",cancel:"Cancelar",done:"Fin",del:"Eliminar",ok:"Listo",color:"Color",edtext:"Texto",delall:"Eliminar todos los dibujos",txtph:"Escribe aquí",rp_pick:"Toca la vela desde la que reiniciar el gráfico",rp_end:"El replay llegó al final de los datos.",target:"Objetivo",stop:"Stop",afhint:"Toca tu cuenta encima del teclado: el iPhone usa Face ID y la app entra sola. La primera vez escribe correo y contraseña y, cuando el iPhone lo pida, elige «Guardar contraseña».",reset:"Restablecer la app",resetq:"¿Borrar todos los datos guardados por la app en este iPhone (acceso con Face ID, tema, idioma, servidor) y empezar de cero?",resave:"Hay que rehacer el acceso guardado: entra con correo y contraseña y guarda de nuevo con Face ID.",waitfid:"Confirma con Face ID…",nofidresp:"El iPhone no mostró Face ID. Revisa en Ajustes › General › Autorrelleno y contraseñas que las contraseñas y llaves de acceso estén activas, con la app Contraseñas.",fidset:"Revisa Ajustes › General › Autorrelleno y contraseñas.",fidsave:"Acceso con Face ID",fidhint:"Si el iPhone dice que no hay ninguna llave de acceso, toca «Borrar acceso guardado», entra con correo y contraseña y guarda de nuevo.",
     nolib:'La librería del gráfico no se cargó. Recarga la página.',
     cors:'El navegador bloqueó la solicitud (probable bloqueo CORS de TradeLocker).'},
   en:{email:'Email',pass:'Password',server:'Server',go:'Connect',
     logging:'Signing in...',finding:'Loading markets...',nofind:'XAUUSD not found',
     nobars:'No candles received',upd:'Update: ',ok:'Connected.',
-    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in version 0.9.0, with the new chart engine.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",slow:"Slow connection to the broker, retrying shortly.",afhint:"Tap your account above the keyboard: the iPhone uses Face ID and the app signs in by itself. The first time, type email and password and, when the iPhone asks, choose “Save Password”.",reset:"Reset the app",resetq:"Delete all data the app saved on this iPhone (Face ID sign-in, theme, language, server) and start from scratch?",resave:"Saved sign-in must be redone: sign in with email and password and save again with Face ID.",waitfid:"Confirm with Face ID…",nofidresp:"The iPhone did not show Face ID. Check Settings › General › AutoFill & Passwords: passwords and passkeys must be on, with the Passwords app.",fidset:"Check Settings › General › AutoFill & Passwords.",fidsave:"Sign in with Face ID",fidhint:"If the iPhone says there is no passkey, tap “Delete saved sign-in”, sign in with email and password and save again.",
+    newver:'New version, reloading...',anim:'Animation interrupted: ',faceid:"Sign in with Face ID",save:"Save sign-in with Face ID?",savebtn:"Save",later:"Not now",saved:"Sign-in saved.",savedkey:"Key protected by Face ID.",savedgate:"Face ID check.",forget:"Delete saved sign-in",forgot:"Saved sign-in deleted.",fidfail:"Face ID failed. Use email and password.",nofid:"Face ID is not available here.",relogin:"Session expired, reconnecting...",theme:"Theme",dark:"Dark",light:"White",logout:"Sign out",wl:"Watchlist",ch:"Chart",cat_fx:"Forex",cat_com:"Commodities",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Stocks",cat_oth:"Other",search:"Search symbol",searchph:"Search",tf:"Timeframe",symbols:"Symbols",tools:"Drawing tools",inds:"Indicators",soon:"Coming in the next version, together with the editor for your scripts.",tl_trend:"Trend line",tl_h:"Horizontal line",tl_rect:"Rectangle",tl_fib:"Fibonacci retracement",tl_text:"Text",in_ma:"Moving averages",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bollinger Bands",in_mine:"My scripts",refresh:"Refresh",language:"Language",today:"today",noinst:"No instruments available",noresult:"No results",slow:"Slow connection to the broker, retrying shortly.",sec_trend:"Trend tools",sec_fore:"Forecasting & measurement",sec_geo:"Shapes",sec_ann:"Annotations",d_trend:"Trend line",d_channel:"Parallel channel",d_long:"Long position",d_short:"Short position",d_brush:"Brush",d_arrow:"Arrow",d_rect:"Rectangle",d_path:"Path",d_ellipse:"Ellipse",d_text:"Text",d_note:"Note",h_p1:"Tap the first point, or drag",h_p2:"Tap the second point",h_p3:"Tap for the channel width",h_brush:"Draw with your finger",h_path:"Tap the points, then Done",h_one:"Tap where to place it",cancel:"Cancel",done:"Done",del:"Delete",ok:"Done",color:"Color",edtext:"Text",delall:"Delete all drawings",txtph:"Type here",rp_pick:"Tap the candle to restart the chart from",rp_end:"Replay reached the end of the data.",target:"Target",stop:"Stop",afhint:"Tap your account above the keyboard: the iPhone uses Face ID and the app signs in by itself. The first time, type email and password and, when the iPhone asks, choose “Save Password”.",reset:"Reset the app",resetq:"Delete all data the app saved on this iPhone (Face ID sign-in, theme, language, server) and start from scratch?",resave:"Saved sign-in must be redone: sign in with email and password and save again with Face ID.",waitfid:"Confirm with Face ID…",nofidresp:"The iPhone did not show Face ID. Check Settings › General › AutoFill & Passwords: passwords and passkeys must be on, with the Passwords app.",fidset:"Check Settings › General › AutoFill & Passwords.",fidsave:"Sign in with Face ID",fidhint:"If the iPhone says there is no passkey, tap “Delete saved sign-in”, sign in with email and password and save again.",
     nolib:'The chart library failed to load. Reload the page.',
     cors:'The browser blocked the request (probably a TradeLocker CORS block).'},
   fr:{email:'E-mail',pass:'Mot de passe',server:'Serveur',go:'Se connecter',
     logging:'Connexion en cours...',finding:'Chargement des marchés...',nofind:'XAUUSD introuvable',
     nobars:'Aucune bougie reçue',upd:'Mise à jour : ',ok:'Connecté.',
-    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la version 0.9.0, avec le nouveau moteur graphique.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",slow:"Connexion lente avec le courtier, nouvel essai sous peu.",afhint:"Touche ton compte au-dessus du clavier : l'iPhone utilise Face ID et l'app se connecte toute seule. La première fois, saisis e-mail et mot de passe et, quand l'iPhone le demande, choisis « Enregistrer le mot de passe ».",reset:"Réinitialiser l'app",resetq:"Effacer toutes les données enregistrées par l'app sur cet iPhone (accès Face ID, thème, langue, serveur) et repartir de zéro ?",resave:"L'accès enregistré est à refaire : connecte-toi avec e-mail et mot de passe et enregistre à nouveau avec Face ID.",waitfid:"Confirme avec Face ID…",nofidresp:"L'iPhone n'a pas affiché Face ID. Vérifie dans Réglages › Général › Remplissage automatique et mots de passe que les mots de passe et clés d'accès sont activés, avec l'app Mots de passe.",fidset:"Vérifie Réglages › Général › Remplissage automatique et mots de passe.",fidsave:"Accès avec Face ID",fidhint:"Si l'iPhone indique qu'il n'y a aucune clé d'accès, touche « Supprimer l'accès enregistré », connecte-toi avec e-mail et mot de passe et enregistre à nouveau.",
+    newver:'Nouvelle version, rechargement...',anim:'Animation interrompue : ',faceid:"Se connecter avec Face ID",save:"Enregistrer l'accès avec Face ID ?",savebtn:"Enregistrer",later:"Pas maintenant",saved:"Accès enregistré.",savedkey:"Clé protégée par Face ID.",savedgate:"Contrôle par Face ID.",forget:"Supprimer l'accès enregistré",forgot:"Accès enregistré supprimé.",fidfail:"Face ID a échoué. Utilise e-mail et mot de passe.",nofid:"Face ID n'est pas disponible ici.",relogin:"Session expirée, reconnexion...",theme:"Thème",dark:"Sombre",light:"Blanc",logout:"Se déconnecter",wl:"Watchlist",ch:"Graphique",cat_fx:"Forex",cat_com:"Matières premières",cat_cry:"Crypto",cat_idx:"Indices",cat_stk:"Actions",cat_oth:"Autres",search:"Rechercher un symbole",searchph:"Rechercher",tf:"Unité de temps",symbols:"Symboles",tools:"Outils de dessin",inds:"Indicateurs",soon:"Disponibles dans la prochaine version, avec l'éditeur pour tes scripts.",tl_trend:"Ligne de tendance",tl_h:"Ligne horizontale",tl_rect:"Rectangle",tl_fib:"Retracement de Fibonacci",tl_text:"Texte",in_ma:"Moyennes mobiles",in_rsi:"RSI",in_macd:"MACD",in_bb:"Bandes de Bollinger",in_mine:"Mes scripts",refresh:"Actualiser",language:"Langue",today:"aujourd\u2019hui",noinst:"Aucun instrument disponible",noresult:"Aucun résultat",slow:"Connexion lente avec le courtier, nouvel essai sous peu.",sec_trend:"Outils de tendance",sec_fore:"Prévision et mesure",sec_geo:"Formes",sec_ann:"Annotations",d_trend:"Ligne de tendance",d_channel:"Canal parallèle",d_long:"Position longue",d_short:"Position courte",d_brush:"Pinceau",d_arrow:"Flèche",d_rect:"Rectangle",d_path:"Chemin",d_ellipse:"Ellipse",d_text:"Texte",d_note:"Note",h_p1:"Touche le premier point ou fais glisser",h_p2:"Touche le second point",h_p3:"Touche pour la largeur du canal",h_brush:"Dessine avec le doigt",h_path:"Touche les points, puis Fin",h_one:"Touche où le placer",cancel:"Annuler",done:"Fin",del:"Supprimer",ok:"OK",color:"Couleur",edtext:"Texte",delall:"Supprimer tous les dessins",txtph:"Écris ici",rp_pick:"Touche la bougie à partir de laquelle relancer le graphique",rp_end:"Le replay est arrivé à la fin des données.",target:"Objectif",stop:"Stop",afhint:"Touche ton compte au-dessus du clavier : l'iPhone utilise Face ID et l'app se connecte toute seule. La première fois, saisis e-mail et mot de passe et, quand l'iPhone le demande, choisis « Enregistrer le mot de passe ».",reset:"Réinitialiser l'app",resetq:"Effacer toutes les données enregistrées par l'app sur cet iPhone (accès Face ID, thème, langue, serveur) et repartir de zéro ?",resave:"L'accès enregistré est à refaire : connecte-toi avec e-mail et mot de passe et enregistre à nouveau avec Face ID.",waitfid:"Confirme avec Face ID…",nofidresp:"L'iPhone n'a pas affiché Face ID. Vérifie dans Réglages › Général › Remplissage automatique et mots de passe que les mots de passe et clés d'accès sont activés, avec l'app Mots de passe.",fidset:"Vérifie Réglages › Général › Remplissage automatique et mots de passe.",fidsave:"Accès avec Face ID",fidhint:"Si l'iPhone indique qu'il n'y a aucune clé d'accès, touche « Supprimer l'accès enregistré », connecte-toi avec e-mail et mot de passe et enregistre à nouveau.",
     nolib:"La bibliothèque du graphique ne s'est pas chargée. Recharge la page.",
     cors:'Le navigateur a bloqué la requête (probable blocage CORS de TradeLocker).'}
 };
@@ -433,6 +465,7 @@ document.addEventListener('visibilitychange',()=>{
 window.addEventListener('pageshow',e=>{if(e.persisted)checkFresh()});
 /* aggiorna: dentro l'app ricarica i dati e resta dove sei; se online c'e' una versione nuova la carica senza farti uscire */
 async function doRefresh(){
+  if(window.RP&&RP.on){rpExit();return}
   const v=await remoteVersion();
   if(!series||(v&&v!==VERSION)){
     try{sessionStorage.setItem('noSplash','1')}catch(e){}
@@ -541,6 +574,8 @@ function setCur(name,doLoad=true){
   const changed=name!==cur;
   cur=name;tid=BYN[name].tid;route=BYN[name].route;
   try{localStorage.setItem('tc_sym',name)}catch(e){}
+  if(changed&&window.RP&&RP.on){rpPause();RP.on=false;RP.started=false;$('rpbar').hidden=true;$('chbar').hidden=false}
+  if(changed&&window.dMode&&dMode!=='idle'){dTemp=null;dSel=null;setMode('idle')}
   if(changed){lastBars=[];lastMove=0;if(series){try{series.setData([])}catch(e){}}}
   renderLegend();renderSymPill();renderMini();tint();
   if(doLoad&&series){
@@ -550,6 +585,7 @@ function setCur(name,doLoad=true){
 }
 function setRes(r){
   if(!SECS[r])return;
+  if(window.RP&&RP.on){rpPause();RP.on=false;RP.started=false;$('rpbar').hidden=true;$('chbar').hidden=false}
   res=r;lastBars=[];lastMove=0;
   renderSymPill();
   if(series){try{series.setData([])}catch(e){}loadSafe()}
@@ -746,7 +782,7 @@ async function load(){
 }
 let tickFails=0;
 async function tick(){
-  if(!series||!cur||!lastBars.length||paused()||document.hidden)return;
+  if(!series||!cur||!lastBars.length||paused()||document.hidden||(window.RP&&RP.on))return;
   try{
     const it=BYN[cur],want=cur+'|'+res,to=Date.now();
     const b=await barsFor(it,res,to-Math.max(72e5,SECS[res]*3000),to);
@@ -770,6 +806,7 @@ function tagText(){
   let s=Math.max(0,Math.floor((last.t+SECS[res]*1000-Date.now())/1000));
   const hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60,p=n=>String(n).padStart(2,'0');
   $('tagpx').textContent=fmt(last.c,dec);
+  $('tagcd').hidden=!!(window.RP&&RP.on);
   $('tagcd').textContent=(hh?p(hh)+':':'')+p(mm)+':'+p(ss);
 }
 setInterval(()=>{if(tab==='ch'&&!document.hidden)tagText()},1000);
@@ -803,6 +840,7 @@ $('lgbtn').onclick=()=>{$('lgohlc').hidden=!$('lgohlc').hidden;$('lgbtn').classL
 
 /* ---------- schede in basso ---------- */
 function showTab(x){
+  if(x!=='ch'&&window.dMode&&(dMode==='place'||dMode==='edit')){dTemp=null;dSel=null;setMode('idle')}
   tab=x;
   $('wl-screen').hidden=x!=='wl';
   $('ch-screen').hidden=x!=='ch';
@@ -902,7 +940,6 @@ function openSoon(title,keys){
 }
 $('menubtn').onclick=openMenu;
 $('more').onclick=openMenu;
-$('pencil').onclick=()=>openSoon(t('tools'),['tl_trend','tl_h','tl_rect','tl_fib','tl_text']);
 $('inds').onclick=()=>openSoon(t('inds'),['in_ma','in_rsi','in_macd','in_bb','in_mine']);
 
 /* ---------- avvio dell'app dopo l'accesso ---------- */
@@ -1258,3 +1295,478 @@ document.addEventListener('click',e=>{
   const el=e.target&&e.target.closest&&e.target.closest('button');
   if(el&&!el.disabled)haptic();
 },true);
+
+/* =====================================================================
+   STRUMENTI DI DISEGNO
+   I disegni stanno su un livello trasparente sopra il grafico e sono
+   salvati in tempo/prezzo, per simbolo: si vedono su tutti i timeframe.
+   ===================================================================== */
+var DCOL=['#2962ff','#f23645','#22ab94','#ff9800','#9c27b0','#e0e0e0'];
+var DTOOLS=[
+  {sec:'sec_trend',items:['trend','channel']},
+  {sec:'sec_fore',items:['long','short']},
+  {sec:'sec_geo',items:['brush','arrow','rect','path','ellipse']},
+  {sec:'sec_ann',items:['text','note']}
+];
+var DICON={
+  trend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="5" cy="19" r="1.8"/><circle cx="19" cy="5" r="1.8"/><path d="M6.3 17.7L17.7 6.3"/></svg>',
+  channel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 15L15 4M9 20L20 9"/><circle cx="4" cy="15" r="1.6"/><circle cx="15" cy="4" r="1.6"/><circle cx="14.5" cy="14.5" r="1.6"/></svg>',
+  long:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="5" r="1.5"/><path d="M6 5h14M4 12h16M6 19h14"/><circle cx="4" cy="19" r="1.5"/><path d="M12 10V7M10.5 8.5L12 7l1.5 1.5"/></svg>',
+  short:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="5" r="1.5"/><path d="M6 5h14M4 12h16M6 19h14"/><circle cx="4" cy="19" r="1.5"/><path d="M12 14v3M10.5 15.5L12 17l1.5-1.5"/></svg>',
+  brush:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c2.5 0 4.5-1.2 4.5-3.4 0-1.5-1-2-2.3-2.6C5 13.4 5.5 11 8 11c1.3 0 2 .7 2.5 1.6L19 4"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="19" r="1.8"/><path d="M6.3 17.7L18 6"/><path d="M12 6h6v6"/></svg>',
+  rect:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="5" width="14" height="14"/><circle cx="5" cy="5" r="1.6"/><circle cx="19" cy="19" r="1.6"/></svg>',
+  path:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 4 8-8"/><path d="M15 7h5v5"/></svg>',
+  ellipse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="12" rx="9" ry="6"/></svg>',
+  text:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 5h12M12 5v14M10 19h4"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="3" width="14" height="11" rx="1.5"/><path d="M9 6.5h6M12 6.5V11M12 14v4"/><circle cx="12" cy="19.6" r="1.3"/></svg>'
+};
+var drawings=[],dSel=null,dMode='idle',dTool=null,dTemp=null,dStage=0,dDown=null,dDrag=null,dInit=false,dFor=null;
+var dcv=$('draw'),dctx=dcv.getContext('2d');
+
+function dKey(){return 'tc_draw_'+cur}
+function dLoad(){try{drawings=JSON.parse(localStorage.getItem(dKey()))||[]}catch(e){drawings=[]}dSel=null;dTemp=null;dFor=cur}
+function dSave(){try{localStorage.setItem(dKey(),JSON.stringify(drawings))}catch(e){}}
+function fgCol(){return themeVar('--fg')||'#e0e0e0'}
+
+/* ---- da tempo/prezzo a pixel e ritorno ---- */
+var barTimes=[],barRef=null,barLen=-1;
+function btimes(){
+  if(barRef!==lastBars||barLen!==lastBars.length){
+    barRef=lastBars;barLen=lastBars.length;
+    const off=-new Date().getTimezoneOffset()*60;
+    barTimes=lastBars.map(b=>Math.floor(b.t/1000)+off);
+  }
+  return barTimes;
+}
+function tToL(t){
+  const a=btimes(),n=a.length,per=SECS[res];if(!n)return null;
+  if(t>=a[n-1])return n-1+(t-a[n-1])/per;
+  if(t<=a[0])return (t-a[0])/per;
+  let lo=0,hi=n-1;
+  while(hi-lo>1){const m=(lo+hi)>>1;if(a[m]<=t)lo=m;else hi=m}
+  return lo+(t-a[lo])/((a[hi]-a[lo])||per);
+}
+function lToT(l){
+  const a=btimes(),n=a.length,per=SECS[res];if(!n)return null;
+  if(l>=n-1)return a[n-1]+(l-(n-1))*per;
+  if(l<=0)return a[0]+l*per;
+  const i=Math.floor(l);return a[i]+(l-i)*(a[i+1]-a[i]);
+}
+function X(t){const l=tToL(t);if(l==null)return null;const x=chart.timeScale().logicalToCoordinate(l);return x==null?null:x}
+function Y(p){const y=series.priceToCoordinate(p);return y==null?null:y}
+function px(q){return{x:X(q.t),y:Y(q.p)}}
+function toTP(x,y){
+  const l=chart.timeScale().coordinateToLogical(x),p=series.coordinateToPrice(y);
+  if(l==null||p==null)return null;
+  return{t:lToT(l),p:+p};
+}
+
+/* ---- disegno sul livello ---- */
+function line(c,a,b){c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke()}
+function arrowHead(c,a,b,s){
+  const ang=Math.atan2(b.y-a.y,b.x-a.x),L=s||12;
+  c.beginPath();c.moveTo(b.x,b.y);
+  c.lineTo(b.x-L*Math.cos(ang-0.45),b.y-L*Math.sin(ang-0.45));
+  c.lineTo(b.x-L*Math.cos(ang+0.45),b.y-L*Math.sin(ang+0.45));
+  c.closePath();c.fill();
+}
+function poly(c,P){c.beginPath();P.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.stroke()}
+function priceOnLine(a,b,t){return b.t===a.t?a.p:a.p+(b.p-a.p)*(t-a.t)/(b.t-a.t)}
+function rrect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function label(c,txt,x,y,bg,fg,align){
+  c.font='600 12px -apple-system,system-ui,sans-serif';
+  const w=c.measureText(txt).width+12,h=20;
+  let lx=align==='center'?x-w/2:x;
+  rrect(c,lx,y-h/2,w,h,4);c.fillStyle=bg;c.fill();
+  c.fillStyle=fg;c.textBaseline='middle';c.fillText(txt,lx+6,y+0.5);
+}
+function posGeom(d){
+  const x1=X(d.pts[0].t),x2=X(d.t2),yE=Y(d.pts[0].p),yT=Y(d.tp),yS=Y(d.sl);
+  if([x1,x2,yE,yT,yS].some(v=>v==null))return null;
+  return{x1,x2,yE,yT,yS};
+}
+function noteBox(c,d,P){
+  c.font='500 13px -apple-system,system-ui,sans-serif';
+  const lines=String(d.text||'').split('\n').slice(0,6),w=Math.min(220,Math.max(...lines.map(s=>c.measureText(s).width))+16),h=lines.length*17+12;
+  return{x:P.x-w/2,y:P.y-18-h,w,h,lines};
+}
+function dRender(c,d,sel){
+  const col=d.color||'#2962ff';
+  c.lineWidth=2;c.strokeStyle=col;c.fillStyle=col;c.lineJoin='round';c.lineCap='round';c.setLineDash([]);c.globalAlpha=1;
+  if(d.type==='long'||d.type==='short'){
+    const g=posGeom(d);if(!g)return;
+    const L=Math.min(g.x1,g.x2),R=Math.max(g.x1,g.x2),w=Math.max(2,R-L);
+    const up=themeVar('--up'),dn=themeVar('--down');
+    c.globalAlpha=.22;c.fillStyle=up;c.fillRect(L,Math.min(g.yE,g.yT),w,Math.abs(g.yT-g.yE));
+    c.fillStyle=dn;c.fillRect(L,Math.min(g.yE,g.yS),w,Math.abs(g.yS-g.yE));c.globalAlpha=1;
+    c.lineWidth=1.5;c.strokeStyle=up;line(c,{x:L,y:g.yT},{x:R,y:g.yT});
+    c.strokeStyle=dn;line(c,{x:L,y:g.yS},{x:R,y:g.yS});
+    c.strokeStyle=fgCol();line(c,{x:L,y:g.yE},{x:R,y:g.yE});
+    const e=d.pts[0].p,dt=d.tp-e,ds=d.sl-e,rr=Math.abs(ds)?Math.abs(dt/ds):0,mid=(L+R)/2;
+    label(c,t('target')+': '+fmt(d.tp,dec)+'  ('+fmtSigned(dt,dec)+'  '+fmtSigned(dt/e*100,2)+'%)',mid,g.yT+(g.yT<g.yE?-13:13),up,'#fff','center');
+    label(c,t('stop')+': '+fmt(d.sl,dec)+'  ('+fmtSigned(ds,dec)+'  '+fmtSigned(ds/e*100,2)+'%)',mid,g.yS+(g.yS>g.yE?13:-13),dn,'#fff','center');
+    label(c,'R/R '+fmt(rr,2),mid,g.yE,themeVar('--surf2')||'#333',fgCol(),'center');
+  }else{
+    const P=d.pts.map(px);
+    if(P.some(q=>q.x==null||q.y==null))return;
+    switch(d.type){
+      case 'trend':line(c,P[0],P[1]);break;
+      case 'arrow':line(c,P[0],P[1]);arrowHead(c,P[0],P[1]);break;
+      case 'rect':{const x=Math.min(P[0].x,P[1].x),y=Math.min(P[0].y,P[1].y),w=Math.abs(P[1].x-P[0].x),h=Math.abs(P[1].y-P[0].y);c.globalAlpha=.16;c.fillRect(x,y,w,h);c.globalAlpha=1;c.strokeRect(x,y,w,h);break}
+      case 'ellipse':{const cx=(P[0].x+P[1].x)/2,cy=(P[0].y+P[1].y)/2,rx=Math.abs(P[1].x-P[0].x)/2,ry=Math.abs(P[1].y-P[0].y)/2;c.beginPath();c.ellipse(cx,cy,Math.max(rx,1),Math.max(ry,1),0,0,7);c.globalAlpha=.14;c.fill();c.globalAlpha=1;c.stroke();break}
+      case 'channel':{
+        line(c,P[0],P[1]);
+        if(d.pts.length>2){
+          const off=d.pts[2].p-priceOnLine(d.pts[0],d.pts[1],d.pts[2].t);
+          const Q0=px({t:d.pts[0].t,p:d.pts[0].p+off}),Q1=px({t:d.pts[1].t,p:d.pts[1].p+off});
+          if(Q0.x==null||Q0.y==null||Q1.y==null)break;
+          c.globalAlpha=.12;c.beginPath();c.moveTo(P[0].x,P[0].y);c.lineTo(P[1].x,P[1].y);c.lineTo(Q1.x,Q1.y);c.lineTo(Q0.x,Q0.y);c.closePath();c.fill();c.globalAlpha=1;
+          line(c,Q0,Q1);c.setLineDash([5,5]);c.lineWidth=1;line(c,{x:P[0].x,y:(P[0].y+Q0.y)/2},{x:P[1].x,y:(P[1].y+Q1.y)/2});c.setLineDash([]);
+        }
+        break;
+      }
+      case 'brush':poly(c,P);break;
+      case 'path':poly(c,P);if(P.length>1)arrowHead(c,P[P.length-2],P[P.length-1]);break;
+      case 'text':c.font='600 16px -apple-system,system-ui,sans-serif';c.textBaseline='bottom';String(d.text||'').split('\n').forEach((s,i)=>c.fillText(s,P[0].x,P[0].y+i*19));break;
+      case 'note':{
+        const b=noteBox(c,d,P[0]);
+        c.beginPath();c.arc(P[0].x,P[0].y,4,0,7);c.fill();
+        line(c,P[0],{x:P[0].x,y:b.y+b.h});
+        rrect(c,b.x,b.y,b.w,b.h,6);c.fill();
+        c.fillStyle='#fff';c.textBaseline='top';b.lines.forEach((s,i)=>c.fillText(s,b.x+8,b.y+6+i*17));
+        break;
+      }
+    }
+  }
+  if(sel)dHandles(d).forEach(h=>{c.beginPath();c.arc(h.x,h.y,7,0,7);c.fillStyle=themeVar('--bg')||'#000';c.fill();c.lineWidth=2;c.strokeStyle=col;c.stroke()});
+}
+
+/* ---- maniglie e tocchi ---- */
+function dHandles(d){
+  if(d.type==='long'||d.type==='short'){
+    const g=posGeom(d);if(!g)return[];
+    return[
+      {x:g.x1,y:g.yE,set:q=>{const w=d.t2-d.pts[0].t;d.pts[0]={t:q.t,p:q.p};d.t2=q.t+w}},
+      {x:g.x1,y:g.yT,set:q=>{d.tp=q.p}},
+      {x:g.x1,y:g.yS,set:q=>{d.sl=q.p}},
+      {x:g.x2,y:g.yE,set:q=>{d.t2=q.t}}
+    ];
+  }
+  if(d.type==='brush')return[];
+  const out=[];
+  d.pts.forEach((q,i)=>{const P=px(q);if(P.x!=null&&P.y!=null)out.push({x:P.x,y:P.y,set:v=>{d.pts[i]={t:v.t,p:v.p}}})});
+  return out;
+}
+function segD(x,y,a,b){
+  const dx=b.x-a.x,dy=b.y-a.y,L=dx*dx+dy*dy;
+  let u=L?((x-a.x)*dx+(y-a.y)*dy)/L:0;u=Math.max(0,Math.min(1,u));
+  return Math.hypot(x-(a.x+u*dx),y-(a.y+u*dy));
+}
+function dHit(d,x,y){
+  const T=14;
+  if(d.type==='long'||d.type==='short'){
+    const g=posGeom(d);if(!g)return false;
+    const L=Math.min(g.x1,g.x2),R=Math.max(g.x1,g.x2),top=Math.min(g.yT,g.yS),bot=Math.max(g.yT,g.yS);
+    return x>=L-T&&x<=R+T&&y>=top-T&&y<=bot+T;
+  }
+  const P=d.pts.map(px);if(P.some(q=>q.x==null||q.y==null))return false;
+  switch(d.type){
+    case 'trend':case 'arrow':return segD(x,y,P[0],P[1])<T;
+    case 'rect':{const L=Math.min(P[0].x,P[1].x),R=Math.max(P[0].x,P[1].x),Tp=Math.min(P[0].y,P[1].y),B=Math.max(P[0].y,P[1].y);return x>=L-T&&x<=R+T&&y>=Tp-T&&y<=B+T}
+    case 'ellipse':{const cx=(P[0].x+P[1].x)/2,cy=(P[0].y+P[1].y)/2,rx=Math.abs(P[1].x-P[0].x)/2+T,ry=Math.abs(P[1].y-P[0].y)/2+T;return((x-cx)/rx)**2+((y-cy)/ry)**2<=1}
+    case 'channel':{
+      if(segD(x,y,P[0],P[1])<T)return true;
+      if(d.pts.length<3)return false;
+      const off=d.pts[2].p-priceOnLine(d.pts[0],d.pts[1],d.pts[2].t);
+      const Q0=px({t:d.pts[0].t,p:d.pts[0].p+off}),Q1=px({t:d.pts[1].t,p:d.pts[1].p+off});
+      if(Q0.y==null||Q1.y==null)return false;
+      if(segD(x,y,Q0,Q1)<T)return true;
+      const L=Math.min(P[0].x,P[1].x),R=Math.max(P[0].x,P[1].x);
+      if(x<L||x>R)return false;
+      const u=(x-P[0].x)/((P[1].x-P[0].x)||1),y1=P[0].y+u*(P[1].y-P[0].y),y2=Q0.y+u*(Q1.y-Q0.y);
+      return y>=Math.min(y1,y2)&&y<=Math.max(y1,y2);
+    }
+    case 'brush':case 'path':for(let i=1;i<P.length;i++)if(segD(x,y,P[i-1],P[i])<T)return true;return false;
+    case 'text':{dctx.font='600 16px -apple-system,system-ui,sans-serif';const ls=String(d.text||'').split('\n'),w=Math.max(...ls.map(s=>dctx.measureText(s).width));return x>=P[0].x-T&&x<=P[0].x+w+T&&y>=P[0].y-20-T&&y<=P[0].y+(ls.length-1)*19+T}
+    case 'note':{const b=noteBox(dctx,d,P[0]);return(x>=b.x-T&&x<=b.x+b.w+T&&y>=b.y-T&&y<=P[0].y+T)}
+  }
+  return false;
+}
+function dMove(d,o,dt,dp){
+  if(d.type==='long'||d.type==='short'){
+    d.pts=[{t:o.pts[0].t+dt,p:o.pts[0].p+dp}];d.t2=o.t2+dt;d.tp=o.tp+dp;d.sl=o.sl+dp;
+  }else d.pts=o.pts.map(q=>({t:q.t+dt,p:q.p+dp}));
+}
+
+/* ---- stato: libero, sto disegnando, sto modificando, scelgo la candela del replay ---- */
+function setMode(m){
+  dMode=m;
+  const active=m!=='idle';
+  dcv.style.pointerEvents=active?'auto':'none';
+  try{chart.applyOptions({handleScroll:!active,handleScale:!active})}catch(e){}
+  $('dban').hidden=!(m==='place'||m==='pick');
+  $('dedit').hidden=m!=='edit';
+  if(m==='edit')renderEdit();
+}
+function banner(txt,showDone){
+  $('dbantxt').textContent=txt;
+  $('dbdone').hidden=!showDone;
+  $('dbdone').textContent=t('done');
+  $('dbcancel').textContent=t('cancel');
+}
+function hintFor(){
+  if(dTool==='brush')return t('h_brush');
+  if(dTool==='path')return t('h_path');
+  if(['text','note','long','short'].includes(dTool))return t('h_one');
+  if(dStage>=4)return t('h_p3');
+  if(dStage===2)return t('h_p2');
+  return t('h_p1');
+}
+function startTool(tool){
+  closeSheet();
+  if(RP.on&&dMode==='pick')return;
+  dTool=tool;dTemp=null;dStage=0;dSel=null;
+  setMode('place');banner(hintFor(),tool==='path');
+}
+function cancelPlace(){
+  dTemp=null;dStage=0;dTool=null;
+  if(dMode==='pick'){setMode('idle');if(RP.on&&!RP.started)rpExit();return}
+  setMode('idle');
+}
+function finishTemp(){
+  const d=dTemp;dTemp=null;dStage=0;dTool=null;
+  if(!d)return setMode('idle');
+  if(d.type==='path'){if(d.pts.length>2)d.pts.pop();if(d.pts.length<2)return setMode('idle')}
+  d.id=Date.now()+Math.random();
+  drawings.push(d);dSave();haptic();
+  dSel=d;setMode('edit');
+}
+function newOf(type,q){
+  const color=(type==='text')?fgCol():(type==='rect'||type==='ellipse')?'#9c27b0':'#2962ff';
+  return{type,pts:[{t:q.t,p:q.p}],color};
+}
+function visSpan(){
+  const h=$('chart').getBoundingClientRect().height,a=series.coordinateToPrice(h*0.15),b=series.coordinateToPrice(h*0.75);
+  return(a!=null&&b!=null)?Math.abs(a-b):Math.abs(lastBars.length?lastBars[lastBars.length-1].c*0.01:1);
+}
+function makePosition(type,q){
+  const span=visSpan(),per=SECS[res],sign=type==='long'?1:-1;
+  return{type,pts:[{t:q.t,p:q.p}],t2:q.t+per*24,tp:q.p+sign*span*0.25,sl:q.p-sign*span*0.125,color:'#2962ff'};
+}
+function local(e){const r=dcv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+
+dcv.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  const{x,y}=local(e),q=toTP(x,y);if(!q)return;
+  try{dcv.setPointerCapture(e.pointerId)}catch(err){}
+  dDown={x,y,moved:false};
+  if(dMode==='pick')return;
+  if(dMode==='edit'){
+    const hs=dSel?dHandles(dSel):[];
+    const h=hs.find(h=>Math.hypot(h.x-x,h.y-y)<22);
+    if(h){dDrag={kind:'h',h};return}
+    if(dSel&&dHit(dSel,x,y)){dDrag={kind:'body',q0:q,o:JSON.parse(JSON.stringify(dSel))};return}
+    const other=[...drawings].reverse().find(d=>dHit(d,x,y));
+    if(other){dSel=other;renderEdit();dDrag={kind:'body',q0:q,o:JSON.parse(JSON.stringify(other))};haptic();return}
+    dSel=null;dDrag=null;setMode('idle');dDown=null;return;
+  }
+  if(dMode!=='place')return;
+  const tl=dTool;
+  if(tl==='brush'){dTemp=newOf('brush',q);return}
+  if(tl==='path'){if(!dTemp)dTemp=newOf('path',q);else dTemp.pts[dTemp.pts.length-1]={...q};return}
+  if(['text','note','long','short'].includes(tl))return;
+  if(dStage===0){dTemp=newOf(tl,q);dTemp.pts.push({...q});dStage=1;return}
+  if(dStage===2){dTemp.pts[1]={...q};dStage=3;return}
+  if(dStage===4){dTemp.pts[2]={...q};dStage=5;return}
+});
+dcv.addEventListener('pointermove',e=>{
+  if(!dDown)return;
+  const{x,y}=local(e),q=toTP(x,y);if(!q)return;
+  if(Math.hypot(x-dDown.x,y-dDown.y)>10)dDown.moved=true;
+  if(dMode==='edit'&&dDrag){
+    if(dDrag.kind==='h')dDrag.h.set(q);
+    else dMove(dSel,dDrag.o,q.t-dDrag.q0.t,q.p-dDrag.q0.p);
+    return;
+  }
+  if(dMode!=='place'||!dTemp)return;
+  if(dTool==='brush'){const L=px(dTemp.pts[dTemp.pts.length-1]);if(L.x==null||Math.hypot(L.x-x,L.y-y)>3)dTemp.pts.push(q);return}
+  if(dTool==='path'){dTemp.pts[dTemp.pts.length-1]=q;return}
+  if(dStage===1||dStage===3)dTemp.pts[1]=q;
+  else if(dStage===5)dTemp.pts[2]=q;
+});
+function dUp(e){
+  if(!dDown)return;
+  const{x,y}=local(e),q=toTP(x,y),moved=dDown.moved;dDown=null;
+  if(dMode==='pick'){if(!moved)rpPickAt(x);return}
+  if(dMode==='edit'){if(dDrag){dDrag=null;dSave()}return}
+  if(dMode!=='place')return;
+  const tl=dTool;
+  if(tl==='brush'){if(dTemp&&dTemp.pts.length>1)finishTemp();else dTemp=null;return}
+  if(tl==='path'){if(dTemp&&q)dTemp.pts.push({...q});return}
+  if(!q)return;
+  if(tl==='text'||tl==='note'){askText(tl,q,null);return}
+  if(tl==='long'||tl==='short'){dTemp=makePosition(tl,q);finishTemp();return}
+  if(dStage===1){
+    if(moved)dStage=(tl==='channel')?4:6;
+    else{dStage=2;banner(hintFor(),false);return}
+  }else if(dStage===3)dStage=(tl==='channel')?4:6;
+  else if(dStage===5)dStage=6;
+  if(dStage===4){dTemp.pts[2]={...dTemp.pts[1]};banner(hintFor(),false);return}
+  if(dStage===6)finishTemp();
+}
+dcv.addEventListener('pointerup',dUp);
+dcv.addEventListener('pointercancel',()=>{dDown=null;dDrag=null});
+
+/* tocco sul grafico quando non stai disegnando: seleziona il disegno toccato */
+function dClick(param){
+  if(dMode!=='idle'||!param||!param.point)return;
+  const{x,y}=param.point;
+  const d=[...drawings].reverse().find(d=>dHit(d,x,y));
+  if(d){dSel=d;haptic();setMode('edit')}
+}
+
+/* testo e note */
+function askText(type,q,d){
+  openSheet(s=>{
+    shEl(s,'sh-t',t(type==='note'?'d_note':'d_text'));
+    const ta=document.createElement('textarea');ta.id='dtxt';ta.rows=3;ta.placeholder=t('txtph');ta.value=d?d.text:'';
+    s.appendChild(ta);
+    const row=document.createElement('div');row.className='chips';
+    const ok=document.createElement('button');ok.className='chip on';ok.textContent=t('savebtn');
+    const no=document.createElement('button');no.className='chip';no.textContent=t('cancel');
+    ok.onclick=()=>{
+      const v=ta.value.trim();closeSheet();
+      if(d){if(v){d.text=v;dSave()}renderEdit();return}
+      if(!v){cancelPlace();return}
+      dTemp=newOf(type,q);dTemp.text=v;if(type==='note')dTemp.color='#2962ff';finishTemp();
+    };
+    no.onclick=()=>{closeSheet();if(!d)cancelPlace()};
+    row.appendChild(ok);row.appendChild(no);s.appendChild(row);
+    setTimeout(()=>{try{ta.focus()}catch(e){}},250);
+  });
+}
+
+/* barra in alto quando un disegno e' selezionato */
+function renderEdit(){
+  const b=$('dedit');b.innerHTML='';
+  if(!dSel)return;
+  const mk=(html,lab,fn,cls)=>{const x=document.createElement('button');x.className='dbtn'+(cls?' '+cls:'');x.innerHTML=html;x.setAttribute('aria-label',lab);x.onclick=fn;b.appendChild(x);return x};
+  if(dSel.type!=='long'&&dSel.type!=='short'){
+    const dot=mk('<span class="dot"></span>',t('color'),()=>{const i=DCOL.indexOf(dSel.color);dSel.color=DCOL[(i+1)%DCOL.length];dSave();renderEdit()});
+    dot.firstChild.style.background=dSel.color;
+  }
+  if(dSel.type==='text'||dSel.type==='note')mk(esc(t('edtext')),t('edtext'),()=>askText(dSel.type,null,dSel),'wide');
+  mk('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',t('del'),()=>{drawings=drawings.filter(x=>x!==dSel);dSel=null;dSave();setMode('idle')},'danger');
+  mk(esc(t('ok')),t('ok'),()=>{dSel=null;setMode('idle')},'wide on');
+}
+
+/* foglio con gli strumenti, come su TradingView */
+function openDrawTools(){
+  openSheet(s=>{
+    shEl(s,'sh-t',t('tools'));
+    DTOOLS.forEach(g=>{
+      shEl(s,'sh-l',t(g.sec));
+      const grid=document.createElement('div');grid.className='tgrid';
+      g.items.forEach(k=>{
+        const b=document.createElement('button');b.className='tile';
+        b.innerHTML=DICON[k]+'<span></span>';b.lastChild.textContent=t('d_'+k);
+        b.onclick=()=>startTool(k);grid.appendChild(b);
+      });
+      s.appendChild(grid);
+    });
+    if(drawings.length){
+      shEl(s,'sh-sep','');
+      shItem(s,t('delall')+' ('+cur+')',{danger:true,on:()=>{drawings=[];dSel=null;dSave();setMode('idle');closeSheet()}});
+    }
+  });
+}
+
+/* disegna a ogni fotogramma, cosi' segue scorrimento e zoom del grafico */
+function dFrame(){
+  requestAnimationFrame(dFrame);
+  if(!chart||!series)return;
+  if(!dInit){dInit=true;try{chart.subscribeClick(dClick)}catch(e){}}
+  if(dFor!==cur&&cur)dLoad();
+  if(tab!=='ch'||document.hidden)return;
+  const r=$('chart').getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  if(!r.width)return;
+  const W=Math.round(r.width*dpr),H=Math.round(r.height*dpr);
+  if(dcv.width!==W||dcv.height!==H){dcv.width=W;dcv.height=H;dcv.style.width=r.width+'px';dcv.style.height=r.height+'px'}
+  const c=dctx;c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,r.width,r.height);
+  if(!lastBars.length)return;
+  let pw=r.width,ph=r.height;
+  try{pw-=chart.priceScale('right').width()}catch(e){pw-=70}
+  try{ph-=chart.timeScale().height()}catch(e){ph-=28}
+  c.save();c.beginPath();c.rect(0,0,pw,ph);c.clip();
+  drawings.forEach(d=>{try{dRender(c,d,d===dSel)}catch(e){}});
+  if(dTemp){try{dRender(c,dTemp,true)}catch(e){}}
+  c.restore();
+}
+requestAnimationFrame(dFrame);
+
+$('pencil').onclick=openDrawTools;
+$('dbcancel').onclick=cancelPlace;
+$('dbdone').onclick=()=>{if(dTool==='path')finishTemp()};
+
+/* =====================================================================
+   BAR REPLAY
+   ===================================================================== */
+var RP={on:false,started:false,full:[],idx:0,timer:0,speed:1};
+var RP_SPEEDS=[1,2,3,5,10];
+var IC_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>';
+var IC_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1"/><rect x="13.5" y="5" width="4" height="14" rx="1"/></svg>';
+function rpStart(){
+  closeSheet();
+  if(!lastBars.length||!series)return;
+  if(dMode!=='idle'){dTemp=null;dSel=null;setMode('idle')}
+  RP.on=true;RP.started=false;RP.full=lastBars.slice();RP.idx=RP.full.length-1;rpPause();
+  $('chbar').hidden=true;$('rpbar').hidden=false;rpRender();
+  rpPick();
+}
+function rpPick(){rpPause();setMode('pick');banner(t('rp_pick'),false)}
+function rpPickAt(x){
+  const l=chart.timeScale().coordinateToLogical(x);
+  if(l==null)return;
+  const n=RP.full.length;
+  RP.idx=Math.max(Math.min(20,n-1),Math.min(n-2,Math.round(l)));
+  RP.started=true;
+  lastBars=RP.full.slice(0,RP.idx+1);afterData.prev=null;
+  series.setData(lastBars.map(toChart));
+  try{chart.timeScale().scrollToRealTime()}catch(e){}
+  afterData();haptic();setMode('idle');rpRender();
+}
+function rpStep(){
+  if(!RP.on||!RP.started)return;
+  if(RP.idx>=RP.full.length-1){rpPause();msg(t('rp_end'));return}
+  RP.idx++;
+  const b=RP.full[RP.idx];
+  lastBars=RP.full.slice(0,RP.idx+1);
+  try{series.update(toChart(b))}catch(e){}
+  afterData();
+}
+function rpPlay(){
+  if(!RP.started)return;
+  if(RP.timer){rpPause();return}
+  RP.timer=setInterval(rpStep,Math.round(1000/RP.speed));rpRender();
+}
+function rpPause(){if(RP.timer){clearInterval(RP.timer);RP.timer=0}rpRender()}
+function rpSpeed(){const i=RP_SPEEDS.indexOf(RP.speed);RP.speed=RP_SPEEDS[(i+1)%RP_SPEEDS.length];if(RP.timer){clearInterval(RP.timer);RP.timer=setInterval(rpStep,Math.round(1000/RP.speed))}rpRender()}
+function rpExit(){
+  rpPause();RP.on=false;RP.started=false;
+  if(dMode==='pick')setMode('idle');
+  $('rpbar').hidden=true;$('chbar').hidden=false;
+  lastBars=[];loadSafe();
+}
+function rpRender(){
+  if(!$('rpplay'))return;
+  $('rpplay').innerHTML=RP.timer?IC_PAUSE:IC_PLAY;
+  $('rpplay').disabled=!RP.started;$('rpstep').disabled=!RP.started;
+  $('rpspeed').textContent=RP.speed+'x';
+}
+$('replay').onclick=rpStart;
+$('rpexit').onclick=rpExit;
+$('rppick').onclick=rpPick;
+$('rpplay').onclick=rpPlay;
+$('rpstep').onclick=()=>{rpPause();rpStep()};
+$('rpspeed').onclick=rpSpeed;
