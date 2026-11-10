@@ -1,4 +1,4 @@
-const VERSION='0.16.0';
+const VERSION='0.17.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -143,6 +143,29 @@ html.vgap{--tbb:8px}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:0;padding:0;background:transparent;border:0;border-radius:24px;color:var(--fg);font-size:11px;font-weight:600;transition:background-color .2s ease}
 .tab svg{width:22px;height:22px;display:block}
 .tab.on{background:var(--glasssel)}
+.tab .tabimg{width:26px;height:26px;margin:-2px 0;display:block;filter:var(--logo)}
+#pf-screen{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 8px) 16px calc(var(--tbb) + var(--tbh) + var(--gapb) + 28px);color:var(--fg)}
+.pfhead{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 0 14px;text-align:center}
+.pfhead img{width:88px;height:88px;display:block;filter:var(--logo);margin-bottom:4px}
+.pfname{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.pfsub{font-size:13px;color:var(--muted)}
+.pfl{padding:18px 6px 7px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.pfg{background:var(--surf);border-radius:18px;overflow:hidden;margin-top:6px}
+.pfl+.pfg{margin-top:0}
+.pfrow{display:flex;align-items:center;gap:13px;width:100%;margin:0;padding:12px 16px;background:transparent;border:0;border-radius:0;color:var(--fg);font-weight:400;font-size:16px;text-align:left}
+.pfrow+.pfrow{border-top:1px solid var(--line)}
+.pfrow .pfic{flex:0 0 32px;width:32px;height:32px;border-radius:9px;background:var(--glasssel);display:flex;align-items:center;justify-content:center;color:var(--goldfg)}
+.pfrow .pfic svg{width:19px;height:19px}
+.pfrow .pftx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pfrow .pftx small{font-size:12.5px;color:var(--muted)}
+.pfrow .ck{margin-left:auto;color:var(--goldfg);font-weight:700}
+.pfrow .fl2{font-size:22px;line-height:1;flex:0 0 32px;text-align:center}
+.pfrow.danger{color:var(--danger);justify-content:center;font-weight:600}
+.pfrow.danger .pfic{background:transparent;color:var(--danger);flex-basis:auto;width:auto}
+.pfseg{display:flex;gap:6px;padding:6px}
+.pfseg button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:11px 0;border-radius:13px;background:transparent;color:var(--fg);border:0;font-weight:600;font-size:15px}
+.pfseg button svg{width:19px;height:19px}
+.pfseg button.on{background:var(--glasssel)}
 
 #ch-screen{--tint:var(--bg);--chb:calc(var(--tbb) + var(--tbh) + var(--gapb) + var(--rowh) + 6px);background:linear-gradient(180deg,var(--bg) 0,var(--tint) calc(100% - var(--chb)),var(--tint) 100%)}
 #ch-screen.tup{--tint:var(--tintup)}
@@ -290,12 +313,10 @@ document.getElementById('root').innerHTML=`
 <div id="msg"></div>
 <div id="shell" hidden>
   <section id="wl-screen" class="screen">
-    <div id="wlhead">
-      <button id="menubtn" class="circ glass" aria-label="Menu"><img alt="" src="${LOGO_SRC}"></button>
-    </div>
     <div id="bar" hidden><span id="bartxt"></span><button id="barsave"></button><button id="barno" class="no"></button></div>
     <div id="wl"></div>
   </section>
+  <section id="pf-screen" class="screen" hidden></section>
   <section id="ch-screen" class="screen" hidden>
     <div id="chartbox">
       <div id="chart"></div>
@@ -332,6 +353,7 @@ document.getElementById('root').innerHTML=`
   </section>
   <button id="mini" class="glass"><div id="mnic"></div><div id="mntxt"><div id="mna"></div><div id="mnb"></div></div><canvas id="mnsp"></canvas></button>
   <nav id="tabbar" class="glass">
+    <button class="tab" data-t="pf"><img class="tabimg" alt="" src="${LOGO_SRC}"><span id="tabpf"></span></button>
     <button class="tab on" data-t="wl">${IC_WL}<span id="tabwl"></span></button>
     <button class="tab" data-t="ch">${IC_CH}<span id="tabch"></span></button>
   </nav>
@@ -892,6 +914,8 @@ function showTab(x){
   tab=x;
   $('wl-screen').hidden=x!=='wl';
   $('ch-screen').hidden=x!=='ch';
+  $('pf-screen').hidden=x!=='pf';
+  if(x==='pf')renderProfile();
   $('mini').hidden=x!=='wl';
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===x));
   if(x==='wl')refreshWL(false);
@@ -987,7 +1011,7 @@ function openSoon(title,keys){
     shEl(s,'sh-note',t('soon'));
   });
 }
-$('menubtn').onclick=openMenu;
+
 $('more').onclick=openMenu;
 $('inds').onclick=()=>openSoon(t('inds'),['in_ma','in_rsi','in_macd','in_bb','in_mine']);
 
@@ -1021,6 +1045,8 @@ function start(){
 function renderAll(){
   $('tabwl').textContent=t('wl');
   $('tabch').textContent=t('ch');
+  $('tabpf').textContent=pt('profile');
+  if(tab==='pf')renderProfile();
   if(!BYN[cur])return;
   renderWL();renderLegend();renderSymPill();renderMini();tagText();
   if(chart)chart.applyOptions({localization:{priceFormatter:p=>fmt(p,dec)}});
@@ -2611,3 +2637,74 @@ function openCodes(fresh){
     shItem(s,ft('forgetkey'),{danger:true,on:()=>{try{localStorage.removeItem('tc_admin')}catch(e){}openCodes()}});
   });
 }
+
+
+/* =====================================================================
+   PROFILO: scheda in basso col logo, tutte le impostazioni dell'app
+   ===================================================================== */
+var PFT={
+ it:{profile:"Profilo",look:"Aspetto",theme:"Tema",language:"Lingua",friends:"Amici",app:"App",own:"Conto demo TradeLocker",fr:"Accesso con codice",codesub:"Crea e gestisci i codici per i tuoi amici",refsub:"Ricarica i dati e controlla gli aggiornamenti",ressub:"Cancella tutto ciò che è salvato su questo iPhone"},
+ es:{profile:"Perfil",look:"Apariencia",theme:"Tema",language:"Idioma",friends:"Amigos",app:"App",own:"Cuenta demo TradeLocker",fr:"Acceso con código",codesub:"Crea y gestiona los códigos de tus amigos",refsub:"Recarga los datos y busca actualizaciones",ressub:"Borra todo lo guardado en este iPhone"},
+ en:{profile:"Profile",look:"Appearance",theme:"Theme",language:"Language",friends:"Friends",app:"App",own:"TradeLocker demo account",fr:"Signed in with code",codesub:"Create and manage your friends' codes",refsub:"Reload data and check for updates",ressub:"Erase everything saved on this iPhone"},
+ fr:{profile:"Profil",look:"Apparence",theme:"Thème",language:"Langue",friends:"Amis",app:"App",own:"Compte démo TradeLocker",fr:"Accès avec code",codesub:"Crée et gère les codes de tes amis",refsub:"Recharge les données et cherche les mises à jour",ressub:"Efface tout ce qui est enregistré sur cet iPhone"}
+};
+function pt(k){const P=window.PFT;return P?((P[lang]&&P[lang][k])||P.it[k]||k):k}
+var PIC={
+  codes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
+  reset:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg>',
+  moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+};
+function pfRow(g,ic,title,sub,fn,cls){
+  const b=document.createElement('button');b.className='pfrow'+(cls?' '+cls:'');
+  const i=document.createElement('span');i.className='pfic';i.innerHTML=ic;b.appendChild(i);
+  const tx=document.createElement('span');tx.className='pftx';
+  const a=document.createElement('span');a.textContent=title;tx.appendChild(a);
+  if(sub){const s=document.createElement('small');s.textContent=sub;tx.appendChild(s)}
+  b.appendChild(tx);b.onclick=fn;g.appendChild(b);return b;
+}
+function pfGroup(p,label){
+  if(label){const l=document.createElement('div');l.className='pfl';l.textContent=label;p.appendChild(l)}
+  const g=document.createElement('div');g.className='pfg';p.appendChild(g);return g;
+}
+function renderProfile(){
+  const p=$('pf-screen');if(!p)return;
+  const st=p.scrollTop;p.innerHTML='';
+  /* testa: logo e nome */
+  const h=document.createElement('div');h.className='pfhead';
+  h.innerHTML='<img alt="" src="'+LOGO_SRC+'"><div class="pfname">TradingCharts</div>';
+  const sub=document.createElement('div');sub.className='pfsub';
+  let sv='';try{sv=localStorage.getItem('tc_server')||''}catch(e){}
+  sub.textContent=FRIEND?pt('fr')+' '+fshow(FRIEND):pt('own')+(sv?' · '+sv:'');
+  h.appendChild(sub);p.appendChild(h);
+  /* aspetto */
+  let g=pfGroup(p,pt('look'));
+  const th=document.documentElement.dataset.theme||'dark';
+  const seg=document.createElement('div');seg.className='pfseg';
+  [['dark',t('dark'),PIC.moon],['light',t('light'),PIC.sun]].forEach(([k,txt,ic])=>{
+    const b=document.createElement('button');b.className=k===th?'on':'';b.innerHTML=ic+'<span></span>';b.lastChild.textContent=txt;
+    b.onclick=()=>{setTheme(k);renderProfile()};seg.appendChild(b);
+  });
+  g.appendChild(seg);
+  g=pfGroup(p,pt('language'));
+  Object.keys(FLAGS).forEach(k=>{
+    const b=document.createElement('button');b.className='pfrow pflang';
+    b.innerHTML='<span class="fl2"></span><span class="pftx"><span></span></span>';
+    b.firstChild.textContent=FLAGS[k];b.querySelector('.pftx span').textContent=NAMES[k];
+    if(k===lang){const c=document.createElement('span');c.className='ck';c.textContent='✓';b.appendChild(c)}
+    b.onclick=()=>{lang=k;try{localStorage.setItem('lang',k)}catch(e){}applyLang();renderProfile()};
+    g.appendChild(b);
+  });
+  /* amici: solo per chi entra con le proprie credenziali */
+  if(!FRIEND){g=pfGroup(p,pt('friends'));pfRow(g,PIC.codes,ft('codes'),pt('codesub'),()=>openCodes())}
+  /* app */
+  g=pfGroup(p,pt('app'));
+  pfRow(g,PIC.refresh,t('refresh'),pt('refsub'),()=>doRefresh());
+  pfRow(g,PIC.reset,t('reset'),pt('ressub'),()=>resetApp());
+  g=pfGroup(p,'');
+  pfRow(g,PIC.out,t('logout'),'',logout,'danger');
+  p.scrollTop=st;
+}
+if(window.renderAll&&$('tabpf'))$('tabpf').textContent=pt('profile');
