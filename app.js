@@ -1,4 +1,4 @@
-const VERSION='0.9.0';
+const VERSION='0.10.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -158,6 +158,34 @@ html.vgap{--tbb:8px}
 #tools button{width:36px;height:42px;margin:0;padding:0;background:transparent;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:50%}
 #tools svg{width:24px;height:24px;display:block}
 
+/* hub del grafico */
+#hubbg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:58}
+#hub{position:fixed;left:8px;right:8px;bottom:0;height:calc(100% - env(safe-area-inset-top) - 24px);border-radius:28px 28px 0 0;z-index:59;display:flex;flex-direction:column;background:var(--glass2);color:var(--fg);will-change:transform}
+#hubhead{flex:0 0 auto;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:6px 10px 6px;touch-action:none;position:relative}
+#hubhead .sh-h{position:absolute;left:50%;top:6px;margin:0 0 0 -20px}
+#hubtitle{text-align:center;font-weight:700;font-size:17px;padding-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hubleft,#hubx{width:40px;height:40px;margin:10px 0 0;padding:0;border-radius:50%;border:0;background:var(--glasssel);color:var(--fg);display:flex;align-items:center;justify-content:center}
+#hubleft svg,#hubx svg{width:21px;height:21px}
+#hubbody{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 0 calc(env(safe-area-inset-bottom) + 24px);overscroll-behavior:contain}
+.htiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:6px 14px 4px}
+.htiles.three{grid-template-columns:1fr 1fr 1fr}
+.htile{width:auto;margin:0;min-height:76px;padding:12px 12px;border-radius:18px;border:0;background:var(--glasssel);color:var(--fg);display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:8px;text-align:left;font-size:14.5px;font-weight:600;line-height:1.2}
+.htiles.three .htile{align-items:center;text-align:center;min-height:70px}
+.htile svg{width:26px;height:26px;color:var(--goldfg)}
+.htile:active{transform:scale(.97)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:11px 18px;font-size:15.5px;border-bottom:1px solid var(--sep)}
+.kv span:first-child{color:var(--muted)}
+.kv span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.up{color:var(--up)!important}.down{color:var(--down)!important}
+.swrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;font-size:16px}
+.swrow input{width:auto;margin:0;transform:scale(1.1)}
+.hinput{display:block;width:calc(100% - 36px);margin:6px 18px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--glasssel);color:var(--fg);font-size:17px}
+.gauge{display:flex;flex-direction:column;align-items:center;padding:6px 0 10px;color:var(--fg)}
+.verdict{font-size:22px;font-weight:700;margin-top:-4px}
+.counts{font-size:13px;color:var(--muted);margin-top:6px}
+.tic{width:26px;height:26px;display:flex}.tic svg{width:26px;height:26px}
+.sh-note{padding:8px 18px 10px;color:var(--muted);font-size:14px;line-height:1.4}
+#lgcmp{display:inline-block;margin-top:4px;font-size:13px;color:#ff9800;font-weight:600}
 /* fogli dal basso */
 #sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60}
 #sheet{position:fixed;left:8px;right:8px;bottom:var(--tbb);max-height:78vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px;z-index:61;padding:8px 0 14px;background:var(--glass2);color:var(--fg)}
@@ -239,6 +267,7 @@ document.getElementById('root').innerHTML=`
       <div id="lgpx"></div>
       <button id="lgbtn" aria-label="Details">${IC_CHEV}</button>
       <div id="lgohlc" hidden></div>
+      <div id="lgcmp" hidden></div>
     </div>
     <div id="chbar">
       <button id="sympill" class="glass"><span id="spg1" class="ghost"></span><div id="spic"></div><span id="sptxt"></span><span id="spg2" class="ghost"></span></button>
@@ -266,6 +295,8 @@ document.getElementById('root').innerHTML=`
   </nav>
 </div>
 <div id="sheetbg" hidden></div>
+<div id="hubbg" hidden></div>
+<div id="hub" class="glass" hidden><div id="hubhead"><div class="sh-h"></div><button id="hubleft"></button><div id="hubtitle"></div><button id="hubx" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div id="hubbody"></div></div>
 <div id="sheet" class="glass" hidden></div>
 <div id="ver"></div>
 `;
@@ -568,6 +599,7 @@ async function quoteFor(name){
   if(!b.length)return;
   const last=b[b.length-1],prev=b.length>1?b[b.length-2].c:last.o;
   QUOTE[name]={last:last.c,prev,dec:decOf(b.slice(-6).flatMap(x=>[x.o,x.h,x.l,x.c])),t:last.t};
+  checkAlerts(name,last.c);
 }
 function setCur(name,doLoad=true){
   if(!BYN[name])return;
@@ -766,6 +798,7 @@ function afterData(){
     afterData.prev=last.c;
   }
   renderLegend();renderMini();tint();tagText();
+  if(last&&!(window.RP&&RP.on))checkAlerts(cur,last.c);
 }
 async function load(){
   const it=BYN[cur];if(!it||!series)return;
@@ -776,7 +809,8 @@ async function load(){
   if(!b.length)throw new Error(t('nobars'));
   lastBars=b;afterData.prev=null;
   setDec(decOf(b.slice(-200).flatMap(x=>[x.o,x.h,x.l,x.c])));
-  series.setData(b.map(toChart));
+  setSeriesData(b);refreshAlertLines();
+  if(CMP.sym===cur)cmpSet(null);else if(CMP.sym)cmpLoad().catch(()=>{});
   try{chart.priceScale('right').applyOptions({autoScale:true});chart.timeScale().scrollToRealTime()}catch(e){}
   afterData();
 }
@@ -787,10 +821,11 @@ async function tick(){
     const it=BYN[cur],want=cur+'|'+res,to=Date.now();
     const b=await barsFor(it,res,to-Math.max(72e5,SECS[res]*3000),to);
     if(cur+'|'+res!==want||!b.length)return;
-    b.forEach(x=>{try{series.update(toChart(x))}catch(e){}});
     const map=new Map(lastBars.map(x=>[x.t,x]));
     b.forEach(x=>map.set(x.t,x));
     lastBars=[...map.values()].sort((a,c)=>a.t-c.t).slice(-5000);
+    updSeries(lastBars,b.map(x=>x.t));
+    if(CMP.sym&&tickN%5===0)cmpLoad().catch(()=>{});
     afterData();
     if(++tickN%6===0)quoteFor(cur).then(()=>{renderLegend();renderMini();tint()}).catch(()=>{});
     tickFails=0;
@@ -806,7 +841,7 @@ function tagText(){
   let s=Math.max(0,Math.floor((last.t+SECS[res]*1000-Date.now())/1000));
   const hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60,p=n=>String(n).padStart(2,'0');
   $('tagpx').textContent=fmt(last.c,dec);
-  $('tagcd').hidden=!!(window.RP&&RP.on);
+  $('tagcd').hidden=!!(window.RP&&RP.on)||!CS.cd;
   $('tagcd').textContent=(hh?p(hh)+':':'')+p(mm)+':'+p(ss);
 }
 setInterval(()=>{if(tab==='ch'&&!document.hidden)tagText()},1000);
@@ -955,10 +990,7 @@ function start(){
       chartSolid=true;$('chart').innerHTML='';
       chart=LightweightCharts.createChart($('chart'),{autoSize:true,...chartOpts()});
     }
-    const UP=themeVar('--up'),DN=themeVar('--down');
-    series=chart.addCandlestickSeries({upColor:UP,downColor:DN,borderVisible:false,wickUpColor:UP,wickDownColor:DN,
-      lastValueVisible:false,priceLineVisible:true,priceLineStyle:1,priceLineWidth:1,priceLineColor:themeVar('--blue'),
-      priceFormat:{type:'price',precision:dec,minMove:Math.pow(10,-dec)}});
+    series=makeSeries();applyCS();
     setInterval(()=>{if(tab==='ch')tick()},3000);
     requestAnimationFrame(tagLoop);
   }
@@ -1219,7 +1251,8 @@ function setTheme(th){
   document.documentElement.dataset.theme=th;
   try{localStorage.setItem('theme',th)}catch(e){}
   const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=themeVar('--bg');
-  if(chart){try{chart.applyOptions(chartOpts())}catch(e){}}
+  if(chart){try{chart.applyOptions(chartOpts());applyCS()}catch(e){}}
+  restyleSeries();
   tint();
   drawSpark();
 }
@@ -1732,7 +1765,7 @@ function rpPickAt(x){
   RP.idx=Math.max(Math.min(20,n-1),Math.min(n-2,Math.round(l)));
   RP.started=true;
   lastBars=RP.full.slice(0,RP.idx+1);afterData.prev=null;
-  series.setData(lastBars.map(toChart));
+  setSeriesData(lastBars);
   try{chart.timeScale().scrollToRealTime()}catch(e){}
   afterData();haptic();setMode('idle');rpRender();
 }
@@ -1742,7 +1775,7 @@ function rpStep(){
   RP.idx++;
   const b=RP.full[RP.idx];
   lastBars=RP.full.slice(0,RP.idx+1);
-  try{series.update(toChart(b))}catch(e){}
+  updSeries(lastBars,[b.t]);
   afterData();
 }
 function rpPlay(){
@@ -1770,3 +1803,425 @@ $('rppick').onclick=rpPick;
 $('rpplay').onclick=rpPlay;
 $('rpstep').onclick=()=>{rpPause();rpStep()};
 $('rpspeed').onclick=rpSpeed;
+
+
+/* =====================================================================
+   HUB DEL GRAFICO (tre puntini nel grafico)
+   ===================================================================== */
+var HUBT={
+ it:{hub:"Hub del grafico",back:"Indietro",sec_layout:"Layout",sec_chart:"Grafico",sec_anal:"Analisi",sec_sym:"Simbolo",l_new:"Nuovo",l_save:"Salva",l_open:"Apri",c_type:"Tipologia di grafico",c_set:"Impostazioni grafico",c_tree:"Albero oggetti",a_ind:"Indicatori",a_cmp:"Confronta",a_rp:"Bar Replay",a_alert:"Alert",a_tech:"Tecnici",a_editor:"Editor script",s_det:"Dettagli simbolo",t_candles:"Candele",t_bars:"Barre",t_line:"Linea",t_area:"Area",t_ha:"Heikin Ashi",st_grid:"Griglia",st_pline:"Linea del prezzo",st_cd:"Conto alla rovescia della candela",st_wm:"Logo in filigrana",st_pal:"Colori delle candele",pal_tv:"Verde e rosso",pal_classic:"Classici",pal_mono:"Bianco e grigio",tr_empty:"Nessun disegno su questo simbolo.",dt_sym:"Simbolo",dt_desc:"Descrizione",dt_cat:"Categoria",dt_last:"Ultimo prezzo",dt_chg:"Variazione oggi",dt_open:"Apertura",dt_high:"Massimo",dt_low:"Minimo",dt_prev:"Chiusura precedente",dt_dec:"Decimali",al_new:"Nuovo alert",al_price:"Prezzo",al_add:"Crea alert",al_list:"Alert",al_none:"Nessun alert.",al_above:"sopra",al_below:"sotto",al_note:"Gli alert suonano solo mentre l'app è aperta.",al_fired:"Alert",al_done:"scattato",cm_hint:"Scegli un simbolo da confrontare: le due linee diventano in percentuale.",cm_off:"Togli il confronto",te_ssell:"Forte vendita",te_sell:"Vendita",te_neu:"Neutrale",te_buy:"Acquisto",te_sbuy:"Forte acquisto",te_osc:"Oscillatori",te_ma:"Medie mobili",te_few:"Servono più candele: prova un timeframe più basso.",te_sum:"Riepilogo",ly_name:"Nome del layout",ly_saved:"Layout salvato.",ly_none:"Nessun layout salvato.",ly_newq:"Cancellare i disegni di questo simbolo e tornare alle impostazioni iniziali del grafico?",ly_yes:"Sì, ricomincia",sh_fail:"Tieni premuta l'immagine per salvarla o condividerla.",ed_soon:"L'editor per i tuoi script e gli indicatori arrivano nella prossima versione."},
+ es:{hub:"Centro del gráfico",back:"Atrás",sec_layout:"Diseño",sec_chart:"Gráfico",sec_anal:"Análisis",sec_sym:"Símbolo",l_new:"Nuevo",l_save:"Guardar",l_open:"Abrir",c_type:"Tipo de gráfico",c_set:"Ajustes del gráfico",c_tree:"Árbol de objetos",a_ind:"Indicadores",a_cmp:"Comparar",a_rp:"Bar Replay",a_alert:"Alertas",a_tech:"Técnicos",a_editor:"Editor de scripts",s_det:"Detalles del símbolo",t_candles:"Velas",t_bars:"Barras",t_line:"Línea",t_area:"Área",t_ha:"Heikin Ashi",st_grid:"Cuadrícula",st_pline:"Línea de precio",st_cd:"Cuenta atrás de la vela",st_wm:"Logo de fondo",st_pal:"Colores de las velas",pal_tv:"Verde y rojo",pal_classic:"Clásicos",pal_mono:"Blanco y gris",tr_empty:"No hay dibujos en este símbolo.",dt_sym:"Símbolo",dt_desc:"Descripción",dt_cat:"Categoría",dt_last:"Último precio",dt_chg:"Variación hoy",dt_open:"Apertura",dt_high:"Máximo",dt_low:"Mínimo",dt_prev:"Cierre anterior",dt_dec:"Decimales",al_new:"Nueva alerta",al_price:"Precio",al_add:"Crear alerta",al_list:"Alertas",al_none:"No hay alertas.",al_above:"por encima",al_below:"por debajo",al_note:"Las alertas solo suenan con la app abierta.",al_fired:"Alerta",al_done:"activada",cm_hint:"Elige un símbolo para comparar: las dos líneas pasan a porcentaje.",cm_off:"Quitar comparación",te_ssell:"Venta fuerte",te_sell:"Venta",te_neu:"Neutral",te_buy:"Compra",te_sbuy:"Compra fuerte",te_osc:"Osciladores",te_ma:"Medias móviles",te_few:"Hacen falta más velas: prueba una temporalidad más baja.",te_sum:"Resumen",ly_name:"Nombre del diseño",ly_saved:"Diseño guardado.",ly_none:"No hay diseños guardados.",ly_newq:"¿Borrar los dibujos de este símbolo y volver a los ajustes iniciales del gráfico?",ly_yes:"Sí, empezar de nuevo",sh_fail:"Mantén pulsada la imagen para guardarla o compartirla.",ed_soon:"El editor de scripts y los indicadores llegan en la próxima versión."},
+ en:{hub:"Chart hub",back:"Back",sec_layout:"Layout",sec_chart:"Chart",sec_anal:"Analysis",sec_sym:"Symbol",l_new:"New",l_save:"Save",l_open:"Open",c_type:"Chart type",c_set:"Chart settings",c_tree:"Object tree",a_ind:"Indicators",a_cmp:"Compare",a_rp:"Bar Replay",a_alert:"Alerts",a_tech:"Technicals",a_editor:"Script editor",s_det:"Symbol details",t_candles:"Candles",t_bars:"Bars",t_line:"Line",t_area:"Area",t_ha:"Heikin Ashi",st_grid:"Grid",st_pline:"Price line",st_cd:"Candle countdown",st_wm:"Watermark logo",st_pal:"Candle colors",pal_tv:"Green and red",pal_classic:"Classic",pal_mono:"White and grey",tr_empty:"No drawings on this symbol.",dt_sym:"Symbol",dt_desc:"Description",dt_cat:"Category",dt_last:"Last price",dt_chg:"Change today",dt_open:"Open",dt_high:"High",dt_low:"Low",dt_prev:"Previous close",dt_dec:"Decimals",al_new:"New alert",al_price:"Price",al_add:"Create alert",al_list:"Alerts",al_none:"No alerts.",al_above:"above",al_below:"below",al_note:"Alerts only ring while the app is open.",al_fired:"Alert",al_done:"triggered",cm_hint:"Pick a symbol to compare: both lines switch to percent.",cm_off:"Remove comparison",te_ssell:"Strong sell",te_sell:"Sell",te_neu:"Neutral",te_buy:"Buy",te_sbuy:"Strong buy",te_osc:"Oscillators",te_ma:"Moving averages",te_few:"More candles needed: try a lower timeframe.",te_sum:"Summary",ly_name:"Layout name",ly_saved:"Layout saved.",ly_none:"No saved layouts.",ly_newq:"Delete this symbol's drawings and reset the chart settings?",ly_yes:"Yes, start over",sh_fail:"Press and hold the image to save or share it.",ed_soon:"The script editor and indicators come in the next version."},
+ fr:{hub:"Hub du graphique",back:"Retour",sec_layout:"Mise en page",sec_chart:"Graphique",sec_anal:"Analyse",sec_sym:"Symbole",l_new:"Nouveau",l_save:"Enregistrer",l_open:"Ouvrir",c_type:"Type de graphique",c_set:"Réglages du graphique",c_tree:"Arbre des objets",a_ind:"Indicateurs",a_cmp:"Comparer",a_rp:"Bar Replay",a_alert:"Alertes",a_tech:"Techniques",a_editor:"Éditeur de scripts",s_det:"Détails du symbole",t_candles:"Bougies",t_bars:"Barres",t_line:"Ligne",t_area:"Aire",t_ha:"Heikin Ashi",st_grid:"Grille",st_pline:"Ligne de prix",st_cd:"Compte à rebours de la bougie",st_wm:"Logo en filigrane",st_pal:"Couleurs des bougies",pal_tv:"Vert et rouge",pal_classic:"Classiques",pal_mono:"Blanc et gris",tr_empty:"Aucun dessin sur ce symbole.",dt_sym:"Symbole",dt_desc:"Description",dt_cat:"Catégorie",dt_last:"Dernier prix",dt_chg:"Variation du jour",dt_open:"Ouverture",dt_high:"Plus haut",dt_low:"Plus bas",dt_prev:"Clôture précédente",dt_dec:"Décimales",al_new:"Nouvelle alerte",al_price:"Prix",al_add:"Créer l'alerte",al_list:"Alertes",al_none:"Aucune alerte.",al_above:"au-dessus",al_below:"en dessous",al_note:"Les alertes ne sonnent que quand l'app est ouverte.",al_fired:"Alerte",al_done:"déclenchée",cm_hint:"Choisis un symbole à comparer : les deux lignes passent en pourcentage.",cm_off:"Retirer la comparaison",te_ssell:"Vente forte",te_sell:"Vente",te_neu:"Neutre",te_buy:"Achat",te_sbuy:"Achat fort",te_osc:"Oscillateurs",te_ma:"Moyennes mobiles",te_few:"Il faut plus de bougies : essaie une unité de temps plus basse.",te_sum:"Résumé",ly_name:"Nom de la mise en page",ly_saved:"Mise en page enregistrée.",ly_none:"Aucune mise en page enregistrée.",ly_newq:"Supprimer les dessins de ce symbole et revenir aux réglages initiaux ?",ly_yes:"Oui, recommencer",sh_fail:"Appuie longuement sur l'image pour l'enregistrer ou la partager.",ed_soon:"L'éditeur de scripts et les indicateurs arrivent dans la prochaine version."}
+};
+function th(k){return(HUBT[lang]&&HUBT[lang][k])||HUBT.it[k]||k}
+function lsGet(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+/* ---------- impostazioni e tipologia del grafico ---------- */
+var CS_DEF={type:'candles',grid:true,pline:true,cd:true,wm:true,pal:'tv'};
+var CS=Object.assign({},CS_DEF,lsGet('tc_chart',{}));
+function saveCS(){lsSet('tc_chart',CS)}
+function upDn(){
+  if(CS.pal==='classic')return['#26a69a','#ef5350'];
+  if(CS.pal==='mono'){const dark=(document.documentElement.dataset.theme||'dark')!=='light';return dark?['#e8e8e8','#5c5c5c']:['#1a1a1a','#a0a0a0']}
+  return[themeVar('--up')||'#22ab94',themeVar('--down')||'#f23645'];
+}
+function makeSeries(){
+  const[U,D]=upDn(),blue=themeVar('--blue')||'#2962ff';
+  const base={lastValueVisible:false,priceLineVisible:CS.pline,priceLineStyle:1,priceLineWidth:1,priceLineColor:blue,priceFormat:{type:'price',precision:dec,minMove:Math.pow(10,-dec)}};
+  if(CS.type==='bars')return chart.addBarSeries(Object.assign(base,{upColor:U,downColor:D,thinBars:false}));
+  if(CS.type==='line')return chart.addLineSeries(Object.assign(base,{color:blue,lineWidth:2}));
+  if(CS.type==='area')return chart.addAreaSeries(Object.assign(base,{lineColor:blue,topColor:'rgba(41, 98, 255, 0.35)',bottomColor:'rgba(41, 98, 255, 0.02)',lineWidth:2}));
+  return chart.addCandlestickSeries(Object.assign(base,{upColor:U,downColor:D,borderVisible:false,wickUpColor:U,wickDownColor:D}));
+}
+function haList(list){
+  const out=[];let po=0,pc=0;
+  list.forEach((b,i)=>{const c=(b.o+b.h+b.l+b.c)/4,o=i?(po+pc)/2:(b.o+b.c)/2;out.push({t:b.t,o,h:Math.max(b.h,o,c),l:Math.min(b.l,o,c),c});po=o;pc=c});
+  return out;
+}
+function ptOf(b){
+  const time=toChart(b).time;
+  if(CS.type==='line'||CS.type==='area')return{time,value:b.c};
+  return{time,open:b.o,high:b.h,low:b.l,close:b.c};
+}
+function setSeriesData(list){
+  const src=CS.type==='ha'?haList(list):list;
+  series.setData(src.map(ptOf));
+}
+function updSeries(list,ts){
+  const set=new Set(ts);
+  const src=CS.type==='ha'?haList(list):list.slice(-Math.max(ts.length+2,3));
+  src.forEach(b=>{if(set.has(b.t)){try{series.update(ptOf(b))}catch(e){}}});
+}
+function rebuildSeries(){
+  if(!chart)return;
+  try{chart.removeSeries(series)}catch(e){}
+  series=makeSeries();
+  if(lastBars.length)setSeriesData(lastBars);
+  refreshAlertLines();
+  applyCS();
+}
+function applyCS(){
+  try{chart.applyOptions({grid:{vertLines:{visible:CS.grid},horzLines:{visible:CS.grid}}})}catch(e){}
+  try{series.applyOptions({priceLineVisible:CS.pline})}catch(e){}
+  $('wm').hidden=!CS.wm;
+  tagText();
+}
+function restyleSeries(){if(series&&chart&&CS.pal==='mono')rebuildSeries()}
+
+/* ---------- alert sul prezzo ---------- */
+var ALERTS=lsGet('tc_alerts',[]),alertLines=[];
+function saveAlerts(){lsSet('tc_alerts',ALERTS)}
+function refreshAlertLines(){
+  alertLines.forEach(l=>{try{series.removePriceLine(l)}catch(e){}});alertLines=[];
+  if(!series)return;
+  ALERTS.filter(a=>a.active&&a.sym===cur).forEach(a=>{try{alertLines.push(series.createPriceLine({price:a.price,color:'#ff9800',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'⏰'}))}catch(e){}});
+}
+var beepCtx=null;
+function beep(){
+  try{
+    beepCtx=beepCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=beepCtx.createOscillator(),g=beepCtx.createGain();o.type='sine';o.frequency.value=880;
+    g.gain.setValueAtTime(0.0001,beepCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.25,beepCtx.currentTime+0.02);g.gain.exponentialRampToValueAtTime(0.0001,beepCtx.currentTime+0.5);
+    o.connect(g);g.connect(beepCtx.destination);o.start();o.stop(beepCtx.currentTime+0.55);
+  }catch(e){}
+}
+function checkAlerts(sym,price){
+  if(price==null||!ALERTS.length)return;
+  let hit=false;
+  ALERTS.forEach(a=>{
+    if(!a.active||a.sym!==sym)return;
+    if((a.dir==='above'&&price>=a.price)||(a.dir==='below'&&price<=a.price)){
+      a.active=false;hit=true;
+      const d=(BYN[sym]&&QUOTE[sym])?QUOTE[sym].dec:dec;
+      msg('⏰ '+th('al_fired')+' '+sym+' '+th(a.dir==='above'?'al_above':'al_below')+' '+fmt(a.price,d)+' — '+th('al_done'));
+      haptic();beep();
+    }
+  });
+  if(hit){saveAlerts();if(sym===cur)refreshAlertLines()}
+}
+
+/* ---------- confronto con un altro simbolo ---------- */
+var CMP={sym:null,series:null,bars:[]};
+async function cmpLoad(){
+  if(!CMP.sym||!CMP.series)return;
+  const it=BYN[CMP.sym];if(!it)return;
+  const to=Date.now(),b=await barsFor(it,res,to-DAYS[res]*864e5,to);
+  CMP.bars=b;
+  try{CMP.series.setData(b.map(x=>({time:toChart(x).time,value:x.c})))}catch(e){}
+}
+function cmpSet(sym){
+  if(CMP.series){try{chart.removeSeries(CMP.series)}catch(e){}CMP.series=null}
+  CMP.sym=sym&&sym!==cur?sym:null;CMP.bars=[];
+  try{chart.priceScale('right').applyOptions({mode:CMP.sym?2:0})}catch(e){}
+  $('lgcmp').hidden=!CMP.sym;
+  if(CMP.sym){
+    $('lgcmp').textContent='＋ '+CMP.sym;
+    CMP.series=chart.addLineSeries({color:'#ff9800',lineWidth:2,priceLineVisible:false,lastValueVisible:true});
+    cmpLoad().catch(()=>{});
+  }
+}
+
+/* ---------- tecnici: riepilogo di oscillatori e medie mobili ---------- */
+function smaL(a,n){if(a.length<n)return null;let s=0;for(let i=a.length-n;i<a.length;i++)s+=a[i];return s/n}
+function emaA(a,n){const k=2/(n+1);let e=null;return a.map(v=>e=e==null?v:v*k+e*(1-k))}
+function emaL(a,n){return a.length<n?null:emaA(a,n).pop()}
+function rsiL(a,n){if(a.length<n+1)return null;let g=0,l=0;for(let i=1;i<=n;i++){const d=a[i]-a[i-1];if(d>0)g+=d;else l-=d}g/=n;l/=n;for(let i=n+1;i<a.length;i++){const d=a[i]-a[i-1];g=(g*(n-1)+Math.max(d,0))/n;l=(l*(n-1)+Math.max(-d,0))/n}return l===0?100:100-100/(1+g/l)}
+function technicals(){
+  const B=lastBars;if(B.length<30)return null;
+  const C=B.map(b=>b.c),last=C[C.length-1],osc=[],ma=[];
+  const add=(arr,name,val,sig)=>arr.push({name,val,sig});
+  const r=rsiL(C,14);if(r!=null)add(osc,'RSI (14)',r,r<30?1:r>70?-1:0);
+  const kRaw=i=>{const w=B.slice(i-13,i+1),hh=Math.max(...w.map(b=>b.h)),ll=Math.min(...w.map(b=>b.l));return hh===ll?50:(B[i].c-ll)/(hh-ll)*100};
+  if(B.length>=16){const n=B.length-1,k=(kRaw(n)+kRaw(n-1)+kRaw(n-2))/3;add(osc,'Stoch %K (14, 3)',k,k<20?1:k>80?-1:0)}
+  if(B.length>=20){const tp=B.slice(-20).map(b=>(b.h+b.l+b.c)/3),m=tp.reduce((s,v)=>s+v,0)/20,md=tp.reduce((s,v)=>s+Math.abs(v-m),0)/20,cci=md?(tp[19]-m)/(0.015*md):0;add(osc,'CCI (20)',cci,cci<-100?1:cci>100?-1:0)}
+  if(C.length>10){const mo=last-C[C.length-11];add(osc,'Momentum (10)',mo,mo>0?1:mo<0?-1:0)}
+  if(C.length>=35){const m=emaA(C,12).map((v,i)=>v-emaA(C,26)[i]),s=emaA(m,9),mv=m[m.length-1],sv=s[s.length-1];add(osc,'MACD (12, 26)',mv,mv>sv?1:-1)}
+  if(B.length>=14){const w=B.slice(-14),hh=Math.max(...w.map(b=>b.h)),ll=Math.min(...w.map(b=>b.l)),wr=hh===ll?-50:(hh-last)/(hh-ll)*-100;add(osc,'Williams %R (14)',wr,wr<-80?1:wr>-20?-1:0)}
+  [10,20,30,50,100,200].forEach(n=>{
+    const s=smaL(C,n);if(s!=null)add(ma,'SMA ('+n+')',s,last>s?1:last<s?-1:0);
+    const e=emaL(C,n);if(e!=null)add(ma,'EMA ('+n+')',e,last>e?1:last<e?-1:0);
+  });
+  const all=osc.concat(ma),buy=all.filter(x=>x.sig>0).length,sell=all.filter(x=>x.sig<0).length,score=all.length?(buy-sell)/all.length:0;
+  const verdict=score>0.5?'te_sbuy':score>0.1?'te_buy':score<-0.5?'te_ssell':score<-0.1?'te_sell':'te_neu';
+  return{osc,ma,buy,sell,neu:all.length-buy-sell,score,verdict};
+}
+function gaugeSVG(score){
+  const ang=Math.PI*(1-(score+1)/2),cx=110,cy=104,r=86;
+  const seg=(a0,a1,col)=>{const p=a=>[cx+r*Math.cos(a),cy-r*Math.sin(a)];const[x0,y0]=p(a0),[x1,y1]=p(a1);return'<path d="M'+x0.toFixed(1)+' '+y0.toFixed(1)+' A'+r+' '+r+' 0 0 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+'" stroke="'+col+'" stroke-width="14" fill="none"/>'};
+  const cols=['#f23645','#f7838c','#8e8e93','#7fd3c5','#22ab94'];
+  let s='<svg viewBox="0 0 220 120" width="220" height="120">';
+  for(let i=0;i<5;i++)s+=seg(Math.PI-i*Math.PI/5-0.03,Math.PI-(i+1)*Math.PI/5+0.03,cols[i]);
+  const nx=cx+(r-24)*Math.cos(ang),ny=cy-(r-24)*Math.sin(ang);
+  s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+nx.toFixed(1)+'" y2="'+ny.toFixed(1)+'" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="'+cx+'" cy="'+cy+'" r="6" fill="currentColor"/></svg>';
+  return s;
+}
+
+/* ---------- layout salvati ---------- */
+var LAYOUTS=lsGet('tc_layouts',[]);
+function saveLayouts(){lsSet('tc_layouts',LAYOUTS)}
+
+/* ---------- immagine da condividere ---------- */
+var shareLogo=new Image();shareLogo.src=LOGO_SRC;
+function shareChart(){
+  try{
+    const box=$('chartbox').getBoundingClientRect(),dpr=2,W=Math.round(box.width),headH=74,footH=44,H=Math.round(box.height)+headH+footH;
+    const cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;
+    const c=cv.getContext('2d');c.scale(dpr,dpr);
+    const cc=chartColors(),dark=(document.documentElement.dataset.theme||'dark')!=='light';
+    const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,cc.bg);g.addColorStop(1,cc.tintc);c.fillStyle=g;c.fillRect(0,0,W,H);
+    const it=BYN[cur],last=lastBars[lastBars.length-1],q=QUOTE[cur],fg=dark?'#f2f2f2':'#111';
+    c.fillStyle=fg;c.font='600 18px -apple-system,system-ui,sans-serif';c.textBaseline='alphabetic';
+    c.fillText(cur+' · '+res+(it?'  '+info(it).desc:''),14,30);
+    if(last){
+      c.font='600 22px -apple-system,system-ui,sans-serif';const ps=fmt(last.c,dec);c.fillText(ps,14,60);
+      if(q){const dv=last.c-q.prev,pc=q.prev?dv/q.prev*100:0;c.font='500 15px -apple-system,system-ui,sans-serif';c.fillStyle=dv>=0?'#22ab94':'#f23645';c.fillText(fmtSigned(dv,dec)+'  '+fmtSigned(pc,2)+'%',14+c.measureText(ps).width*1.45+10,60)}
+    }
+    const shot=chart.takeScreenshot();
+    c.drawImage(shot,0,headH,W,box.height);
+    if(dcv.width)c.drawImage(dcv,0,headH,W,box.height);
+    if(last&&!$('pxtag').hidden){
+      const y=series.priceToCoordinate(last.c);
+      if(y!=null){const txt=fmt(last.c,dec);c.font='500 13px -apple-system,system-ui,sans-serif';const tw=Math.max(c.measureText(txt).width+14,chart.priceScale('right').width());c.fillStyle='#2962ff';c.fillRect(W-tw,headH+y-11,tw,22);c.fillStyle='#fff';c.textBaseline='middle';c.fillText(txt,W-tw+7,headH+y);c.textBaseline='alphabetic'}
+    }
+    const fy=headH+box.height;
+    c.save();if(!dark)c.filter='invert(1)';try{c.drawImage(shareLogo,14,fy+6,32,32)}catch(e){}c.restore();
+    c.fillStyle=fg;c.font='700 15px -apple-system,system-ui,sans-serif';c.fillText('TradingCharts',52,fy+27);
+    c.fillStyle=dark?'#8e8e93':'#6b6b70';c.font='13px -apple-system,system-ui,sans-serif';
+    const ds=new Date().toLocaleString(LOC[lang]||'it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    c.fillText(ds,W-14-c.measureText(ds).width,fy+27);
+    /* tutto sincrono fino alla condivisione: iPhone la permette solo subito dopo il tocco */
+    const url=cv.toDataURL('image/png'),bin=atob(url.split(',')[1]),arr=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+    const file=new File([arr],'TradingCharts_'+cur+'_'+res+'.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'TradingCharts'}).catch(e=>{if(!e||e.name!=='AbortError')showShot(url)});
+    }else showShot(url);
+  }catch(e){msg(errText(e))}
+}
+function showShot(url){
+  hubPage(th('l_save'),b=>{
+    const im=document.createElement('img');im.src=url;im.alt='';im.style.cssText='display:block;width:calc(100% - 32px);margin:8px 16px;border-radius:14px';
+    b.appendChild(im);shEl(b,'sh-note',th('sh_fail'));
+  });
+}
+
+/* ---------- il pannello: si trascina su e giu', condividi e X ---------- */
+var HUB={stack:[],y:0,open:false};
+var HIC={
+  new:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="15" height="14" rx="2"/><path d="M6 14l3-3 3 2 4-5M19 15v6M16 18h6"/></svg>',
+  save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.6 1.5A3.5 3.5 0 0 1 17.5 18"/><path d="M12 12v8M9 15l3-3 3 3"/></svg>',
+  open:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H10l2 2h7.5A1.5 1.5 0 0 1 21 8.5V18a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/></svg>',
+  type:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 3v4M7 15v6M17 4v5M17 17v3"/><rect x="5" y="7" width="4" height="8" rx="1"/><rect x="15" y="9" width="4" height="8" rx="1"/></svg>',
+  set:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.8l8 4.6v9.2l-8 4.6-8-4.6V7.4z"/><circle cx="12" cy="12" r="3"/></svg>',
+  tree:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+  ind:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M5 20v-5M9 20v-8M13 20v-6M17 20v-10"/><path d="M4 10l5-4 4 3 7-6"/></svg>',
+  cmp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+  rp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 6l-8 6 8 6zM20 6l-8 6 8 6z"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="13" r="7"/><path d="M12 10v3.5l2 1.5M5 4L2.5 6.5M19 4l2.5 2.5"/></svg>',
+  tech:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/></svg>',
+  ed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>',
+  det:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r="1" fill="currentColor"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>'
+};
+function hubSetY(y,anim){const h=$('hub');h.style.transition=anim?'transform .28s cubic-bezier(.2,.8,.2,1)':'none';HUB.y=Math.max(0,y);h.style.transform='translateY('+HUB.y+'px)'}
+function hubHalf(){return Math.round($('hub').getBoundingClientRect().height*0.42)}
+function openHub(){
+  if(window.dMode&&dMode!=='idle'){dTemp=null;dSel=null;setMode('idle')}
+  HUB.open=true;HUB.stack=[];
+  $('hubbg').hidden=false;$('hub').hidden=false;
+  hubSetY(window.innerHeight,false);
+  hubRender();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>hubSetY(0,true)));
+}
+function closeHub(){
+  if(!HUB.open)return;HUB.open=false;
+  hubSetY($('hub').getBoundingClientRect().height+40,true);$('hubbg').hidden=true;
+  setTimeout(()=>{if(!HUB.open)$('hub').hidden=true},300);
+}
+function hubPage(title,build){HUB.stack.push({title,build});hubRender()}
+function hubBack(){HUB.stack.pop();hubRender()}
+function hubRender(){
+  const top=HUB.stack[HUB.stack.length-1];
+  $('hubtitle').textContent=top?top.title:th('hub');
+  const L=$('hubleft');L.innerHTML=top?HIC.back:HIC.share;L.setAttribute('aria-label',top?th('back'):'Share');
+  const b=$('hubbody');b.innerHTML='';b.scrollTop=0;
+  if(top)top.build(b);else hubRoot(b);
+}
+function tilesInto(b,cls,items){
+  const g=document.createElement('div');g.className='htiles'+(cls?' '+cls:'');
+  items.forEach(([ic,label,fn,dim])=>{
+    const t=document.createElement('button');t.className='htile'+(dim?' dim':'');
+    t.innerHTML=HIC[ic]+'<span></span>';t.lastChild.textContent=label;t.onclick=fn;g.appendChild(t);
+  });
+  b.appendChild(g);
+}
+function hubRoot(b){
+  tilesInto(b,'three',[['new',th('l_new'),hubNew],['save',th('l_save'),()=>hubPage(th('l_save'),pageSave)],['open',th('l_open'),()=>hubPage(th('l_open'),pageOpen)]]);
+  shEl(b,'sh-l',th('sec_chart'));
+  tilesInto(b,'',[['type',th('c_type'),()=>hubPage(th('c_type'),pageType)],['set',th('c_set'),()=>hubPage(th('c_set'),pageSet)],['tree',th('c_tree'),()=>hubPage(th('c_tree'),pageTree)],['det',th('s_det'),()=>hubPage(th('s_det'),pageDet)]]);
+  shEl(b,'sh-l',th('sec_anal'));
+  tilesInto(b,'',[
+    ['ind',th('a_ind'),()=>hubPage(th('a_ind'),pageSoon)],
+    ['cmp',th('a_cmp'),()=>hubPage(th('a_cmp'),pageCmp)],
+    ['rp',th('a_rp'),()=>{closeHub();rpStart()}],
+    ['alert',th('a_alert'),()=>hubPage(th('a_alert'),pageAlert)],
+    ['tech',th('a_tech'),()=>hubPage(th('a_tech'),pageTech)],
+    ['ed',th('a_editor'),()=>hubPage(th('a_editor'),pageSoon)]
+  ]);
+}
+function rowKV(b,k,v,cls){const r=document.createElement('div');r.className='kv';const a=document.createElement('span');a.textContent=k;const c=document.createElement('span');c.textContent=v;if(cls)c.className=cls;r.appendChild(a);r.appendChild(c);b.appendChild(r)}
+function pageSoon(b){shEl(b,'sh-note',th('ed_soon'))}
+function pageType(b){
+  [['candles','t_candles'],['bars','t_bars'],['line','t_line'],['area','t_area'],['ha','t_ha']].forEach(([k,lab])=>shItem(b,th(lab),{check:CS.type===k,on:()=>{CS.type=k;saveCS();rebuildSeries();hubRender()}}));
+}
+function sw(b,label,key,after){
+  const r=document.createElement('label');r.className='swrow';
+  const s=document.createElement('span');s.textContent=label;
+  const i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');i.checked=!!CS[key];
+  i.onchange=()=>{CS[key]=i.checked;saveCS();applyCS();if(after)after()};
+  r.appendChild(s);r.appendChild(i);b.appendChild(r);
+}
+function pageSet(b){
+  sw(b,th('st_grid'),'grid');sw(b,th('st_pline'),'pline');sw(b,th('st_cd'),'cd');sw(b,th('st_wm'),'wm');
+  shEl(b,'sh-l',th('st_pal'));
+  [['tv','pal_tv'],['classic','pal_classic'],['mono','pal_mono']].forEach(([k,lab])=>shItem(b,th(lab),{check:CS.pal===k,on:()=>{CS.pal=k;saveCS();rebuildSeries();hubRender()}}));
+}
+function pageTree(b){
+  if(!drawings.length){shEl(b,'sh-note',th('tr_empty'));return}
+  drawings.slice().reverse().forEach(d=>{
+    const ic=document.createElement('span');ic.className='tic';ic.innerHTML=DICON[d.type]||'';ic.style.color=d.color||'';
+    const del=document.createElement('button');del.className='addb';del.innerHTML='✕';del.setAttribute('aria-label',t('del'));
+    del.onclick=e=>{e.stopPropagation();drawings=drawings.filter(x=>x!==d);if(dSel===d)dSel=null;dSave();hubRender()};
+    shItem(b,t('d_'+d.type)+(d.text?' — '+d.text.slice(0,24):''),{left:ic,right:del,on:()=>{closeHub();dSel=d;setMode('edit')}});
+  });
+}
+function pageDet(b){
+  const it=BYN[cur];if(!it)return;
+  const q=QUOTE[cur],last=lastBars.length?lastBars[lastBars.length-1].c:(q?q.last:null),inf=info(it),d=q?q.dec:dec;
+  rowKV(b,th('dt_sym'),it.name);rowKV(b,th('dt_desc'),inf.desc||'—');rowKV(b,th('dt_cat'),t('cat_'+inf.cat));
+  if(last!=null)rowKV(b,th('dt_last'),fmt(last,d));
+  if(q){const dv=(last!=null?last:q.last)-q.prev;rowKV(b,th('dt_chg'),fmtSigned(dv,d)+'  '+fmtSigned(q.prev?dv/q.prev*100:0,2)+'%',dv>0?'up':dv<0?'down':'');rowKV(b,th('dt_prev'),fmt(q.prev,d))}
+  const box=document.createElement('div');b.appendChild(box);
+  barsFor(it,'1D',Date.now()-4*864e5,Date.now()).then(x=>{
+    const l=x[x.length-1];if(!l)return;
+    rowKV(box,th('dt_open'),fmt(l.o,d));rowKV(box,th('dt_high'),fmt(l.h,d));rowKV(box,th('dt_low'),fmt(l.l,d));rowKV(box,th('dt_dec'),String(d));
+  }).catch(()=>{});
+}
+function pageCmp(b){
+  shEl(b,'sh-note',th('cm_hint'));
+  if(CMP.sym)shItem(b,th('cm_off'),{danger:true,on:()=>{cmpSet(null);hubRender()}});
+  WATCH.filter(n=>n!==cur).forEach(n=>{const it=BYN[n];if(it)shItem(b,n,{left:iconEl(it,30),check:CMP.sym===n,on:()=>{cmpSet(n);closeHub()}})});
+}
+function pageAlert(b){
+  const q=QUOTE[cur],last=lastBars.length?lastBars[lastBars.length-1].c:(q?q.last:0);
+  shEl(b,'sh-l',th('al_new')+' — '+cur);
+  const inp=document.createElement('input');inp.id='alprice';inp.type='text';inp.inputMode='decimal';inp.className='hinput';
+  inp.value=fmt(last,dec).replace(/[^\d,.\-]/g,'');
+  b.appendChild(inp);
+  const row=document.createElement('div');row.className='chips';
+  const ok=document.createElement('button');ok.className='chip on';ok.textContent=th('al_add');
+  ok.onclick=()=>{
+    const sp=SEPS[lang]||SEPS.it;
+    let s=inp.value.trim().split(sp[0]).join('').replace(sp[1],'.').replace(',','.');
+    const p=parseFloat(s);if(!isFinite(p))return;
+    const now=lastBars.length?lastBars[lastBars.length-1].c:last;
+    ALERTS.push({id:Date.now(),sym:cur,price:p,dir:p>=now?'above':'below',active:true});saveAlerts();refreshAlertLines();hubRender();
+  };
+  row.appendChild(ok);b.appendChild(row);
+  shEl(b,'sh-l',th('al_list'));
+  const act=ALERTS.filter(a=>a.active);
+  if(!act.length)shEl(b,'sh-note',th('al_none'));
+  act.forEach(a=>{
+    const del=document.createElement('button');del.className='addb';del.innerHTML='✕';del.setAttribute('aria-label',t('del'));
+    del.onclick=e=>{e.stopPropagation();ALERTS=ALERTS.filter(x=>x!==a);saveAlerts();refreshAlertLines();hubRender()};
+    const d=QUOTE[a.sym]?QUOTE[a.sym].dec:dec;
+    shItem(b,a.sym+'  '+th(a.dir==='above'?'al_above':'al_below')+'  '+fmt(a.price,d),{right:del});
+  });
+  shEl(b,'sh-note',th('al_note'));
+}
+function pageTech(b){
+  const r=technicals();
+  shEl(b,'sh-l',cur+' · '+res);
+  if(!r){shEl(b,'sh-note',th('te_few'));return}
+  const g=document.createElement('div');g.className='gauge';g.innerHTML=gaugeSVG(r.score);
+  const v=document.createElement('div');v.className='verdict '+(r.score>0.1?'up':r.score<-0.1?'down':'');v.textContent=th(r.verdict);
+  const cnt=document.createElement('div');cnt.className='counts';cnt.textContent=th('te_sell')+' '+r.sell+'   ·   '+th('te_neu')+' '+r.neu+'   ·   '+th('te_buy')+' '+r.buy;
+  g.appendChild(v);g.appendChild(cnt);b.appendChild(g);
+  const sec=(title,arr)=>{shEl(b,'sh-l',title);arr.forEach(x=>rowKV(b,x.name,fmt(x.val,Math.abs(x.val)>=100?2:dec>2?dec:2)+'   '+th(x.sig>0?'te_buy':x.sig<0?'te_sell':'te_neu'),x.sig>0?'up':x.sig<0?'down':''))};
+  sec(th('te_osc'),r.osc);sec(th('te_ma'),r.ma);
+}
+function hubNew(){
+  hubPage(th('l_new'),b=>{
+    shEl(b,'sh-note',th('ly_newq'));
+    shItem(b,th('ly_yes'),{danger:true,on:()=>{
+      drawings=[];dSel=null;dSave();CS=Object.assign({},CS_DEF);saveCS();cmpSet(null);rebuildSeries();closeHub();
+    }});
+  });
+}
+function pageSave(b){
+  const inp=document.createElement('input');inp.className='hinput';inp.placeholder=th('ly_name');inp.value=cur+' '+res;b.appendChild(inp);
+  const row=document.createElement('div');row.className='chips';
+  const ok=document.createElement('button');ok.className='chip on';ok.textContent=th('l_save');
+  ok.onclick=()=>{
+    const name=inp.value.trim()||(cur+' '+res);
+    LAYOUTS=LAYOUTS.filter(l=>l.name!==name);
+    LAYOUTS.unshift({name,sym:cur,res,cs:Object.assign({},CS),draw:JSON.parse(JSON.stringify(drawings)),cmp:CMP.sym,ts:Date.now()});
+    saveLayouts();msg(th('ly_saved'));hubBack();
+  };
+  row.appendChild(ok);b.appendChild(row);
+}
+function pageOpen(b){
+  if(!LAYOUTS.length){shEl(b,'sh-note',th('ly_none'));return}
+  LAYOUTS.forEach(l=>{
+    const del=document.createElement('button');del.className='addb';del.innerHTML='✕';del.setAttribute('aria-label',t('del'));
+    del.onclick=e=>{e.stopPropagation();LAYOUTS=LAYOUTS.filter(x=>x!==l);saveLayouts();hubRender()};
+    const it=BYN[l.sym];
+    shItem(b,l.name,{left:it?iconEl(it,30):null,right:del,on:()=>{
+      lsSet('tc_draw_'+l.sym,l.draw||[]);
+      CS=Object.assign({},CS_DEF,l.cs||{});saveCS();
+      closeHub();
+      if(l.sym!==cur&&BYN[l.sym])setCur(l.sym);
+      dLoad();
+      if(l.res&&l.res!==res)setRes(l.res);
+      rebuildSeries();
+      setTimeout(()=>cmpSet(l.cmp||null),300);
+    }});
+  });
+}
+
+/* trascinamento del pannello */
+(function(){
+  const head=$('hubhead');let y0=null,base=0,t0=0;
+  head.addEventListener('touchstart',e=>{if(e.target.closest('button'))return;y0=e.touches[0].clientY;base=HUB.y;t0=Date.now()},{passive:true});
+  head.addEventListener('touchmove',e=>{if(y0==null)return;hubSetY(base+(e.touches[0].clientY-y0),false)},{passive:true});
+  head.addEventListener('touchend',e=>{
+    if(y0==null)return;
+    const dy=e.changedTouches[0].clientY-y0,v=dy/Math.max(1,Date.now()-t0);y0=null;
+    const h=$('hub').getBoundingClientRect().height,half=hubHalf();
+    if(HUB.y>h*0.62||v>0.9)closeHub();
+    else if(v<-0.5||HUB.y<half/2)hubSetY(0,true);
+    else hubSetY(half,true);
+  });
+})();
+(function(){
+  const body=$('hubbody');let y0=null,base=0,t0=0,drag=false;
+  body.addEventListener('touchstart',e=>{y0=body.scrollTop<=0?e.touches[0].clientY:null;base=HUB.y;t0=Date.now();drag=false},{passive:true});
+  body.addEventListener('touchmove',e=>{
+    if(y0==null)return;const dy=e.touches[0].clientY-y0;
+    if(!drag&&dy>8)drag=true;
+    if(drag){e.preventDefault();hubSetY(base+dy,false)}else if(dy<-4)y0=null;
+  },{passive:false});
+  body.addEventListener('touchend',e=>{
+    if(!drag){y0=null;return}
+    const dy=e.changedTouches[0].clientY-y0,v=dy/Math.max(1,Date.now()-t0);y0=null;drag=false;
+    const h=$('hub').getBoundingClientRect().height,half=hubHalf();
+    if(HUB.y>h*0.62||v>0.9)closeHub();else if(HUB.y<half/2)hubSetY(0,true);else hubSetY(half,true);
+  });
+})();
+$('hubbg').onclick=closeHub;
+$('hubx').onclick=closeHub;
+$('hubleft').onclick=()=>{if(HUB.stack.length)hubBack();else shareChart()};
+$('more').onclick=openHub;
