@@ -1,4 +1,4 @@
-const VERSION='0.36.1';
+const VERSION='0.36.2';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -1520,8 +1520,17 @@ $('lform').onsubmit=async ev=>{
     setTimeout(()=>{$('pass').value=''},1500);
     start();
   }catch(e){
-    msg(errText(e));
+    const m=(e&&e.message)||String(e);
+    if(e instanceof TypeError&&/fetch|load failed|network/i.test(m))msg(t('cors'));
+    else msg(NOPERM[lang]||NOPERM.it);
   }finally{loginBusy=false}
+};
+/* accesso con email e password riservato: a chi prova si spiega il codice amico, senza codici d'errore */
+var NOPERM={
+  it:"Non hai i permessi per accedere in questo modo. Per ora NexusCharts si usa solo con un codice amico: tocca «Accedi senza broker» e richiedilo su Telegram.",
+  es:"No tienes permiso para entrar de esta forma. Por ahora NexusCharts solo se usa con un código de amigo: toca «Entrar sin bróker» y pídelo en Telegram.",
+  en:"You don't have permission to sign in this way. For now NexusCharts only works with a friend code: tap “Sign in without a broker” and ask for one on Telegram.",
+  fr:"Tu n'as pas l'autorisation de te connecter de cette façon. Pour l'instant NexusCharts s'utilise seulement avec un code ami : touche « Entrer sans courtier » et demande-le sur Telegram."
 };
 
 /* ENTRA CON FACE ID: apre la tastiera sul campo email. Sopra la tastiera iPhone propone l'account salvato
@@ -2803,6 +2812,7 @@ function friendLost(why){
   location.reload();
 }
 function friendUI(on){
+  msg('');
   $('fform').hidden=!on;$('fopen').hidden=on;$('lor').hidden=on;
   $('lform').hidden=on;$('fid').hidden=on;
   $('forget').hidden=true;
@@ -2824,7 +2834,7 @@ async function friendEnter(code,auto){
     start();
   }catch(e){
     friendOff();
-    if(e&&(e.status===401||e.status===403)){try{localStorage.removeItem('tc_fcode')}catch(_){}msg(ft(e.status===403?'other':'bad'));friendUI(true)}
+    if(e&&(e.status===401||e.status===403)){try{localStorage.removeItem('tc_fcode')}catch(_){}friendUI(true);msg(ft(e.status===403?'other':'bad'))}
     else msg(e&&e.status?errText(e):ft('neterr'));
   }finally{fBusy=false}
 }
