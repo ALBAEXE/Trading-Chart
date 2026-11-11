@@ -1,4 +1,4 @@
-const VERSION='0.23.0';
+const VERSION='0.23.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -259,6 +259,7 @@ html.vgap{--tbb:8px}
 #lgstat{flex:0 0 auto;display:flex;align-items:center;padding:6px 9px;border-radius:12px;background:var(--glasssel)}
 #lgdot{width:10px;height:10px;border-radius:50%;background:var(--faint);display:block}
 #lgdot.on{background:var(--up)}
+#lgdot.slow{background:#f5a524}
 #lgpx{display:none}
 #lgbtn{width:38px;height:32px;margin:8px 0 0;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--fg)}
 #lgbtn svg{width:18px;height:18px;transition:transform .2s ease}
@@ -667,7 +668,7 @@ $('reload').onclick=async()=>{
 const GAP=350;
 let apiChain=Promise.resolve(),apiLast=0,apiPauseUntil=0,apiBack=0;
 /* rete caduta: pausa breve (1,5 s, poi di piu' se continua); troppe richieste (429): pausa piu' lunga */
-function backoff(first){apiBack=Math.min(30000,apiBack?apiBack*2:first);apiPauseUntil=Date.now()+apiBack}
+function backoff(first){apiBack=Math.min(first>=3000?10000:30000,apiBack?apiBack*2:first);apiPauseUntil=Date.now()+apiBack}
 function api(path,opt={}){
   const isAuth=path.startsWith('/auth/');
   const run=async()=>{
@@ -677,7 +678,7 @@ function api(path,opt={}){
     let r;
     try{r=await fetch(BASE+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}})}
     catch(e){if(!isAuth)backoff(1500);throw e}
-    if(r.status===429)backoff(5000);else if(r.ok)apiBack=0;
+    if(r.status===429){backoff(3000);if(window.tickSlow)tickSlow()}else if(r.ok)apiBack=0;
     const tx=await r.text();let j;
     try{j=JSON.parse(tx)}catch(e){j=tx}
     if(!r.ok){const er=new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));er.status=r.status;throw er}
@@ -973,6 +974,9 @@ async function load(){
   afterData();
 }
 let tickFails=0;
+/* ritmo del grafico: 1 secondo; se il broker dice "piano" rallenta da solo e poi torna veloce */
+var TICK={gap:1000,ok:Date.now(),good:0,warned:0};
+function tickSlow(){TICK.gap=Math.min(3000,TICK.gap+1000);TICK.good=0}
 async function tick(){
   if(tick.busy||!series||!cur||!lastBars.length||paused()||document.hidden||(window.RP&&RP.on))return;
   tick.busy=true;setTimeout(()=>{tick.busy=false},4000);
@@ -987,11 +991,13 @@ async function tick(){
     if(CMP.sym&&tickN%5===0)cmpLoad().catch(()=>{});
     afterData();
     if(++tickN%15===0)quoteFor(cur).then(()=>{renderLegend();renderMini();tint()}).catch(()=>{});
-    tickFails=0;
+    tickFails=0;TICK.ok=Date.now();
+    if(TICK.gap>1000&&++TICK.good>=10){TICK.gap-=500;TICK.good=0}
   }catch(e){
-    /* errori passeggeri in silenzio; avviso solo se continuano */
+    /* errori passeggeri in silenzio: avviso solo se il grafico e' fermo da piu' di 25 secondi */
     if(e&&e.status===401)return;
-    if(++tickFails>=3){tickFails=0;msg(t('slow'))}
+    tickFails++;
+    if(Date.now()-TICK.ok>25000&&Date.now()-TICK.warned>60000){TICK.warned=Date.now();msg(t('slow'))}
   }finally{tick.busy=false}
 }
 /* etichetta blu del prezzo con il conto alla rovescia della candela */
@@ -1145,7 +1151,8 @@ function start(){
       chart=LightweightCharts.createChart($('chart'),{autoSize:true,...chartOpts()});
     }
     series=makeSeries();applyCS();
-    setInterval(()=>{if(tab==='ch')tick()},1000);
+    (function loop(){setTimeout(()=>{if(tab==='ch')tick();loop()},TICK.gap)})();
+    setInterval(()=>$('lgdot')&&$('lgdot').classList.toggle('slow',Date.now()-TICK.ok>8000&&tab==='ch'),1000);
     requestAnimationFrame(tagLoop);
   }
   $('top').hidden=true;$('login').hidden=true;$('brand').hidden=true;
