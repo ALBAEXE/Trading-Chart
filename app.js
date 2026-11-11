@@ -1,4 +1,4 @@
-const VERSION='0.25.0';
+const VERSION='0.26.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -244,7 +244,7 @@ html.vgap{--tbb:8px}
 #chartbox{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 4px);bottom:var(--chb)}
 #chart{position:absolute;inset:0}
 #pxtag{position:absolute;right:0;z-index:4;background:var(--blue);color:#fff;font-size:13px;line-height:1.3;padding:3px 7px 4px;border-radius:3px;font-variant-numeric:tabular-nums;pointer-events:none;transform:translateY(-11px);box-sizing:border-box}
-#wm{position:absolute;left:12px;bottom:36px;height:42px;display:flex;align-items:center;z-index:3;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#wm{position:absolute;left:12px;bottom:74px;height:42px;display:flex;align-items:center;z-index:3;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 #wm[hidden]{display:none}
 #wm img{width:40px;height:40px;filter:var(--logo);opacity:.92;transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 #wm.open img{transform:rotate(-12deg) scale(1.04)}
@@ -252,7 +252,7 @@ html.vgap{--tbb:8px}
 #wmtx b{display:block;padding:0 4px 0 7px;font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--fg);opacity:.92;white-space:nowrap;transform:translateX(-105%);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
 #wm.open #wmtx{max-width:190px}
 #wm.open #wmtx b{transform:none}
-#legend{position:absolute;top:calc(env(safe-area-inset-top) + 10px);left:14px;right:96px;z-index:5}
+#legend{position:absolute;top:calc(env(safe-area-inset-top) + 10px);left:14px;right:96px;z-index:5;color:var(--fg)}
 #lgtop{display:flex;align-items:center;gap:8px;font-size:18px;min-width:0}
 #lgtop .ic{flex-basis:28px}
 #lgname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -934,6 +934,12 @@ function chartColors(){
   return{bg,tintc,text:dark?'#8e8e93':'#6b6b70',grid:dark?'#161616':'#eeeeee'};
 }
 function chartBg(){const c=chartColors();return chartSolid?{type:'solid',color:c.bg}:{type:'gradient',topColor:c.bg,bottomColor:c.tintc}}
+/* serie compatibili con la libreria grafica 5.x (e con la vecchia 4.x) */
+function addS(kind,opts){
+  const L=window.LightweightCharts;
+  if(chart.addSeries&&L&&L[kind+'Series'])return chart.addSeries(L[kind+'Series'],opts);
+  return chart['add'+kind+'Series'](opts);
+}
 function chartOpts(){
   const v=cvOpts();
   return{
@@ -2087,10 +2093,10 @@ function upDn(){
 function makeSeries(){
   const[U,D]=upDn(),blue=themeVar('--blue')||'#2962ff';
   const base={lastValueVisible:false,priceLineVisible:CS.pline,priceLineStyle:1,priceLineWidth:1,priceLineColor:blue,priceFormat:{type:'price',precision:dec,minMove:Math.pow(10,-dec)}};
-  if(CS.type==='bars')return chart.addBarSeries(Object.assign(base,{upColor:U,downColor:D,thinBars:false}));
-  if(CS.type==='line')return chart.addLineSeries(Object.assign(base,{color:blue,lineWidth:2}));
-  if(CS.type==='area')return chart.addAreaSeries(Object.assign(base,{lineColor:blue,topColor:'rgba(41, 98, 255, 0.35)',bottomColor:'rgba(41, 98, 255, 0.02)',lineWidth:2}));
-  return chart.addCandlestickSeries(Object.assign(base,{upColor:U,downColor:D,borderVisible:false,wickUpColor:U,wickDownColor:D}));
+  if(CS.type==='bars')return addS('Bar',Object.assign(base,{upColor:U,downColor:D,thinBars:false}));
+  if(CS.type==='line')return addS('Line',Object.assign(base,{color:blue,lineWidth:2}));
+  if(CS.type==='area')return addS('Area',Object.assign(base,{lineColor:blue,topColor:'rgba(41, 98, 255, 0.35)',bottomColor:'rgba(41, 98, 255, 0.02)',lineWidth:2}));
+  return addS('Candlestick',Object.assign(base,{upColor:U,downColor:D,borderVisible:false,wickUpColor:U,wickDownColor:D}));
 }
 function haList(list){
   const out=[];let po=0,pc=0;
@@ -2175,7 +2181,7 @@ function cmpSet(sym){
   $('lgcmp').hidden=!CMP.sym;
   if(CMP.sym){
     $('lgcmp').textContent='＋ '+CMP.sym;
-    CMP.series=chart.addLineSeries({color:'#ff9800',lineWidth:2,priceLineVisible:false,lastValueVisible:true});
+    CMP.series=addS('Line',{color:'#ff9800',lineWidth:2,priceLineVisible:false,lastValueVisible:true});
     cmpLoad().catch(()=>{});
   }
 }
