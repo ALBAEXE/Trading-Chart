@@ -1,4 +1,4 @@
-const VERSION='0.26.1';
+const VERSION='0.27.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -216,8 +216,47 @@ html.vgap{--tbb:8px}
 .pfl+.pfg{margin-top:0}
 .pfrow{display:flex;align-items:center;gap:13px;width:100%;margin:0;padding:12px 16px;background:transparent;border:0;border-radius:0;color:var(--fg);font-weight:400;font-size:16px;text-align:left}
 .pfrow+.pfrow{border-top:1px solid var(--line)}
-.pfrow .pfic{flex:0 0 32px;width:32px;height:32px;border-radius:9px;background:var(--glasssel);display:flex;align-items:center;justify-content:center;color:var(--goldfg)}
-.pfrow .pfic svg{width:19px;height:19px}
+.pfrow .pfic{flex:0 0 28px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:var(--goldfg)}
+.pfrow .pfic svg{width:24px;height:24px}
+.pfrow.busy .pfic svg{animation:rot .8s linear infinite}
+.pfrow.dim{opacity:.55}
+.pfbadge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#ef4444;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pfrow.chev .pfbadge+*{margin-left:8px}
+.pfnote{padding:10px 6px;color:var(--muted);font-size:13.5px;line-height:1.45}
+.pfpad{padding:12px}
+.pfin2{display:block;width:100%;height:46px;margin:6px 0;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--glasssel);color:var(--fg);font-size:15.5px}
+.pfta{display:block;width:100%;min-height:130px;margin:8px 0 6px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--glasssel);color:var(--fg);font:inherit;font-size:15.5px;resize:vertical}
+.pfbtn{display:block;width:100%;height:46px;margin:8px 0 0;border-radius:13px;background:var(--blue);color:#fff;font-size:15.5px;font-weight:600;border:0}
+.pfbtn:disabled{opacity:.5}
+.pfcodebig{margin:4px 0 2px;padding:16px 8px 6px;text-align:center;font-size:32px;font-weight:800;letter-spacing:.16em;color:var(--goldfg);font-variant-numeric:tabular-nums;-webkit-user-select:all;user-select:all}
+.pfcodename{text-align:center;color:var(--muted);font-size:13.5px;margin-bottom:6px}
+.pfacts{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 6px}
+.pfmini{width:auto;margin:0;padding:8px 14px;border-radius:999px;border:0;background:var(--glasssel);color:var(--fg);font-size:13.5px;font-weight:600}
+.pfmini.on{background:var(--gold);color:var(--ongold)}
+.pfmini.danger{color:var(--danger);margin-left:auto}
+.pfstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 2px}
+.pfstats div{background:var(--surf);border-radius:16px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.pfstats b{font-size:24px;font-weight:800}
+.pfstats span{font-size:12px;color:var(--muted)}
+.pfclist{display:flex;flex-direction:column;gap:8px}
+.pfccard{background:var(--surf);border-radius:16px;padding:12px 14px 6px;border:1px solid transparent}
+.pfccard.unread{border-color:rgba(167,139,250,.6)}
+.pfctop{display:flex;align-items:center;gap:8px}
+.pfcn{font-weight:700;font-size:15.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pfcst{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--glasssel);color:var(--muted);font-weight:600}
+.pfcst.on{background:rgba(34,171,148,.16);color:var(--up)}
+.pfccode{font-size:20px;font-weight:800;letter-spacing:.12em;color:var(--goldfg);margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.pfcmeta{font-size:12px;color:var(--muted);line-height:1.45}
+.pfcdate{font-size:12px;color:var(--muted)}
+.pffbic{display:flex}.pffbic svg{width:20px;height:20px}
+.pffbtx{margin:8px 0 6px;font-size:15px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.pftypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pftypes button{width:auto;margin:0;padding:12px 4px;border-radius:14px;border:1.5px solid transparent;background:var(--glasssel);color:var(--fg);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13.5px;font-weight:600}
+.pftypes button svg{width:24px;height:24px}
+.pftypes button.on{border-color:var(--goldfg)}
+.pfdone{display:flex;flex-direction:column;align-items:center;gap:10px;padding:30px 10px;text-align:center;font-size:16px}
+.pfdone i{width:58px;height:58px;border-radius:50%;background:rgba(34,171,148,.18);color:var(--up);font-style:normal;font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.pfsegsm button{font-size:14px;padding:9px 0}
 .pfrow .pftx{display:flex;flex-direction:column;gap:2px;min-width:0}
 .pfrow .pftx small{font-size:12.5px;color:var(--muted)}
 .pfrow .ck{margin-left:auto;color:var(--goldfg);font-weight:700}
@@ -3381,3 +3420,268 @@ function pageOpen(b){
     const first=b.querySelector('.htiles');if(first&&first.nextSibling)b.insertBefore(el,first.nextSibling);else b.appendChild(el);
   };
 })();
+
+
+/* =====================================================================
+   PROFILO 2: icone colorate, Codici amici, Social, Segnalazioni
+   ===================================================================== */
+var PF2={
+ it:{social:"Social",socsub:"Seguici e resta aggiornato",tgch:"Canale Telegram",tgchsub:"Novità e aggiornamenti",tgpr:"Contatto Telegram",tgprsub:"Scrivimi direttamente",soon:"In arrivo",fb:"Segnala o proponi",fbsub:"Un problema, un'idea, un consiglio",inbox:"Segnalazioni ricevute",inboxsub:"Leggi e gestisci i messaggi",codessub2:"Crea, invia e gestisci i codici",ref_ok:"Dati aggiornati. Hai già l'ultima versione",ref_new:"Nuova versione trovata, aggiorno…",ref_err:"Non riesco ad aggiornare adesso, riprova tra poco.",
+  t_bug:"Problema",t_idea:"Idea",t_other:"Altro",fbph:"Descrivi cosa succede o cosa vorresti…",fbcontact:"Il tuo Telegram (facoltativo)",fbsend:"Invia",fbsent:"Grazie! Il messaggio è arrivato.",fbnote:"Insieme al messaggio inviamo solo la versione dell'app, il tipo di telefono e la lingua, per capire meglio il problema.",fbshort:"Scrivi almeno qualche parola.",fbmany:"Hai già inviato molti messaggi oggi. Riprova domani.",fbagain:"Scrivi un altro messaggio",
+  all:"Tutte",new:"Nuove",done:"Risolte",markread:"Letta",markdone:"Risolta",reopen:"Riapri",del:"Elimina",delq:"Eliminare questo messaggio?",empty:"Nessun messaggio qui.",from_owner:"da te",from_web:"senza codice",from_code:"codice",
+  st_total:"Codici",st_used:"In uso",st_free:"Liberi",created:"Creato",used_on:"Usato dal",copy:"Copia",send:"Invia",off:"Disattiva",newcode:"Nuovo codice"},
+ es:{social:"Redes sociales",socsub:"Síguenos y mantente al día",tgch:"Canal de Telegram",tgchsub:"Novedades y actualizaciones",tgpr:"Contacto de Telegram",tgprsub:"Escríbeme directamente",soon:"Próximamente",fb:"Informar o proponer",fbsub:"Un problema, una idea, un consejo",inbox:"Mensajes recibidos",inboxsub:"Lee y gestiona los mensajes",codessub2:"Crea, envía y gestiona los códigos",ref_ok:"Datos actualizados. Ya tienes la última versión",ref_new:"Nueva versión encontrada, actualizando…",ref_err:"No puedo actualizar ahora, inténtalo en un momento.",
+  t_bug:"Problema",t_idea:"Idea",t_other:"Otro",fbph:"Describe qué pasa o qué te gustaría…",fbcontact:"Tu Telegram (opcional)",fbsend:"Enviar",fbsent:"¡Gracias! El mensaje ha llegado.",fbnote:"Con el mensaje solo enviamos la versión de la app, el tipo de teléfono y el idioma, para entender mejor el problema.",fbshort:"Escribe al menos unas palabras.",fbmany:"Ya has enviado muchos mensajes hoy. Inténtalo mañana.",fbagain:"Escribir otro mensaje",
+  all:"Todos",new:"Nuevos",done:"Resueltos",markread:"Leído",markdone:"Resuelto",reopen:"Reabrir",del:"Eliminar",delq:"¿Eliminar este mensaje?",empty:"No hay mensajes aquí.",from_owner:"tuyo",from_web:"sin código",from_code:"código",
+  st_total:"Códigos",st_used:"En uso",st_free:"Libres",created:"Creado",used_on:"En uso desde",copy:"Copiar",send:"Enviar",off:"Desactivar",newcode:"Código nuevo"},
+ en:{social:"Social",socsub:"Follow us and stay updated",tgch:"Telegram channel",tgchsub:"News and updates",tgpr:"Telegram contact",tgprsub:"Message me directly",soon:"Coming soon",fb:"Report or suggest",fbsub:"A problem, an idea, some advice",inbox:"Received messages",inboxsub:"Read and manage messages",codessub2:"Create, send and manage codes",ref_ok:"Data refreshed. You already have the latest version",ref_new:"New version found, updating…",ref_err:"Can't refresh right now, try again shortly.",
+  t_bug:"Problem",t_idea:"Idea",t_other:"Other",fbph:"Describe what happens or what you'd like…",fbcontact:"Your Telegram (optional)",fbsend:"Send",fbsent:"Thanks! Your message has arrived.",fbnote:"Along with the message we only send the app version, the phone type and the language, to better understand the problem.",fbshort:"Write at least a few words.",fbmany:"You've already sent many messages today. Try again tomorrow.",fbagain:"Write another message",
+  all:"All",new:"New",done:"Solved",markread:"Read",markdone:"Solved",reopen:"Reopen",del:"Delete",delq:"Delete this message?",empty:"No messages here.",from_owner:"from you",from_web:"no code",from_code:"code",
+  st_total:"Codes",st_used:"In use",st_free:"Free",created:"Created",used_on:"In use since",copy:"Copy",send:"Send",off:"Deactivate",newcode:"New code"},
+ fr:{social:"Réseaux sociaux",socsub:"Suis-nous et reste informé",tgch:"Canal Telegram",tgchsub:"Nouveautés et mises à jour",tgpr:"Contact Telegram",tgprsub:"Écris-moi directement",soon:"Bientôt",fb:"Signaler ou proposer",fbsub:"Un problème, une idée, un conseil",inbox:"Messages reçus",inboxsub:"Lis et gère les messages",codessub2:"Crée, envoie et gère les codes",ref_ok:"Données à jour. Tu as déjà la dernière version",ref_new:"Nouvelle version trouvée, mise à jour…",ref_err:"Impossible d'actualiser maintenant, réessaie dans un instant.",
+  t_bug:"Problème",t_idea:"Idée",t_other:"Autre",fbph:"Décris ce qui se passe ou ce que tu voudrais…",fbcontact:"Ton Telegram (facultatif)",fbsend:"Envoyer",fbsent:"Merci ! Le message est bien arrivé.",fbnote:"Avec le message nous envoyons seulement la version de l'app, le type de téléphone et la langue, pour mieux comprendre le problème.",fbshort:"Écris au moins quelques mots.",fbmany:"Tu as déjà envoyé beaucoup de messages aujourd'hui. Réessaie demain.",fbagain:"Écrire un autre message",
+  all:"Tous",new:"Nouveaux",done:"Résolus",markread:"Lu",markdone:"Résolu",reopen:"Rouvrir",del:"Supprimer",delq:"Supprimer ce message ?",empty:"Aucun message ici.",from_owner:"de toi",from_web:"sans code",from_code:"code",
+  st_total:"Codes",st_used:"Utilisés",st_free:"Libres",created:"Créé",used_on:"Utilisé depuis",copy:"Copier",send:"Envoyer",off:"Désactiver",newcode:"Nouveau code"}
+};
+function p2(k){return(PF2[lang]&&PF2[lang][k])||PF2.it[k]||k}
+/* link social: il canale si aggiunge qui quando e' pronto */
+var SOCIAL=[
+  {k:'tgch',url:'',ic:'tg',col:'#29a9eb'},
+  {k:'tgpr',url:'https://t.me/'+TG_USER,ic:'tgu',col:'#29a9eb'}
+];
+Object.assign(PIC,{
+  tg:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.4 4.3 2.9 11.4c-1.3.5-1.3 1.2-.2 1.6l4.7 1.5 1.8 5.6c.2.6.1.9.8.9.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.3-.5-1.9-1.5-1.5zM8.8 14.2l9.6-6c.5-.3.9-.1.5.2l-8.2 7.4-.3 3.4-1.6-5z"/></svg>',
+  tgu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  share2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M8.3 10.8l7.4-3.6M8.3 13.2l7.4 3.6"/></svg>',
+  bug:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="13" rx="5"/><path d="M9 7a3 3 0 0 1 6 0M12 11v9M3 13h4M17 13h4M4 7l3 2M20 7l-3 2M4 20l3-3M20 20l-3-3"/></svg>',
+  inbox:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg>',
+  idea:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>'
+});
+var PCOL={gear:'#9ca3af',codes:'#f5b301',refresh:'#3b82f6',share2:'#29a9eb',bug:'#f97316',inbox:'#a78bfa',out:'#ef4444',reset:'#ef4444'};
+function pfRow(g,ic,title,sub,fn,cls,col){
+  const b=document.createElement('button');b.className='pfrow'+(cls?' '+cls:'');
+  const i=document.createElement('span');i.className='pfic';i.innerHTML=ic;
+  const c=col||Object.keys(PIC).filter(k=>PIC[k]===ic).map(k=>PCOL[k]).find(Boolean);
+  if(c)i.style.color=c;
+  b.appendChild(i);
+  const tx=document.createElement('span');tx.className='pftx';
+  const a=document.createElement('span');a.textContent=title;tx.appendChild(a);
+  if(sub){const s=document.createElement('small');s.textContent=sub;tx.appendChild(s)}
+  b.appendChild(tx);b.onclick=fn;g.appendChild(b);return b;
+}
+function pfGo(page){const p=$('pf-screen');PF.page=page;renderProfile();p.classList.add('pfin');setTimeout(()=>p.classList.remove('pfin'),400)}
+function pfSub(p,title){
+  const bar=document.createElement('div');bar.className='pfbar';
+  const bk=document.createElement('button');bk.className='pfback';bk.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span></span>';
+  bk.lastChild.textContent=pt('profile');
+  bk.onclick=()=>{PF.page=null;PF.fresh=null;renderProfile();p.classList.add('pfout');setTimeout(()=>p.classList.remove('pfout'),400)};
+  const ti=document.createElement('div');ti.className='pftitle';ti.textContent=title;
+  bar.appendChild(bk);bar.appendChild(ti);p.appendChild(bar);
+}
+var FBN=0;
+function renderProfile(){
+  const p=$('pf-screen');if(!p)return;
+  const st=PF.keep?p.scrollTop:0;PF.keep=false;p.innerHTML='';
+  if(PF.page==='settings'){renderSettings(p);p.scrollTop=st;return}
+  if(PF.page==='codes'){renderCodes(p);p.scrollTop=st;return}
+  if(PF.page==='social'){renderSocial(p);return}
+  if(PF.page==='fb'){renderFeedback(p);return}
+  if(PF.page==='inbox'){renderInbox(p);p.scrollTop=st;return}
+  const h=document.createElement('div');h.className='pfhead';
+  h.innerHTML='<img alt="" src="'+LOGO_SRC+'"><div class="pfname">NexusCharts</div>';
+  const sub=document.createElement('div');sub.className='pfsub';
+  let sv='';try{sv=localStorage.getItem('tc_server')||''}catch(e){}
+  sub.textContent=FRIEND?pt('fr')+' '+fshow(FRIEND):pt('own')+(sv?' · '+sv:'');
+  h.appendChild(sub);p.appendChild(h);
+  let g=pfGroup(p,'');
+  pfRow(g,PIC.gear,pt('settings'),pt('setsub'),()=>pfGo('settings')).classList.add('chev');
+  if(!FRIEND){
+    g=pfGroup(p,pt('friends'));
+    pfRow(g,PIC.codes,ft('codes'),p2('codessub2'),()=>pfGo('codes')).classList.add('chev');
+    if(admKey()){
+      const r=pfRow(g,PIC.inbox,p2('inbox'),p2('inboxsub'),()=>pfGo('inbox'));r.classList.add('chev');
+      if(FBN){const bd=document.createElement('span');bd.className='pfbadge';bd.textContent=FBN;r.appendChild(bd)}
+    }
+  }
+  g=pfGroup(p,'Community');
+  pfRow(g,PIC.share2,p2('social'),p2('socsub'),()=>pfGo('social')).classList.add('chev');
+  pfRow(g,PIC.bug,p2('fb'),p2('fbsub'),()=>pfGo('fb')).classList.add('chev');
+  g=pfGroup(p,pt('app'));
+  const rr=pfRow(g,PIC.refresh,t('refresh'),pt('refsub'),()=>pfRefresh(rr));
+  g=pfGroup(p,'');
+  pfRow(g,PIC.out,t('logout'),'',logout,'danger');
+  p.scrollTop=st;
+  if(!FRIEND&&admKey()&&!PF.fbChecked){PF.fbChecked=true;adm('GET','/feedback').then(j=>{FBN=((j&&j.items)||[]).filter(x=>x.status==='new').length;if(FBN&&tab==='pf'&&!PF.page){PF.keep=true;renderProfile()}}).catch(()=>{})}
+}
+/* Aggiorna: icona che gira, poi un avviso chiaro */
+async function pfRefresh(row){
+  if(row.classList.contains('busy'))return;
+  row.classList.add('busy');haptic();
+  const t0=Date.now();
+  try{
+    const v=await remoteVersion();
+    if(v&&v!==VERSION){msg(p2('ref_new'));setTimeout(()=>doRefresh(),500);return}
+    await Promise.all([loadSafe(),refreshWL(true)]);
+    await new Promise(r=>setTimeout(r,Math.max(0,700-(Date.now()-t0))));
+    msg('✓ '+p2('ref_ok')+' (v'+VERSION+').');haptic();
+  }catch(e){msg(p2('ref_err'))}
+  finally{row.classList.remove('busy')}
+}
+function renderSettings(p){
+  pfSub(p,pt('settings'));
+  let g=pfGroup(p,pt('look'));
+  const th=document.documentElement.dataset.theme||'dark';
+  const seg=document.createElement('div');seg.className='pfseg';
+  [['dark',t('dark'),PIC.moon,'#a78bfa'],['light',t('light'),PIC.sun,'#f5b301']].forEach(([k,txt,ic,col])=>{
+    const b=document.createElement('button');b.className=k===th?'on':'';b.innerHTML=ic+'<span></span>';b.lastChild.textContent=txt;b.firstChild.style.color=col;
+    b.onclick=()=>{setTheme(k);PF.keep=true;renderProfile()};seg.appendChild(b);
+  });
+  g.appendChild(seg);
+  g=pfGroup(p,pt('language'));
+  Object.keys(FLAGS).forEach(k=>{
+    const b=document.createElement('button');b.className='pfrow pflang';
+    b.innerHTML='<span class="fl2"></span><span class="pftx"><span></span></span>';
+    b.firstChild.textContent=FLAGS[k];b.querySelector('.pftx span').textContent=NAMES[k];
+    if(k===lang){const c=document.createElement('span');c.className='ck';c.textContent='✓';b.appendChild(c)}
+    b.onclick=()=>{lang=k;try{localStorage.setItem('lang',k)}catch(e){}PF.keep=true;applyLang();renderProfile()};
+    g.appendChild(b);
+  });
+  g=pfGroup(p,pt('data'));
+  pfRow(g,PIC.reset,t('reset'),pt('ressub'),()=>resetApp(),'',PCOL.reset);
+}
+/* ---------- Codici amici: pagina intera ---------- */
+function renderCodes(p){
+  pfSub(p,ft('codes'));
+  if(!admKey()){
+    shEl(p,'pfnote',ft('keyq'));
+    const g=pfGroup(p,'');g.classList.add('pfpad');
+    const i=document.createElement('input');i.type='password';i.className='pfin2';i.placeholder=ft('keyph');i.autocomplete='off';g.appendChild(i);
+    const ok=document.createElement('button');ok.className='pfbtn';ok.textContent=ft('keysave');g.appendChild(ok);
+    ok.onclick=async()=>{const k=i.value.trim();if(!k)return;try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);PF.fbChecked=false;renderProfile()}catch(e){msg(e.status===403?ft('keybad'):ft('neterr'))}};
+    return;
+  }
+  /* nuovo codice */
+  let g=pfGroup(p,p2('newcode'));g.classList.add('pfpad');
+  if(PF.fresh){
+    const box=document.createElement('div');box.className='pfcodebig';box.textContent=fshow(PF.fresh.code);g.appendChild(box);
+    if(PF.fresh.name){const n=document.createElement('div');n.className='pfcodename';n.textContent=PF.fresh.name;g.appendChild(n)}
+    g.appendChild(codeActs(PF.fresh.code));
+  }
+  const i=document.createElement('input');i.className='pfin2';i.placeholder=ft('name');i.autocomplete='off';g.appendChild(i);
+  const gen=document.createElement('button');gen.className='pfbtn';gen.textContent=ft('gen');g.appendChild(gen);
+  gen.onclick=async()=>{gen.disabled=true;try{PF.fresh=await adm('POST','/codes',{name:i.value.trim()});haptic();renderProfile()}catch(e){gen.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}};
+  /* riepilogo e lista */
+  const stats=document.createElement('div');stats.className='pfstats';p.appendChild(stats);
+  const lab=document.createElement('div');lab.className='pfl';lab.textContent=ft('active');p.appendChild(lab);
+  const list=document.createElement('div');list.className='pfclist';p.appendChild(list);
+  adm('GET','/codes').then(j=>{
+    const cs=(j&&j.codes)||[],u=cs.filter(c=>c.bound).length;
+    stats.innerHTML='';[[cs.length,p2('st_total'),'#f5b301'],[u,p2('st_used'),'#22ab94'],[cs.length-u,p2('st_free'),'#9ca3af']].forEach(([n,l,c])=>{const d=document.createElement('div');d.innerHTML='<b></b><span></span>';d.firstChild.textContent=n;d.firstChild.style.color=c;d.lastChild.textContent=l;stats.appendChild(d)});
+    if(!cs.length){shEl(list,'pfnote',ft('none'));return}
+    const df=ts=>ts?new Date(ts).toLocaleDateString(LOC[lang]||'it-IT',{day:'2-digit',month:'short',year:'numeric'}):'';
+    cs.forEach(c=>{
+      const card=document.createElement('div');card.className='pfccard';
+      const top=document.createElement('div');top.className='pfctop';
+      top.innerHTML='<span class="pfcn"></span><span class="pfcst"></span>';
+      top.firstChild.textContent=c.name||ft('noname');
+      top.lastChild.textContent=c.bound?ft('used'):ft('free');top.lastChild.classList.toggle('on',!!c.bound);
+      card.appendChild(top);
+      const code=document.createElement('div');code.className='pfccode';code.textContent=fshow(c.code);card.appendChild(code);
+      const meta=document.createElement('div');meta.className='pfcmeta';
+      meta.textContent=p2('created')+' '+df(c.created)+(c.used?'  ·  '+p2('used_on')+' '+df(c.used):'');card.appendChild(meta);
+      const acts=codeActs(c.code);
+      const off=document.createElement('button');off.className='pfmini danger';off.textContent=p2('off');
+      off.onclick=async()=>{if(!confirm(ft('delq')))return;try{await adm('DELETE','/codes/'+c.code);if(PF.fresh&&PF.fresh.code===c.code)PF.fresh=null;PF.keep=true;renderProfile()}catch(e){msg(ft('neterr'))}};
+      acts.appendChild(off);card.appendChild(acts);list.appendChild(card);
+    });
+  }).catch(e=>{if(e.status===403){try{localStorage.removeItem('tc_admin')}catch(_){}msg(ft('keybad'));renderProfile()}else shEl(list,'pfnote',ft('neterr'))});
+  const g2=pfGroup(p,'');
+  pfRow(g2,PIC.out,ft('forgetkey'),'',()=>{try{localStorage.removeItem('tc_admin')}catch(e){}PF.fresh=null;renderProfile()},'danger');
+}
+function codeActs(code){
+  const row=document.createElement('div');row.className='pfacts';
+  const cp=document.createElement('button');cp.className='pfmini';cp.textContent=p2('copy');
+  cp.onclick=async()=>{try{await navigator.clipboard.writeText(fshow(code));msg(ft('copied'))}catch(e){msg(fshow(code))}};
+  const sh=document.createElement('button');sh.className='pfmini on';sh.textContent=p2('send');
+  sh.onclick=()=>{const txt=ft('share')+fshow(code)+'\n'+ft('howto');if(navigator.share)navigator.share({text:txt}).catch(()=>{});else{try{navigator.clipboard.writeText(txt);msg(ft('copied'))}catch(e){}}};
+  row.appendChild(cp);row.appendChild(sh);return row;
+}
+/* ---------- Social ---------- */
+function renderSocial(p){
+  pfSub(p,p2('social'));
+  const g=pfGroup(p,'');
+  SOCIAL.forEach(s=>{
+    const r=pfRow(g,PIC[s.ic],p2(s.k),s.url?p2(s.k+'sub'):p2('soon'),()=>{if(!s.url)return;const w=window.open(s.url,'_blank');if(!w)location.href=s.url},'',s.col);
+    if(s.url)r.classList.add('chev');else r.classList.add('dim');
+  });
+}
+/* ---------- Segnala o proponi (per tutti) ---------- */
+function renderFeedback(p){
+  pfSub(p,p2('fb'));
+  if(PF.fbDone){
+    const ok=document.createElement('div');ok.className='pfdone';ok.innerHTML='<i>✓</i><span></span>';ok.lastChild.textContent=p2('fbsent');p.appendChild(ok);
+    const g=pfGroup(p,'');pfRow(g,PIC.chat,p2('fbagain'),'',()=>{PF.fbDone=false;renderProfile()},'',PCOL.bug);
+    return;
+  }
+  const g=pfGroup(p,'');g.classList.add('pfpad');
+  const types=document.createElement('div');types.className='pftypes';
+  PF.fbType=PF.fbType||'bug';
+  [['bug',PIC.bug,'#f97316'],['idea',PIC.idea,'#facc15'],['other',PIC.chat,'#3b82f6']].forEach(([k,ic,col])=>{
+    const b=document.createElement('button');b.className=PF.fbType===k?'on':'';b.innerHTML=ic+'<span></span>';b.firstChild.style.color=col;b.lastChild.textContent=p2('t_'+k);
+    b.onclick=()=>{PF.fbType=k;types.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};types.appendChild(b);
+  });
+  g.appendChild(types);
+  const ta=document.createElement('textarea');ta.className='pfta';ta.placeholder=p2('fbph');ta.maxLength=2000;ta.value=PF.fbDraft||'';ta.oninput=()=>{PF.fbDraft=ta.value};g.appendChild(ta);
+  const ct=document.createElement('input');ct.className='pfin2';ct.placeholder=p2('fbcontact');ct.autocomplete='off';ct.autocapitalize='off';ct.maxLength=60;g.appendChild(ct);
+  const send=document.createElement('button');send.className='pfbtn';send.textContent=p2('fbsend');g.appendChild(send);
+  shEl(p,'pfnote',p2('fbnote'));
+  send.onclick=async()=>{
+    const text=ta.value.trim();if(text.length<5){msg(p2('fbshort'));return}
+    send.disabled=true;
+    try{
+      const ua=navigator.userAgent,dev=/iPhone/.test(ua)?'iPhone':/iPad/.test(ua)?'iPad':/Android/.test(ua)?'Android':'Computer';
+      const r=await fetch(WORKER+'/feedback',{method:'POST',headers:{'Content-Type':'application/json',...(FRIEND?{Authorization:'Bearer '+FRIEND}:{}),...(admKey()&&!FRIEND?{'X-Admin-Key':admKey()}:{})},body:JSON.stringify({type:PF.fbType,text,contact:ct.value.trim(),ver:VERSION,dev,lang,ctx:(cur||'')+' '+(res||''),standalone:isStandalone()})});
+      if(r.status===429){msg(p2('fbmany'));send.disabled=false;return}
+      if(!r.ok)throw new Error(r.status);
+      PF.fbDone=true;PF.fbDraft='';haptic();renderProfile();
+    }catch(e){send.disabled=false;msg(ft('neterr'))}
+  };
+}
+/* ---------- Segnalazioni ricevute (solo amministratore) ---------- */
+function renderInbox(p){
+  pfSub(p,p2('inbox'));
+  PF.fbFilter=PF.fbFilter||'new';
+  const seg=document.createElement('div');seg.className='pfseg pfsegsm';
+  [['new',p2('new')],['all',p2('all')],['done',p2('done')]].forEach(([k,l])=>{const b=document.createElement('button');b.className=PF.fbFilter===k?'on':'';b.textContent=l;b.onclick=()=>{PF.fbFilter=k;PF.keep=true;renderProfile()};seg.appendChild(b)});
+  const sg=pfGroup(p,'');sg.appendChild(seg);
+  const list=document.createElement('div');list.className='pfclist';p.appendChild(list);
+  adm('GET','/feedback').then(j=>{
+    const all=(j&&j.items)||[];FBN=all.filter(x=>x.status==='new').length;
+    const items=all.filter(x=>PF.fbFilter==='all'||(PF.fbFilter==='new'?x.status!=='done':x.status==='done'));
+    if(!items.length){shEl(list,'pfnote',p2('empty'));return}
+    const TI={bug:[PIC.bug,'#f97316'],idea:[PIC.idea,'#facc15'],other:[PIC.chat,'#3b82f6']};
+    items.forEach(x=>{
+      const card=document.createElement('div');card.className='pfccard'+(x.status==='new'?' unread':'');
+      const top=document.createElement('div');top.className='pfctop';
+      const ic=TI[x.type]||TI.other;
+      top.innerHTML='<span class="pffbic">'+ic[0]+'</span><span class="pfcn"></span><span class="pfcdate"></span>';
+      top.firstChild.style.color=ic[1];top.children[1].textContent=p2('t_'+(TI[x.type]?x.type:'other'));
+      top.children[2].textContent=new Date(x.ts).toLocaleString(LOC[lang]||'it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      card.appendChild(top);
+      const tx=document.createElement('div');tx.className='pffbtx';tx.textContent=x.text;card.appendChild(tx);
+      const meta=document.createElement('div');meta.className='pfcmeta';
+      const who=x.who==='owner'?p2('from_owner'):x.who?p2('from_code')+' '+fshow(x.who):p2('from_web');
+      meta.textContent=[x.contact?'✈︎ '+x.contact:'',who,x.dev,x.ver?'v'+x.ver:'',x.ctx].filter(Boolean).join('  ·  ');card.appendChild(meta);
+      const acts=document.createElement('div');acts.className='pfacts';
+      const setSt=st=>async()=>{try{await adm('POST','/feedback/'+x.id,{status:st});PF.keep=true;renderProfile()}catch(e){msg(ft('neterr'))}};
+      if(x.status==='new'){const b=document.createElement('button');b.className='pfmini';b.textContent=p2('markread');b.onclick=setSt('read');acts.appendChild(b)}
+      const d=document.createElement('button');d.className='pfmini on';d.textContent=x.status==='done'?p2('reopen'):p2('markdone');d.onclick=setSt(x.status==='done'?'read':'done');acts.appendChild(d);
+      if(x.contact&&/^@?[A-Za-z0-9_]{4,}$/.test(x.contact)){const t=document.createElement('button');t.className='pfmini';t.textContent='Telegram';t.onclick=()=>window.open('https://t.me/'+x.contact.replace('@',''),'_blank');acts.appendChild(t)}
+      const del=document.createElement('button');del.className='pfmini danger';del.textContent=p2('del');del.onclick=async()=>{if(!confirm(p2('delq')))return;try{await adm('DELETE','/feedback/'+x.id);PF.keep=true;renderProfile()}catch(e){msg(ft('neterr'))}};acts.appendChild(del);
+      card.appendChild(acts);list.appendChild(card);
+    });
+  }).catch(e=>{shEl(list,'pfnote',e.status===403?ft('keybad'):ft('neterr'))});
+}
+/* "Codici amici" dal vecchio foglio ora apre la pagina */
+function openCodes(){if(tab!=='pf')showTab('pf');pfGo('codes')}
