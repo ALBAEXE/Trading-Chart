@@ -1,4 +1,4 @@
-const VERSION='0.29.0';
+const VERSION='0.29.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -4003,7 +4003,6 @@ var LIC={
 };
 function renderLegal(p){
   const L=lg();pfSub(p,L.title);
-  PF.lgOpen=PF.lgOpen||'risk';
   L.s.forEach(([k,title,items])=>{
     const box=document.createElement('div');box.className='lgbox'+(PF.lgOpen===k?' open':'');
     const hd=document.createElement('button');hd.className='lghd';
@@ -4018,7 +4017,6 @@ function renderLegal(p){
     }
     p.appendChild(box);
   });
-  shEl(p,'pfnote',L.upd+' · '+L.note);
 }
 /* riga dei metodi di pagamento sotto "Supporta il progetto" */
 var PMI={
