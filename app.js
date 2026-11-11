@@ -1,4 +1,4 @@
-const VERSION='0.38.0';
+const VERSION='0.39.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -7718,3 +7718,161 @@ function renderAdmin(p){
   };
 })();
 setTimeout(()=>{if(!FRIEND&&admKey())admLoad()},4000);
+
+/* elenco indicatori integrati: [id, nome, categoria, codice] */
+var IND_LIB=[
+ ['sma','Simple Moving Average (SMA)','tech','//@version=6\nindicator("Simple Moving Average", shorttitle="SMA", overlay=true)\nlen = input.int(20, "Length", minval=1)\nsrc = input.source(close, "Source")\nplot(ta.sma(src, len), "SMA", color=color.blue, linewidth=2)\n'],
+ ['ema','Exponential Moving Average (EMA)','tech','//@version=6\nindicator("Exponential Moving Average", shorttitle="EMA", overlay=true)\nlen = input.int(50, "Length", minval=1)\nsrc = input.source(close, "Source")\nplot(ta.ema(src, len), "EMA", color=color.orange, linewidth=2)\n'],
+ ['wma','Weighted Moving Average (WMA)','tech','//@version=6\nindicator("Weighted Moving Average", shorttitle="WMA", overlay=true)\nlen = input.int(20, "Length", minval=1)\nplot(ta.wma(close, len), "WMA", color=color.teal, linewidth=2)\n'],
+ ['hma','Hull Moving Average (HMA)','tech','//@version=6\nindicator("Hull Moving Average", shorttitle="HMA", overlay=true)\nlen = input.int(21, "Length", minval=2)\nh = ta.hma(close, len)\nplot(h, "HMA", color=h > h[1] ? color.green : color.red, linewidth=2)\n'],
+ ['vwma','Volume Weighted Moving Average (VWMA)','tech','//@version=6\nindicator("Volume Weighted Moving Average", shorttitle="VWMA", overlay=true)\nlen = input.int(20, "Length", minval=1)\nplot(ta.vwma(close, len), "VWMA", color=color.purple, linewidth=2)\n'],
+ ['alma','Arnaud Legoux Moving Average (ALMA)','tech','//@version=6\nindicator("Arnaud Legoux Moving Average", shorttitle="ALMA", overlay=true)\nlen = input.int(9, "Length", minval=1)\noff = input.float(0.85, "Offset")\nsig = input.float(6, "Sigma")\nplot(ta.alma(close, len, off, sig), "ALMA", color=color.aqua, linewidth=2)\n'],
+ ['ribbon','Moving Average Ribbon','tech','//@version=6\nindicator("Moving Average Ribbon", shorttitle="MA Ribbon", overlay=true)\nplot(ta.ema(close, 20), "EMA 20", color=color.new(color.yellow, 0))\nplot(ta.ema(close, 50), "EMA 50", color=color.new(color.orange, 0))\nplot(ta.ema(close, 100), "EMA 100", color=color.new(color.red, 0))\nplot(ta.ema(close, 200), "EMA 200", color=color.new(color.maroon, 0), linewidth=2)\n'],
+ ['bb','Bollinger Bands','tech','//@version=6\nindicator("Bollinger Bands", shorttitle="BB", overlay=true)\nlen = input.int(20, "Length", minval=1)\nmult = input.float(2.0, "StdDev", minval=0.1)\nbasis = ta.sma(close, len)\ndev = mult * ta.stdev(close, len)\nplot(basis, "Basis", color=color.orange)\nu = plot(basis + dev, "Upper", color=color.blue)\nl = plot(basis - dev, "Lower", color=color.blue)\nfill(u, l, color=color.new(color.blue, 90))\n'],
+ ['bbpb','Bollinger Bands %B','tech','//@version=6\nindicator("Bollinger Bands %B", shorttitle="%B")\nlen = input.int(20, "Length")\nmult = input.float(2.0, "StdDev")\nbasis = ta.sma(close, len)\ndev = mult * ta.stdev(close, len)\nplot((close - (basis - dev)) / (2 * dev), "%B", color=color.teal)\nhline(1, "Upper", color=color.gray)\nhline(0.5, "Middle", color=color.gray, linestyle=hline.style_dotted)\nhline(0, "Lower", color=color.gray)\n'],
+ ['bbw','Bollinger BandWidth','tech','//@version=6\nindicator("Bollinger BandWidth", shorttitle="BBW")\nplot(ta.bbw(close, input.int(20, "Length"), input.float(2.0, "StdDev")), "BBW", color=color.blue)\n'],
+ ['kc','Keltner Channels','tech','//@version=6\nindicator("Keltner Channels", shorttitle="KC", overlay=true)\nlen = input.int(20, "Length")\nmult = input.float(2.0, "Multiplier")\n[m, u, l] = ta.kc(close, len, mult)\nplot(m, "Basis", color=color.blue)\npu = plot(u, "Upper", color=color.blue)\npl = plot(l, "Lower", color=color.blue)\nfill(pu, pl, color=color.new(color.blue, 92))\n'],
+ ['dc','Donchian Channels','tech','//@version=6\nindicator("Donchian Channels", shorttitle="DC", overlay=true)\nlen = input.int(20, "Length")\nup = ta.highest(len)\ndn = ta.lowest(len)\nplot(math.avg(up, dn), "Basis", color=color.orange)\npu = plot(up, "Upper", color=color.blue)\npd = plot(dn, "Lower", color=color.blue)\nfill(pu, pd, color=color.new(color.blue, 94))\n'],
+ ['env','Envelope','tech','//@version=6\nindicator("Envelope", shorttitle="Env", overlay=true)\nlen = input.int(20, "Length")\npct = input.float(1.0, "Percent")\nb = ta.sma(close, len)\nplot(b, "Basis", color=color.orange)\nplot(b * (1 + pct / 100), "Upper", color=color.blue)\nplot(b * (1 - pct / 100), "Lower", color=color.blue)\n'],
+ ['st','Supertrend','tech','//@version=6\nindicator("Supertrend", overlay=true)\nfactor = input.float(3.0, "Factor")\nper = input.int(10, "ATR Length")\n[st, dir] = ta.supertrend(factor, per)\nplot(dir < 0 ? st : na, "Up Trend", color=color.green, style=plot.style_linebr, linewidth=2)\nplot(dir > 0 ? st : na, "Down Trend", color=color.red, style=plot.style_linebr, linewidth=2)\n'],
+ ['ichi','Ichimoku Cloud','tech','//@version=6\nindicator("Ichimoku Cloud", shorttitle="Ichimoku", overlay=true)\nconvLen = input.int(9, "Conversion Line Length")\nbaseLen = input.int(26, "Base Line Length")\nspanBLen = input.int(52, "Leading Span B Length")\ndonchian(len) => math.avg(ta.lowest(len), ta.highest(len))\nconv = donchian(convLen)\nbase = donchian(baseLen)\nspanA = math.avg(conv, base)\nspanB = donchian(spanBLen)\nplot(conv, "Conversion Line", color=#2962FF)\nplot(base, "Base Line", color=#B71C1C)\nplot(close, "Lagging Span", color=#43A047, offset=-baseLen + 1)\np1 = plot(spanA, "Leading Span A", color=#A5D6A7, offset=baseLen - 1)\np2 = plot(spanB, "Leading Span B", color=#EF9A9A, offset=baseLen - 1)\nfill(p1, p2, color=spanA > spanB ? color.new(color.green, 88) : color.new(color.red, 88))\n'],
+ ['vwap','VWAP','tech','//@version=6\nindicator("VWAP", overlay=true)\nplot(ta.vwap(hlc3), "VWAP", color=color.fuchsia, linewidth=2)\n'],
+ ['linreg','Linear Regression Curve','tech','//@version=6\nindicator("Linear Regression Curve", shorttitle="LinReg", overlay=true)\nplot(ta.linreg(close, input.int(50, "Length"), 0), "LinReg", color=color.yellow, linewidth=2)\n'],
+ ['rsi','Relative Strength Index (RSI)','tech','//@version=6\nindicator("Relative Strength Index", shorttitle="RSI")\nlen = input.int(14, "Length", minval=1)\nsrc = input.source(close, "Source")\nr = ta.rsi(src, len)\nplot(r, "RSI", color=color.purple)\nhline(70, "Overbought", color=color.gray)\nhline(50, "Middle", color=color.gray, linestyle=hline.style_dotted)\nhline(30, "Oversold", color=color.gray)\n'],
+ ['srsi','Stochastic RSI','tech','//@version=6\nindicator("Stochastic RSI", shorttitle="Stoch RSI")\nsk = input.int(3, "K")\nsd = input.int(3, "D")\nrl = input.int(14, "RSI Length")\nsl = input.int(14, "Stochastic Length")\nr = ta.rsi(close, rl)\nk = ta.sma(ta.stoch(r, r, r, sl), sk)\nd = ta.sma(k, sd)\nplot(k, "K", color=color.blue)\nplot(d, "D", color=color.orange)\nhline(80, "Upper", color=color.gray)\nhline(20, "Lower", color=color.gray)\n'],
+ ['stoch','Stochastic','tech','//@version=6\nindicator("Stochastic", shorttitle="Stoch")\nk = input.int(14, "%K length", minval=1)\nsk = input.int(3, "%K smoothing", minval=1)\nsd = input.int(3, "%D smoothing", minval=1)\nkk = ta.sma(ta.stoch(close, high, low, k), sk)\ndd = ta.sma(kk, sd)\nplot(kk, "%K", color=color.blue)\nplot(dd, "%D", color=color.orange)\nhline(80, "Upper", color=color.gray)\nhline(20, "Lower", color=color.gray)\n'],
+ ['macd','MACD','tech','//@version=6\nindicator("MACD")\nfast = input.int(12, "Fast length")\nslow = input.int(26, "Slow length")\nsig = input.int(9, "Signal smoothing")\n[m, s, h] = ta.macd(close, fast, slow, sig)\nplot(h, "Histogram", style=plot.style_columns, color=h >= 0 ? color.teal : color.red)\nplot(m, "MACD", color=color.blue)\nplot(s, "Signal", color=color.orange)\n'],
+ ['cci','Commodity Channel Index (CCI)','tech','//@version=6\nindicator("Commodity Channel Index", shorttitle="CCI")\nplot(ta.cci(hlc3, input.int(20, "Length")), "CCI", color=color.teal)\nhline(100, "Upper", color=color.gray)\nhline(0, "Middle", color=color.gray, linestyle=hline.style_dotted)\nhline(-100, "Lower", color=color.gray)\n'],
+ ['adx','Directional Movement Index (DMI / ADX)','tech','//@version=6\nindicator("Directional Movement Index", shorttitle="DMI")\n[p, m, a] = ta.dmi(input.int(14, "DI Length"), input.int(14, "ADX Smoothing"))\nplot(a, "ADX", color=color.red, linewidth=2)\nplot(p, "+DI", color=color.blue)\nplot(m, "-DI", color=color.orange)\nhline(25, "Trend", color=color.gray, linestyle=hline.style_dotted)\n'],
+ ['atr','Average True Range (ATR)','tech','//@version=6\nindicator("Average True Range", shorttitle="ATR")\nplot(ta.atr(input.int(14, "Length", minval=1)), "ATR", color=color.red)\n'],
+ ['mfi','Money Flow Index (MFI)','tech','//@version=6\nindicator("Money Flow Index", shorttitle="MFI")\nplot(ta.mfi(hlc3, input.int(14, "Length")), "MFI", color=color.purple)\nhline(80, "Overbought", color=color.gray)\nhline(20, "Oversold", color=color.gray)\n'],
+ ['wpr','Williams %R','tech','//@version=6\nindicator("Williams %R", shorttitle="%R")\nplot(ta.wpr(input.int(14, "Length")), "%R", color=color.purple)\nhline(-20, "Upper", color=color.gray)\nhline(-80, "Lower", color=color.gray)\n'],
+ ['mom','Momentum','tech','//@version=6\nindicator("Momentum", shorttitle="Mom")\nplot(ta.mom(close, input.int(10, "Length")), "Momentum", color=color.blue)\nhline(0, "Zero", color=color.gray)\n'],
+ ['roc','Rate of Change (ROC)','tech','//@version=6\nindicator("Rate of Change", shorttitle="ROC")\nplot(ta.roc(close, input.int(9, "Length")), "ROC", color=color.blue)\nhline(0, "Zero", color=color.gray)\n'],
+ ['ao','Awesome Oscillator','tech','//@version=6\nindicator("Awesome Oscillator", shorttitle="AO")\nao = ta.sma(hl2, 5) - ta.sma(hl2, 34)\nplot(ao, "AO", style=plot.style_columns, color=ao >= ao[1] ? color.teal : color.red)\n'],
+ ['aroon','Aroon','tech','//@version=6\nindicator("Aroon")\nlen = input.int(14, "Length")\nup = 100 * (ta.highestbars(high, len + 1) + len) / len\ndn = 100 * (ta.lowestbars(low, len + 1) + len) / len\nplot(up, "Aroon Up", color=color.orange)\nplot(dn, "Aroon Down", color=color.blue)\n'],
+ ['obv','On Balance Volume (OBV)','tech','//@version=6\nindicator("On Balance Volume", shorttitle="OBV")\nplot(ta.obv, "OBV", color=color.blue)\n'],
+ ['vol','Volume','tech','//@version=6\nindicator("Volume", shorttitle="Vol")\nplot(volume, "Volume", style=plot.style_columns, color=close >= open ? color.new(color.teal, 40) : color.new(color.red, 40))\nplot(ta.sma(volume, input.int(20, "MA Length")), "Volume MA", color=color.orange)\n'],
+ ['pp','Pivot Points High Low','tech','//@version=6\nindicator("Pivot Points High Low", shorttitle="Pivots HL", overlay=true, max_labels_count=200)\nlb = input.int(10, "Left bars")\nrb = input.int(10, "Right bars")\nph = ta.pivothigh(lb, rb)\npl = ta.pivotlow(lb, rb)\nif not na(ph)\n    label.new(bar_index - rb, ph, str.tostring(ph, format.mintick), style=label.style_label_down, color=color.new(color.red, 20), textcolor=color.white, size=size.small)\nif not na(pl)\n    label.new(bar_index - rb, pl, str.tostring(pl, format.mintick), style=label.style_label_up, color=color.new(color.teal, 20), textcolor=color.white, size=size.small)\n'],
+ ['zz','ZigZag','tech','//@version=6\nindicator("ZigZag", overlay=true, max_lines_count=300)\nlen = input.int(8, "Pivot length")\nph = ta.pivothigh(len, len)\npl = ta.pivotlow(len, len)\nvar float lp = na\nvar int lb = na\nif not na(ph) or not na(pl)\n    p = not na(ph) ? ph : pl\n    b = bar_index - len\n    if not na(lp)\n        line.new(lb, lp, b, p, color=color.orange, width=2)\n    lp := p\n    lb := b\n'],
+ /* fondamentali e metriche (calcolate sui prezzi del broker) */
+ ['pdhl','Previous Day High / Low','fund','//@version=6\nindicator("Previous Day High / Low", shorttitle="PDH/PDL", overlay=true)\n[ph, pl] = request.security(syminfo.tickerid, "D", [high[1], low[1]], lookahead=barmerge.lookahead_on)\nplot(ph, "PDH", color=color.green, style=plot.style_linebr, linewidth=2)\nplot(pl, "PDL", color=color.red, style=plot.style_linebr, linewidth=2)\n'],
+ ['pwhl','Previous Week High / Low','fund','//@version=6\nindicator("Previous Week High / Low", shorttitle="PWH/PWL", overlay=true)\n[ph, pl] = request.security(syminfo.tickerid, "W", [high[1], low[1]], lookahead=barmerge.lookahead_on)\nplot(ph, "PWH", color=color.teal, style=plot.style_linebr, linewidth=2)\nplot(pl, "PWL", color=color.maroon, style=plot.style_linebr, linewidth=2)\n'],
+ ['dopen','Daily Open','fund','//@version=6\nindicator("Daily Open", shorttitle="D Open", overlay=true)\nd = request.security(syminfo.tickerid, "D", open, lookahead=barmerge.lookahead_on)\nplot(d, "Daily Open", color=color.yellow, style=plot.style_linebr, linewidth=2)\n'],
+ ['adr','Average Daily Range (ADR)','fund','//@version=6\nindicator("Average Daily Range", shorttitle="ADR")\nlen = input.int(14, "Days")\nadr = request.security(syminfo.tickerid, "D", ta.sma(high - low, len))\nplot(adr, "ADR", color=color.orange, linewidth=2)\n'],
+ ['dchg','Daily Change %','fund','//@version=6\nindicator("Daily Change %", shorttitle="Chg %")\npc = request.security(syminfo.tickerid, "D", close[1], lookahead=barmerge.lookahead_on)\nc = 100 * (close - pc) / pc\nplot(c, "Change %", style=plot.style_columns, color=c >= 0 ? color.teal : color.red)\nhline(0, "Zero", color=color.gray)\n'],
+ ['hv','Historical Volatility','fund','//@version=6\nindicator("Historical Volatility", shorttitle="HV")\nlen = input.int(20, "Length")\nr = math.log(close / close[1])\nann = timeframe.isintraday ? math.sqrt(252 * 1440 / timeframe.multiplier) : math.sqrt(252)\nplot(100 * ta.stdev(r, len) * ann, "HV %", color=color.purple)\n'],
+ ['w52','52 Week High / Low','fund','//@version=6\nindicator("52 Week High / Low", shorttitle="52W", overlay=true)\n[h, l] = request.security(syminfo.tickerid, "D", [ta.highest(high, 252), ta.lowest(low, 252)])\nplot(h, "52W High", color=color.green, style=plot.style_linebr)\nplot(l, "52W Low", color=color.red, style=plot.style_linebr)\n'],
+ ['sess','Session High / Low','fund','//@version=6\nindicator("Session High / Low", shorttitle="Sess HL", overlay=true)\nnewDay = ta.change(time("D")) != 0\nvar float hi = na\nvar float lo = na\nif newDay\n    hi := high\n    lo := low\nelse\n    hi := math.max(hi, high)\n    lo := math.min(lo, low)\nplot(hi, "High", color=color.green, style=plot.style_linebr)\nplot(lo, "Low", color=color.red, style=plot.style_linebr)\n']
+];
+
+/* =====================================================================
+   0.39.0 — schermata Indicatori: Preferiti, I miei script, Tecnici,
+   Fondamentali, con ricerca. Libreria di indicatori integrati.
+   ===================================================================== */
+var IUT={
+ it:{title:"Indicatori e metriche",search:"Cerca",personal:"Personale",builtin:"Integrato",fav:"Preferiti",mine:"I miei script",tech:"Tecnici",fund:"Fondamentali",onchart:"Sul grafico",
+  nofav:"Nessun preferito. Tocca la stella accanto a un indicatore per aggiungerlo qui.",nomine:"Nessuno script salvato: creane uno nell'Editor script.",nores:"Nessun risultato.",
+  fundnote:"Livelli e misure calcolati sui prezzi del broker: massimi e minimi di giorno e settimana, aperture, range medio, volatilità.",added:"Aggiunto al grafico",inchart:"sul grafico",openeditor:"Apri l'Editor script"},
+ es:{title:"Indicadores y métricas",search:"Buscar",personal:"Personal",builtin:"Integrado",fav:"Favoritos",mine:"Mis scripts",tech:"Técnicos",fund:"Fundamentales",onchart:"En el gráfico",
+  nofav:"Sin favoritos. Toca la estrella junto a un indicador para añadirlo aquí.",nomine:"No hay scripts guardados: crea uno en el Editor de scripts.",nores:"Sin resultados.",
+  fundnote:"Niveles y medidas calculados con los precios del bróker: máximos y mínimos del día y la semana, aperturas, rango medio, volatilidad.",added:"Añadido al gráfico",inchart:"en el gráfico",openeditor:"Abrir el Editor de scripts"},
+ en:{title:"Indicators & metrics",search:"Search",personal:"Personal",builtin:"Built-in",fav:"Favorites",mine:"My scripts",tech:"Technicals",fund:"Fundamentals",onchart:"On the chart",
+  nofav:"No favorites. Tap the star next to an indicator to add it here.",nomine:"No saved scripts: create one in the Script editor.",nores:"No results.",
+  fundnote:"Levels and measures calculated from the broker's prices: day and week highs and lows, opens, average range, volatility.",added:"Added to the chart",inchart:"on the chart",openeditor:"Open the Script editor"},
+ fr:{title:"Indicateurs et métriques",search:"Rechercher",personal:"Personnel",builtin:"Intégré",fav:"Favoris",mine:"Mes scripts",tech:"Techniques",fund:"Fondamentaux",onchart:"Sur le graphique",
+  nofav:"Aucun favori. Touche l'étoile à côté d'un indicateur pour l'ajouter ici.",nomine:"Aucun script enregistré : crée-en un dans l'Éditeur de scripts.",nores:"Aucun résultat.",
+  fundnote:"Niveaux et mesures calculés sur les prix du courtier : plus hauts et plus bas du jour et de la semaine, ouvertures, range moyen, volatilité.",added:"Ajouté au graphique",inchart:"sur le graphique",openeditor:"Ouvrir l'Éditeur de scripts"}
+};
+function iut(k){return(IUT[lang]&&IUT[lang][k])||IUT.it[k]||k}
+/* l'editor usa la stessa libreria per "Integrato…" */
+ED_BUILTIN.length=0;IND_LIB.forEach(x=>ED_BUILTIN.push([x[1],x[3]]));
+var IIC={
+  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>',
+  starf:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.3-3.6 4.2-5.5 7.5-5.5s6.2 1.9 7.5 5.5"/></svg>',
+  tech:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11c2.5-4 5-4 7.5 0s5 4 7.5 0 2.5-2.5 3-2.5"/><path d="M4 20v-3M7 20v-5M10 20v-2M13 20v-4M16 20v-6M19 20v-3"/></svg>',
+  fund:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="4" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="16" y="10" width="4" height="10"/></svg>',
+  code:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>',
+  on:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+};
+(function(){
+  const st=document.createElement('style');
+  st.textContent=`
+.isrch{display:flex;align-items:center;gap:10px;margin:6px 16px 6px;padding:0 14px;height:48px;border-radius:14px;border:1px solid var(--line);background:transparent}
+.isrch svg{width:22px;height:22px;color:var(--muted);flex:0 0 22px}
+.isrch input{flex:1;width:auto;margin:0;padding:0;border:0;background:transparent;color:var(--fg);font-size:17px;outline:none;height:100%}
+.ihd{padding:22px 18px 8px;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.irow{display:flex;align-items:center;gap:16px;width:100%;margin:0;padding:15px 18px;border:0;background:transparent;color:var(--fg);text-align:left;font-size:17.5px}
+.irow:active{background:var(--glasssel)}
+.irow .ii{display:flex;flex:0 0 26px;color:var(--fg)}.irow .ii svg{width:26px;height:26px}
+.irow .it{flex:1;min-width:0}.irow .it small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.irow .ic{display:flex;color:var(--muted)}.irow .ic svg{width:20px;height:20px}
+.irow .in{font-size:14px;color:var(--muted);margin-right:2px}
+.irow .ion{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--up);white-space:nowrap}
+.irow .ion svg{width:14px;height:14px}
+.istar{width:38px;height:38px;flex:0 0 38px;margin:0 -8px 0 0;padding:0;border:0;background:transparent;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.istar svg{width:22px;height:22px}.istar.on{color:#f5b301}
+.inote{padding:8px 18px 12px;color:var(--muted);font-size:13.5px;line-height:1.45}`;
+  document.head.appendChild(st);
+})();
+var IFAV=lsGet('tc_indfav',[]);
+function ifavSave(){lsSet('tc_indfav',IFAV)}
+function iItems(){
+  const out=[];
+  IND_LIB.forEach(([id,name,cat,code])=>out.push({key:'b:'+id,sid:'b:'+id,name,cat,code}));
+  ED.list.forEach(s=>out.push({key:'s:'+s.id,sid:s.id,name:s.name,cat:'mine',code:s.code}));
+  return out;
+}
+function iOnChart(it){return IND.some(x=>x.sid===it.sid||(it.cat!=='mine'&&x.sid==='b:'+it.name))}
+function iRow(b,it){
+  const r=document.createElement('button');r.className='irow';
+  r.innerHTML='<span class="ii">'+(it.cat==='mine'?IIC.code:it.cat==='fund'?IIC.fund:IIC.tech)+'</span><span class="it"></span>';
+  r.querySelector('.it').textContent=it.name;
+  if(iOnChart(it)){const o=document.createElement('span');o.className='ion';o.innerHTML=IIC.on+'<span></span>';o.lastChild.textContent=iut('inchart');r.appendChild(o)}
+  const s=document.createElement('button');const fav=IFAV.includes(it.key);s.className='istar'+(fav?' on':'');s.innerHTML=fav?IIC.starf:IIC.star;s.setAttribute('aria-label',iut('fav'));
+  s.onclick=e=>{e.stopPropagation();haptic();const i=IFAV.indexOf(it.key);if(i>=0)IFAV.splice(i,1);else IFAV.push(it.key);ifavSave();const on=IFAV.includes(it.key);s.classList.toggle('on',on);s.innerHTML=on?IIC.starf:IIC.star};
+  r.appendChild(s);
+  r.onclick=()=>{
+    const nm=it.cat==='mine'?(edTitleOf(it.code)||it.name):((/shorttitle="([^"]+)"/.exec(it.code)||[])[1]||it.name);
+    const res=indAdd(it.code,nm,it.sid);
+    if(res.error){msg('⚠ '+res.error+(res.ln?' ('+itx('line')+' '+res.ln+')':''));return}
+    haptic();hubRender();
+  };
+  b.appendChild(r);return r;
+}
+function iNav(b,ic,label,count,fn){
+  const r=document.createElement('button');r.className='irow';
+  r.innerHTML='<span class="ii">'+ic+'</span><span class="it"></span><span class="in"></span><span class="ic">'+IIC.chev+'</span>';
+  r.querySelector('.it').textContent=label;r.querySelector('.in').textContent=count==null?'':count;r.onclick=fn;b.appendChild(r);return r;
+}
+function iHd(b,t){const d=document.createElement('div');d.className='ihd';d.textContent=t;b.appendChild(d)}
+function iList(b,list,empty){if(!list.length){shEl(b,'inote',empty);return}list.forEach(it=>iRow(b,it))}
+var ISRCH='';
+pageInd=function(b){
+  const box=document.createElement('label');box.className='isrch';box.innerHTML=IIC.search+'<input type="search" autocomplete="off" autocorrect="off" spellcheck="false">';
+  const inp=box.querySelector('input');inp.placeholder=iut('search');inp.value=ISRCH;b.appendChild(box);
+  const body=document.createElement('div');b.appendChild(body);
+  const draw=()=>{
+    body.innerHTML='';const q=ISRCH.trim().toLowerCase(),all=iItems();
+    if(q){const res=all.filter(it=>it.name.toLowerCase().includes(q)||it.key.slice(2).toLowerCase()===q);iList(body,res,iut('nores'));return}
+    if(IND.length){
+      iHd(body,iut('onchart'));
+      IND.forEach(ind=>{const r=IR.get(ind.uid);const row=iNav(body,ind.vis===false?IIC.tech:IIC.on,ind.name||'Script',r&&r.error?'⚠':null,()=>hubPage(ind.name||'Script',bb=>pageIndSet(bb,ind)));row.querySelector('.ii').style.color=r&&r.error?'var(--down)':ind.vis===false?'var(--muted)':'var(--up)'});
+    }
+    iHd(body,iut('personal'));
+    iNav(body,IIC.star,iut('fav'),IFAV.length||null,()=>hubPage(iut('fav'),bb=>{const keys=new Set(IFAV);iList(bb,iItems().filter(it=>keys.has(it.key)),iut('nofav'))}));
+    iNav(body,IIC.user,iut('mine'),ED.list.length||null,()=>hubPage(iut('mine'),bb=>{iList(bb,iItems().filter(it=>it.cat==='mine'),iut('nomine'));shItem(bb,iut('openeditor'),{on:()=>{closeHub();openEditor()}})}));
+    iHd(body,iut('builtin'));
+    iNav(body,IIC.tech,iut('tech'),IND_LIB.filter(x=>x[2]==='tech').length,()=>hubPage(iut('tech'),bb=>iList(bb,iItems().filter(it=>it.cat==='tech'),'')));
+    iNav(body,IIC.fund,iut('fund'),IND_LIB.filter(x=>x[2]==='fund').length,()=>hubPage(iut('fund'),bb=>{shEl(bb,'inote',iut('fundnote'));iList(bb,iItems().filter(it=>it.cat==='fund'),'')}));
+  };
+  inp.oninput=()=>{ISRCH=inp.value;draw()};
+  draw();
+};
+(function(){
+  const o=hubRoot;
+  hubRoot=function(b){o(b);const t=[...b.querySelectorAll('.htile')].find(x=>x.textContent.trim()===th('a_ind'));if(t)t.onclick=()=>{ISRCH='';hubPage(iut('title'),pageInd)}};
+})();
