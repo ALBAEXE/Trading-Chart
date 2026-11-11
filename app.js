@@ -1,4 +1,4 @@
-const VERSION='0.39.3';
+const VERSION='0.40.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -8149,3 +8149,178 @@ function isdVis(body,ind){
 }
 /* il pulsante impostazioni della legenda e le righe "Sul grafico" aprono la finestra */
 pageIndSet=function(b,ind){setTimeout(()=>openIndSet(ind),0)};
+
+/* =====================================================================
+   0.40.0: chi è online adesso + pannello admin aggiornato in diretta
+   ===================================================================== */
+/* ---------- segnale di presenza: ogni minuto mentre l'app è aperta ---------- */
+var PRES={t:0,last:0};
+function presPlat(){const u=navigator.userAgent||'';return /iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)?'ios':/Android/.test(u)?'android':'desktop'}
+function presOn(){const s=$('shell');return !!(s&&!s.hidden)}
+function presSend(off){
+  if(!presOn())return;
+  const h={'Content-Type':'application/json'};
+  if(FRIEND)h.Authorization='Bearer '+FRIEND;
+  const k=admKey();if(k)h['X-Admin-Key']=k;
+  PRES.last=Date.now();
+  try{fetch(WORKER+'/hello',{method:'POST',headers:h,body:JSON.stringify({dev:devId(),plat:presPlat(),ver:VERSION,off:!!off}),keepalive:true,cache:'no-store'}).catch(()=>{})}catch(e){}
+}
+setInterval(()=>{if(!document.hidden)presSend(false)},60000);
+document.addEventListener('visibilitychange',()=>{presSend(document.hidden)});
+window.addEventListener('pagehide',()=>presSend(true));
+(function(){const o=start;start=function(){const r=o.apply(this,arguments);setTimeout(()=>presSend(false),2500);return r}})();
+
+/* ---------- testi ---------- */
+Object.assign(ADT_.it,{users:"Codici in uso",live:"Online ora",livesub:"{d} oggi · {w} in 7 giorni",livenone:"Nessuno in questo momento",liveon:"In diretta",nodb:"Collega il database (guida in chat)",
+  you:"Tu",guest:"Ospite",since:"da {m}",justnow:"adesso",min:"{n} min",hrs:"{n} h",plat_ios:"iPhone",plat_android:"Android",plat_desktop:"Computer",plat_other:"Altro",
+  barn:"{n} nuovi utenti",bar1:"1 nuovo utente",bar0:"Nessun nuovo utente",
+  updlive:"aggiornato alle {t}",
+  note:"Online ora: chi ha l'app aperta in questo momento (segnale ogni minuto). Oggi e 7 giorni: dispositivi diversi che hanno aperto l'app. Codici in uso: codici già collegati a un telefono."});
+Object.assign(ADT_.es,{users:"Códigos en uso",live:"En línea ahora",livesub:"{d} hoy · {w} en 7 días",livenone:"Nadie en este momento",liveon:"En directo",nodb:"Conecta la base de datos (guía en el chat)",
+  you:"Tú",guest:"Invitado",since:"desde hace {m}",justnow:"ahora",min:"{n} min",hrs:"{n} h",plat_ios:"iPhone",plat_android:"Android",plat_desktop:"Ordenador",plat_other:"Otro",
+  barn:"{n} usuarios nuevos",bar1:"1 usuario nuevo",bar0:"Ningún usuario nuevo",
+  updlive:"actualizado a las {t}",
+  note:"En línea ahora: quien tiene la app abierta en este momento (señal cada minuto). Hoy y 7 días: dispositivos distintos que han abierto la app. Códigos en uso: códigos ya vinculados a un teléfono."});
+Object.assign(ADT_.en,{users:"Codes in use",live:"Online now",livesub:"{d} today · {w} in 7 days",livenone:"Nobody right now",liveon:"Live",nodb:"Connect the database (guide in chat)",
+  you:"You",guest:"Guest",since:"for {m}",justnow:"just now",min:"{n} min",hrs:"{n} h",plat_ios:"iPhone",plat_android:"Android",plat_desktop:"Desktop",plat_other:"Other",
+  barn:"{n} new users",bar1:"1 new user",bar0:"No new users",
+  updlive:"updated at {t}",
+  note:"Online now: who has the app open right now (signal every minute). Today and 7 days: different devices that opened the app. Codes in use: codes already linked to a phone."});
+Object.assign(ADT_.fr,{users:"Codes utilisés",live:"En ligne",livesub:"{d} aujourd'hui · {w} sur 7 jours",livenone:"Personne en ce moment",liveon:"En direct",nodb:"Connecte la base de données (guide dans le chat)",
+  you:"Toi",guest:"Invité",since:"depuis {m}",justnow:"à l'instant",min:"{n} min",hrs:"{n} h",plat_ios:"iPhone",plat_android:"Android",plat_desktop:"Ordinateur",plat_other:"Autre",
+  barn:"{n} nouveaux utilisateurs",bar1:"1 nouvel utilisateur",bar0:"Aucun nouvel utilisateur",
+  updlive:"mis à jour à {t}",
+  note:"En ligne : qui a l'app ouverte en ce moment (signal chaque minute). Aujourd'hui et 7 jours : appareils différents qui ont ouvert l'app. Codes utilisés : codes déjà liés à un téléphone."});
+
+/* ---------- stile ---------- */
+(function(){
+  const st=document.createElement('style');
+  st.textContent=`
+.adlive{grid-column:1/-1;min-height:0}
+.adlive .adlh{display:flex;align-items:center;gap:10px}
+.adlive b{margin-top:6px}
+.adpulse{position:relative;width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--up)}
+.adpulse::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--up);opacity:0;animation:adPulse 1.8s ease-out infinite}
+.adpulse.off{background:var(--faint)}.adpulse.off::after{display:none}
+@keyframes adPulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+.adlv{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--up);background:color-mix(in srgb,var(--up) 14%,transparent);padding:3px 8px;border-radius:999px;display:flex;align-items:center;gap:6px}
+.adlv::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1s ease-in-out infinite alternate}
+.adul{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.adu{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--surf2)}
+.adu .av{width:30px;height:30px;flex:0 0 30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;background:var(--c,#3b82f6)}
+.adu .ut{flex:1;min-width:0}.adu .ut b{display:block;font-size:14px;margin:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.adu .ut small{display:block;font-size:12px;color:var(--muted);padding:0;margin-top:1px}
+.adu .dot{width:8px;height:8px;border-radius:50%;background:var(--up)}
+.adnum{transition:transform .25s}.adnum.bump{transform:scale(1.12)}
+.adchart{position:relative}
+.adchart svg .col{cursor:pointer}
+.adtip{position:absolute;transform:translate(-50%,-100%);padding:7px 10px;border-radius:10px;background:var(--fg);color:var(--bg);font-size:12.5px;font-weight:700;white-space:nowrap;pointer-events:none;box-shadow:0 6px 18px var(--shadow);animation:adTip .18s ease}
+.adtip small{display:block;font-weight:500;opacity:.7;font-size:11px;margin-top:1px}
+.adtip::after{content:'';position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:var(--fg)}
+@keyframes adTip{from{opacity:0;transform:translate(-50%,-90%)}to{opacity:1;transform:translate(-50%,-100%)}}`;
+  document.head.appendChild(st);
+})();
+
+/* ---------- dati in diretta ---------- */
+var ADL={data:null,ms:null,at:0,busy:false,tm:0,full:0};
+function adMidnight(){const d=new Date();d.setHours(0,0,0,0);return d.getTime()}
+async function admLive(){
+  if(ADL.busy||!admKey())return;ADL.busy=true;
+  const t0=Date.now();
+  const ping=fetch(WORKER+'/ping',{cache:'no-store'}).then(r=>r.ok?Date.now()-t0:null).catch(()=>null);
+  const lv=adm('GET','/live?day='+adMidnight()).catch(()=>null);
+  const [ms,d]=await Promise.all([ping,lv]);
+  ADL.busy=false;ADL.ms=ms;if(d)ADL.data=d;ADL.at=Date.now();
+  adLivePaint();
+}
+function adAgo(ms){const m=Math.floor(ms/60000);if(m<1)return adt('justnow');if(m<60)return adt('min',{n:m});return adt('hrs',{n:Math.floor(m/60)})}
+function adWho(w){
+  if(w==='owner')return{n:adt('you'),c:'#d9a441'};
+  if(w==='guest')return{n:adt('guest'),c:'#6b7280'};
+  const cs=ADM.data&&ADM.data.codes||[],x=cs.find(c=>c.code===w);
+  const pal=['#3b82f6','#22ab94','#a78bfa','#f97316','#ec4899','#14b8a6','#eab308'];let h=0;for(const ch of String(w))h=(h*31+ch.charCodeAt(0))>>>0;
+  return{n:(x&&x.name)||w,c:pal[h%pal.length]};
+}
+function adSet(el,v){if(!el)return;v=String(v);if(el.textContent!==v){el.textContent=v;el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),250)}}
+function adLivePaint(){
+  const E=ADL.el;if(!E||!document.body.contains(E.tile))return;
+  const D=ADL.data;
+  if(D&&D.nodb){adSet(E.num,'–');E.sub.textContent=adt('nodb');E.dot.classList.add('off');E.list.innerHTML='';}
+  else if(D){
+    const on=D.online||[];
+    adSet(E.num,on.length);E.dot.classList.toggle('off',!on.length);
+    E.sub.textContent=adt('livesub',{d:D.today||0,w:D.week||0});
+    E.list.innerHTML='';
+    if(!on.length){const s=document.createElement('small');s.textContent=adt('livenone');s.style.cssText='color:var(--muted);font-size:12.5px';E.list.appendChild(s)}
+    on.forEach(u=>{
+      const w=adWho(u.who),r=document.createElement('div');r.className='adu';
+      r.innerHTML='<span class="av"></span><span class="ut"><b></b><small></small></span><span class="dot"></span>';
+      r.querySelector('.av').style.setProperty('--c',w.c);r.querySelector('.av').textContent=(w.n||'?').trim().charAt(0).toUpperCase();
+      r.querySelector('b').textContent=w.n;
+      r.querySelector('small').textContent=[adt('plat_'+(u.plat||'other')),u.ver?'v'+u.ver:'',adt('since',{m:adAgo((D.now||Date.now())-(u.since||u.ts))})].filter(Boolean).join(' · ');
+      E.list.appendChild(r);
+    });
+  }
+  if(E.srv){const ok=ADL.ms!=null;adSet(E.srvB,ok?'●':'○');E.srvB.style.color=ok?'var(--up)':'var(--muted)';E.srvS.textContent=ok?adt('online',{n:ADL.ms}):adt('offline');E.srv.style.setProperty('--c',ok?'#22ab94':'#9ca3af')}
+  if(E.upd)E.upd.textContent=adt('updlive',{t:new Date(ADL.at).toLocaleTimeString(LOC[lang]||'it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'})});
+}
+/* aggiornamento automatico mentre il pannello è aperto */
+function adLiveLoop(){
+  clearTimeout(ADL.tm);
+  const open=tab==='pf'&&PF.page==='admin'&&!document.hidden&&admKey()&&ADL.el&&document.body.contains(ADL.el.tile);
+  if(!open)return;
+  admLive();
+  if(Date.now()-ADL.full>45000){ADL.full=Date.now();setTimeout(admLoad,800)}
+  ADL.tm=setTimeout(adLiveLoop,5000);
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(adLiveLoop,300)});
+
+/* ---------- il pannello: riquadro "Online ora", server live, grafico toccabile ---------- */
+(function(){
+  const orig=renderAdmin;
+  renderAdmin=function(p){
+    orig(p);
+    if(!admKey())return;
+    const grid=p.querySelector('.adgrid');if(!grid)return;
+    /* riquadro grande "Online ora" in cima */
+    const t=document.createElement('div');t.className='adst adlive';t.style.setProperty('--c','#22ab94');
+    t.innerHTML='<div class="adlh"><span class="adpulse off"></span><i style="font-style:normal"></i><span class="adlv"></span></div><b class="adnum">–</b><small></small><div class="adul"></div>';
+    t.querySelector('i').textContent=adt('live');t.querySelector('i').style.cssText='font-size:12.5px;color:var(--muted);font-weight:600';
+    t.querySelector('.adlv').textContent=adt('liveon');
+    grid.prepend(t);
+    const st=[...grid.querySelectorAll('.adst')],srv=st[st.length-1];
+    ADL.el={tile:t,num:t.querySelector('b'),sub:t.querySelector('small'),dot:t.querySelector('.adpulse'),list:t.querySelector('.adul'),
+      srv,srvB:srv.querySelector('b'),srvS:srv.querySelector('small'),upd:p.querySelector('.adhero small')};
+    adLivePaint();
+    /* grafico: tocca una colonna per vedere il numero */
+    const ch=p.querySelector('.adchart');
+    if(ch){
+      const svg=ch.querySelector('svg'),cs=ADM.data&&ADM.data.codes||[],used=cs.filter(c=>c.bound);
+      const d0=new Date();d0.setHours(0,0,0,0);const days=[];
+      for(let i=13;i>=0;i--){const a=d0.getTime()-i*864e5;days.push({a,n:used.filter(c=>c.used>=a&&c.used<a+864e5).length})}
+      const W=320,H=96,bw=W/14,rects=[...svg.querySelectorAll('rect')];
+      days.forEach((x,i)=>{
+        const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');
+        hit.setAttribute('x',(i*bw).toFixed(1));hit.setAttribute('y','0');hit.setAttribute('width',bw.toFixed(1));hit.setAttribute('height',String(H));hit.setAttribute('fill','transparent');hit.setAttribute('class','col');
+        hit.addEventListener('click',e=>{
+          e.stopPropagation();haptic();
+          const old=ch.querySelector('.adtip');const same=old&&old.dataset.i==String(i);if(old)old.remove();
+          rects.forEach((r,k)=>r.style.opacity='');
+          if(same)return;
+          rects.forEach((r,k)=>{if(k!==i)r.style.opacity='.35'});
+          const tip=document.createElement('div');tip.className='adtip';tip.dataset.i=i;
+          tip.textContent=x.n===0?adt('bar0'):x.n===1?adt('bar1'):adt('barn',{n:x.n});
+          const sm=document.createElement('small');sm.textContent=new Date(x.a).toLocaleDateString(LOC[lang]||'it-IT',{weekday:'short',day:'numeric',month:'short'});tip.appendChild(sm);
+          const sb=svg.getBoundingClientRect(),cb=ch.getBoundingClientRect(),r=rects[i].getBoundingClientRect();
+          let left=r.left+r.width/2-cb.left;left=Math.max(60,Math.min(cb.width-60,left));
+          tip.style.left=left+'px';tip.style.top=(r.top-cb.top-6)+'px';
+          ch.appendChild(tip);
+        });
+        svg.appendChild(hit);
+      });
+      ch.addEventListener('click',()=>{const o=ch.querySelector('.adtip');if(o)o.remove();rects.forEach(r=>r.style.opacity='')});
+    }
+    ADL.full=ADM.at||0;
+    clearTimeout(ADL.tm);ADL.tm=setTimeout(adLiveLoop,ADL.data?1500:50);
+  };
+})();
