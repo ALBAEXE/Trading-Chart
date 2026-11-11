@@ -1,4 +1,4 @@
-const VERSION='0.37.1';
+const VERSION='0.38.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -3553,8 +3553,9 @@ function pfGo(page){const p=$('pf-screen');PF.page=page;renderProfile();p.classL
 function pfSub(p,title){
   const bar=document.createElement('div');bar.className='pfbar';
   const bk=document.createElement('button');bk.className='pfback';bk.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span></span>';
-  bk.lastChild.textContent=pt('profile');
-  bk.onclick=()=>{PF.page=null;PF.fresh=null;renderProfile();p.classList.add('pfout');setTimeout(()=>p.classList.remove('pfout'),400)};
+  const fromAdm=!FRIEND&&['codes','inbox','send'].includes(PF.page);
+  bk.lastChild.textContent=fromAdm?'Admin':pt('profile');
+  bk.onclick=()=>{PF.page=fromAdm?'admin':null;PF.fresh=null;renderProfile();p.classList.add('pfout');setTimeout(()=>p.classList.remove('pfout'),400)};
   const ti=document.createElement('div');ti.className='pftitle';ti.textContent=title;
   bar.appendChild(bk);bar.appendChild(ti);p.appendChild(bar);
 }
@@ -7546,3 +7547,174 @@ var LOGOUT_T={
   document.addEventListener('touchend',end,{passive:true});document.addEventListener('touchcancel',()=>{long=false;end()},{passive:true});
   document.addEventListener('click',e=>{if(long&&e.target.closest&&e.target.closest(SEL)){e.preventDefault();e.stopPropagation();long=false}},true);
 })();
+
+/* =====================================================================
+   0.38.0 — PANNELLO AMMINISTRATORE separato dalle impostazioni
+   ===================================================================== */
+var ADT_={
+ it:{short:"Amministratore",admin:"Pannello amministratore",adminsub:"Codici, messaggi, notifiche e statistiche",locked:"Sblocca con la tua chiave",unlock:"Sblocca",
+  users:"Utenti attivi",week:"+{n} questa settimana",free:"Codici liberi",total:"su {n} creati",devices:"Notifiche attive",yours:"{n} tuoi",
+  msgs:"Messaggi nuovi",msgtot:"{n} in tutto",sent:"Notifiche inviate",last:"ultima {d}",server:"Server",online:"online · {n} ms",offline:"non raggiungibile",
+  chart:"Nuovi utenti · ultimi 14 giorni",manage:"Gestione",codes:"Codici amici",codessub:"{u} in uso · {f} liberi",inbox:"Messaggi ricevuti",inboxsub:"{n} da leggere",send:"Invia notifica",sendsub:"a {n} telefoni",
+  recent:"Ultimi messaggi",nomsg:"Nessun messaggio.",security:"Sicurezza",lock:"Esci dalla modalità amministratore",lockq:"Uscire dalla modalità amministratore?",lockx:"La chiave verrà tolta da questo dispositivo. Per rientrare dovrai scriverla di nuovo.",lockok:"Esci",cancel:"Annulla",
+  upd:"aggiornato alle {t}",note:"Gli utenti attivi sono i codici già usati su un telefono: non indicano chi è online in questo momento.",never:"mai",today:"oggi"},
+ es:{short:"Administrador",admin:"Panel de administrador",adminsub:"Códigos, mensajes, notificaciones y estadísticas",locked:"Desbloquea con tu clave",unlock:"Desbloquear",
+  users:"Usuarios activos",week:"+{n} esta semana",free:"Códigos libres",total:"de {n} creados",devices:"Notificaciones activas",yours:"{n} tuyos",
+  msgs:"Mensajes nuevos",msgtot:"{n} en total",sent:"Notificaciones enviadas",last:"última {d}",server:"Servidor",online:"en línea · {n} ms",offline:"no disponible",
+  chart:"Nuevos usuarios · últimos 14 días",manage:"Gestión",codes:"Códigos de amigos",codessub:"{u} en uso · {f} libres",inbox:"Mensajes recibidos",inboxsub:"{n} por leer",send:"Enviar notificación",sendsub:"a {n} teléfonos",
+  recent:"Últimos mensajes",nomsg:"Ningún mensaje.",security:"Seguridad",lock:"Salir del modo administrador",lockq:"¿Salir del modo administrador?",lockx:"La clave se quitará de este dispositivo. Para volver tendrás que escribirla otra vez.",lockok:"Salir",cancel:"Cancelar",
+  upd:"actualizado a las {t}",note:"Los usuarios activos son los códigos ya usados en un teléfono: no indican quién está conectado ahora.",never:"nunca",today:"hoy"},
+ en:{short:"Admin",admin:"Admin panel",adminsub:"Codes, messages, notifications and stats",locked:"Unlock with your key",unlock:"Unlock",
+  users:"Active users",week:"+{n} this week",free:"Free codes",total:"of {n} created",devices:"Notifications on",yours:"{n} yours",
+  msgs:"New messages",msgtot:"{n} in total",sent:"Notifications sent",last:"last {d}",server:"Server",online:"online · {n} ms",offline:"unreachable",
+  chart:"New users · last 14 days",manage:"Manage",codes:"Friend codes",codessub:"{u} in use · {f} free",inbox:"Received messages",inboxsub:"{n} to read",send:"Send notification",sendsub:"to {n} phones",
+  recent:"Latest messages",nomsg:"No messages.",security:"Security",lock:"Leave admin mode",lockq:"Leave admin mode?",lockx:"The key will be removed from this device. To come back you'll have to type it again.",lockok:"Leave",cancel:"Cancel",
+  upd:"updated at {t}",note:"Active users are codes already used on a phone: they don't show who is online right now.",never:"never",today:"today"},
+ fr:{short:"Admin",admin:"Panneau administrateur",adminsub:"Codes, messages, notifications et statistiques",locked:"Déverrouille avec ta clé",unlock:"Déverrouiller",
+  users:"Utilisateurs actifs",week:"+{n} cette semaine",free:"Codes libres",total:"sur {n} créés",devices:"Notifications actives",yours:"{n} à toi",
+  msgs:"Nouveaux messages",msgtot:"{n} au total",sent:"Notifications envoyées",last:"dernière {d}",server:"Serveur",online:"en ligne · {n} ms",offline:"injoignable",
+  chart:"Nouveaux utilisateurs · 14 derniers jours",manage:"Gestion",codes:"Codes amis",codessub:"{u} utilisés · {f} libres",inbox:"Messages reçus",inboxsub:"{n} à lire",send:"Envoyer une notification",sendsub:"à {n} téléphones",
+  recent:"Derniers messages",nomsg:"Aucun message.",security:"Sécurité",lock:"Quitter le mode administrateur",lockq:"Quitter le mode administrateur ?",lockx:"La clé sera retirée de cet appareil. Pour revenir, il faudra la saisir à nouveau.",lockok:"Quitter",cancel:"Annuler",
+  upd:"mis à jour à {t}",note:"Les utilisateurs actifs sont les codes déjà utilisés sur un téléphone : ils n'indiquent pas qui est en ligne maintenant.",never:"jamais",today:"aujourd'hui"}
+};
+function adt(k,o){let s=(ADT_[lang]&&ADT_[lang][k])||ADT_.it[k]||k;if(o)Object.keys(o).forEach(x=>{s=s.split('{'+x+'}').join(o[x])});return s}
+PIC.shield='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.4-7.5 9.5-4.3-1.1-7.5-4.9-7.5-9.5V6z"/><path d="M8.8 12.2l2.2 2.2 4.2-4.4"/></svg>';
+PIC.lock='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>';
+PCOL.shield='#d9a441';PCOL.lock='#ef4444';
+(function(){
+  const st=document.createElement('style');
+  st.textContent=`
+.adcard{position:relative;display:flex;align-items:center;gap:14px;width:100%;margin:6px 0 4px;padding:16px;border-radius:22px;border:1px solid rgba(217,164,65,.45);
+ background:linear-gradient(135deg,rgba(217,164,65,.22),rgba(99,102,241,.14) 60%,rgba(34,171,148,.12));color:var(--fg);text-align:left;overflow:hidden}
+.adcard::after{content:'';position:absolute;inset:-40% -10%;background:linear-gradient(100deg,transparent 40%,rgba(255,255,255,.10) 50%,transparent 60%);animation:adShine 4.5s ease-in-out infinite;pointer-events:none}
+@keyframes adShine{0%{transform:translateX(-60%)}60%,100%{transform:translateX(60%)}}
+.adcard .adi{width:46px;height:46px;flex:0 0 46px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#d9a441;background:rgba(217,164,65,.16)}
+.adcard .adi svg{width:28px;height:28px}
+.adcard .adt{flex:1;min-width:0}.adcard b{display:block;font-size:17px;font-weight:800}.adcard small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.adcard .adch{color:var(--muted);display:flex}.adcard .adch svg{width:18px;height:18px}
+.adcard .pfbadge{margin:0 2px 0 0}
+.adhero{display:flex;align-items:center;gap:12px;padding:8px 2px 4px}
+.adhero .adi{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#d9a441;background:rgba(217,164,65,.16);border:1px solid rgba(217,164,65,.35)}
+.adhero .adi svg{width:30px;height:30px}
+.adhero b{display:block;font-size:21px;font-weight:800}.adhero small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.adhero button{margin-left:auto;width:40px;height:40px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--fg);display:flex;align-items:center;justify-content:center}
+.adhero button svg{width:20px;height:20px}.adhero button.busy svg{animation:rot .8s linear infinite}
+.adgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.adst{background:var(--surf);border-radius:18px;padding:14px 14px 12px;border:1px solid var(--glassline);min-height:96px;display:flex;flex-direction:column}
+.adst i{display:flex;align-items:center;gap:7px;font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600}
+.adst i s{width:8px;height:8px;border-radius:50%;background:var(--c,#888);text-decoration:none;flex:0 0 8px}
+.adst b{font-size:30px;font-weight:800;margin-top:8px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.05}
+.adst small{font-size:12.5px;color:var(--muted);margin-top:auto;padding-top:4px}
+.adst small.up{color:var(--up)}
+.adchart{background:var(--surf);border-radius:18px;padding:14px;margin-top:10px;border:1px solid var(--glassline)}
+.adchart i{font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600}
+.adchart svg{display:block;width:100%;height:96px;margin-top:10px}
+.admsg{display:block;width:100%;margin:0;padding:12px 16px;border:0;background:transparent;color:var(--fg);text-align:left;border-top:1px solid var(--line)}
+.admsg:first-child{border-top:0}
+.admsg b{display:flex;gap:8px;align-items:center;font-size:14.5px}.admsg b em{font-style:normal;font-size:11px;font-weight:700;color:#fff;background:#ef4444;border-radius:6px;padding:1px 6px}
+.admsg span{display:block;font-size:13.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adnote{font-size:12.5px;color:var(--muted);line-height:1.45;padding:12px 6px 4px}
+.adlock{padding:4px 2px}.adlock .pfin2{margin-top:10px}`;
+  document.head.appendChild(st);
+})();
+var ADM={data:null,at:0,busy:false};
+async function admLoad(){
+  if(ADM.busy)return;ADM.busy=true;
+  const t0=Date.now();
+  const ping=fetch(WORKER+'/ping',{cache:'no-store'}).then(r=>r.ok?Date.now()-t0:null).catch(()=>null);
+  const [c,f,p,ms]=await Promise.all([adm('GET','/codes').catch(e=>({__e:e})),adm('GET','/feedback').catch(e=>({__e:e})),adm('GET','/push').catch(e=>({__e:e})),ping]);
+  ADM.busy=false;
+  if(c&&c.__e&&c.__e.status===403){try{localStorage.removeItem('tc_admin')}catch(e){}msg(ft('keybad'));ADM.data=null;if(PF.page==='admin'){PF.keep=true;renderProfile()}return}
+  ADM.data={codes:(c&&c.codes)||null,fb:(f&&f.items)||null,push:(p&&!p.__e)?p:null,ms};ADM.at=Date.now();
+  if(f&&f.items){FBN=f.items.filter(x=>x.status==='new').length;try{fbBadge()}catch(e){}}
+  if(tab==='pf'&&(PF.page==='admin'||!PF.page)){PF.keep=true;renderProfile()}
+}
+function adStat(g,label,val,sub,col,cls){
+  const d=document.createElement('div');d.className='adst';d.style.setProperty('--c',col);
+  d.innerHTML='<i><s></s><span></span></i><b></b><small></small>';
+  d.querySelector('i span').textContent=label;d.querySelector('b').textContent=val;const sm=d.querySelector('small');sm.textContent=sub||'';if(cls)sm.className=cls;
+  g.appendChild(d);return d;
+}
+function adWhen(ts){if(!ts)return adt('never');const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return adt('today')+' '+d.toLocaleTimeString(LOC[lang]||'it-IT',{hour:'2-digit',minute:'2-digit'});return d.toLocaleDateString(LOC[lang]||'it-IT',{day:'2-digit',month:'short'})}
+function renderAdmin(p){
+  pfSub(p,adt('short'));
+  const hero=document.createElement('div');hero.className='adhero';
+  hero.innerHTML='<span class="adi">'+PIC.shield+'</span><div><b></b><small></small></div>';
+  hero.querySelector('b').textContent=adt('admin');p.appendChild(hero);
+  if(!admKey()){
+    hero.querySelector('small').textContent=adt('locked');
+    shEl(p,'pfnote',ft('keyq'));
+    const g=pfGroup(p,'');g.classList.add('pfpad','adlock');
+    const i=document.createElement('input');i.type='password';i.className='pfin2';i.placeholder=ft('keyph');i.autocomplete='off';g.appendChild(i);
+    const ok=document.createElement('button');ok.className='pfbtn';ok.textContent=adt('unlock');g.appendChild(ok);
+    ok.onclick=async()=>{const k=i.value.trim();if(!k)return;ok.disabled=true;try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);haptic();ADM.data=null;PF.keep=true;renderProfile();admLoad()}catch(e){ok.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}};
+    return;
+  }
+  const D=ADM.data;
+  hero.querySelector('small').textContent=ADM.at?adt('upd',{t:new Date(ADM.at).toLocaleTimeString(LOC[lang]||'it-IT',{hour:'2-digit',minute:'2-digit'})}):'…';
+  const rb=document.createElement('button');rb.innerHTML=PIC.refresh;rb.setAttribute('aria-label','refresh');if(ADM.busy)rb.classList.add('busy');
+  rb.onclick=()=>{rb.classList.add('busy');haptic();admLoad()};hero.appendChild(rb);
+  if(!D||Date.now()-ADM.at>20000)setTimeout(admLoad,0);
+  const cs=D&&D.codes||[],used=cs.filter(c=>c.bound),wk=Date.now()-7*864e5,newW=used.filter(c=>c.used&&c.used>=wk).length;
+  const fb=D&&D.fb||[],fbNew=fb.filter(x=>x.status==='new').length,ph=D&&D.push,hist=ph&&ph.hist||[];
+  const grid=document.createElement('div');grid.className='adgrid';p.appendChild(grid);
+  const dash=v=>D?v:'–';
+  adStat(grid,adt('users'),dash(used.length),D?adt('week',{n:newW}):'','#22ab94',newW?'up':'');
+  adStat(grid,adt('free'),dash(cs.length-used.length),D?adt('total',{n:cs.length}):'','#f5b301');
+  adStat(grid,adt('devices'),ph?ph.devices:'–',ph?adt('yours',{n:ph.owner||0}):'','#3b82f6');
+  adStat(grid,adt('msgs'),dash(fbNew),D?adt('msgtot',{n:fb.length}):'','#ef4444');
+  adStat(grid,adt('sent'),ph?hist.length:'–',ph&&hist[0]?adt('last',{d:adWhen(hist[0].ts)}):'','#a78bfa');
+  adStat(grid,adt('server'),D?(D.ms!=null?'OK':'—'):'–',D?(D.ms!=null?adt('online',{n:D.ms}):adt('offline')):'',D&&D.ms!=null?'#22ab94':'#9ca3af').querySelector('b').style.color=D&&D.ms!=null?'var(--up)':'var(--muted)';
+  /* grafico nuovi utenti */
+  const ch=document.createElement('div');ch.className='adchart';ch.innerHTML='<i></i>';ch.firstChild.textContent=adt('chart');
+  const days=[];const d0=new Date();d0.setHours(0,0,0,0);
+  for(let i=13;i>=0;i--){const a=d0.getTime()-i*864e5;days.push({a,n:used.filter(c=>c.used>=a&&c.used<a+864e5).length})}
+  const mx=Math.max(1,...days.map(x=>x.n)),W=320,H=96,bw=W/14;
+  let svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
+  days.forEach((x,i)=>{const h=x.n?Math.max(6,(H-18)*x.n/mx):3;svg+='<rect x="'+(i*bw+3).toFixed(1)+'" y="'+(H-14-h).toFixed(1)+'" width="'+(bw-6).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="3" fill="'+(x.n?'#22ab94':'var(--glasssel)')+'"/>';
+    if(x.n)svg+='<text x="'+(i*bw+bw/2).toFixed(1)+'" y="'+(H-18-h).toFixed(1)+'" font-size="10" text-anchor="middle" fill="var(--fg)">'+x.n+'</text>';
+    if(i%2===0)svg+='<text x="'+(i*bw+bw/2).toFixed(1)+'" y="'+(H-2)+'" font-size="9" text-anchor="middle" fill="var(--muted)">'+new Date(x.a).getDate()+'</text>'});
+  ch.insertAdjacentHTML('beforeend',svg+'</svg>');p.appendChild(ch);
+  /* gestione */
+  let g=pfGroup(p,adt('manage'));
+  pfRow(g,PIC.codes,adt('codes'),D?adt('codessub',{u:used.length,f:cs.length-used.length}):'',()=>pfGo('codes')).classList.add('chev');
+  const ir=pfRow(g,PIC.inbox,adt('inbox'),D?adt('inboxsub',{n:fbNew}):'',()=>pfGo('inbox'));ir.classList.add('chev');
+  if(fbNew){const bd=document.createElement('span');bd.className='pfbadge';bd.textContent=fbNew;ir.appendChild(bd)}
+  pfRow(g,PIC.mega,adt('send'),ph?adt('sendsub',{n:ph.devices}):'',()=>pfGo('send'),'',PCOL.mega).classList.add('chev');
+  /* ultimi messaggi */
+  g=pfGroup(p,adt('recent'));
+  if(D&&!fb.length)shEl(g,'pfnote',adt('nomsg'));
+  fb.slice(0,3).forEach(x=>{
+    const b=document.createElement('button');b.className='admsg';
+    b.innerHTML='<b></b><span></span>';
+    const tl=b.firstChild;tl.textContent=(x.who||x.contact||'')+(x.who||x.contact?' · ':'')+adWhen(x.ts);
+    if(x.status==='new'){const e=document.createElement('em');e.textContent='NEW';tl.prepend(e)}
+    b.lastChild.textContent=x.text||x.msg||x.body||'';b.onclick=()=>pfGo('inbox');g.appendChild(b);
+  });
+  /* sicurezza */
+  g=pfGroup(p,adt('security'));
+  pfRow(g,PIC.lock,adt('lock'),'',()=>ncConfirm({title:adt('lockq'),text:adt('lockx'),ok:adt('lockok'),cancel:adt('cancel')}).then(y=>{if(!y)return;try{localStorage.removeItem('tc_admin')}catch(e){}ADM.data=null;FBN=0;try{fbBadge()}catch(e){}PF.page=null;renderProfile()}),'danger');
+  shEl(p,'adnote',adt('note'));
+}
+(function(){
+  const orig=renderProfile;
+  renderProfile=function(){
+    const p=$('pf-screen');
+    if(PF.page==='admin'){const st=PF.keep?p.scrollTop:0;PF.keep=false;p.innerHTML='';renderAdmin(p);p.scrollTop=st;return}
+    orig();
+    if(PF.page||FRIEND)return;
+    /* tolgo il gruppo "Amici" (codici, messaggi, invia notifica): ora stanno nel pannello */
+    const codesRow=[...p.querySelectorAll('.pfrow')].find(r=>(r.querySelector('.pftx span')||{}).textContent===ft('codes'));
+    if(codesRow){const grp=codesRow.closest('.pfg');const lab=grp&&grp.previousElementSibling;if(lab&&lab.classList.contains('pfl'))lab.remove();if(grp)grp.remove()}
+    /* scheda in evidenza sotto l'intestazione */
+    const card=document.createElement('button');card.className='adcard';
+    card.innerHTML='<span class="adi">'+PIC.shield+'</span><span class="adt"><b></b><small></small></span><span class="adch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>';
+    card.querySelector('b').textContent=adt('admin');
+    const D=ADM.data,used=D&&D.codes?D.codes.filter(c=>c.bound).length:null;
+    card.querySelector('small').textContent=!admKey()?adt('locked'):(used!=null?adt('users')+': '+used:adt('adminsub'));
+    if(admKey()&&FBN){const bd=document.createElement('span');bd.className='pfbadge';bd.textContent=FBN;card.insertBefore(bd,card.lastChild)}
+    card.onclick=()=>{haptic();pfGo('admin')};
+    const head=p.querySelector('.pfhead');if(head)head.after(card);else p.prepend(card);
+  };
+})();
+setTimeout(()=>{if(!FRIEND&&admKey())admLoad()},4000);
