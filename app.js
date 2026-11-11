@@ -1,4 +1,4 @@
-const VERSION='0.32.2';
+const VERSION='0.33.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -3810,10 +3810,10 @@ var PF3={
 function p3(k){return(PF3[lang]&&PF3[lang][k])||PF3.it[k]||k}
 /* LINK STRIPE: incolla qui i Payment Links e gli importi quando sono pronti */
 var SUPPORT=[
-  {k:'t1',emoji:'☕',amt:'',url:'',col:'#f59e0b'},
-  {k:'t2',emoji:'🚀',amt:'',url:'',col:'#3b82f6'},
-  {k:'t3',emoji:'💎',amt:'',url:'',col:'#a78bfa'},
-  {k:'free',emoji:'💛',amt:'',url:'',col:'#22ab94'}
+  {k:'t1',emoji:'☕',amt:'3,50 €',url:'https://donate.stripe.com/14AeVf3tAbph3oddnE5EY00',col:'#f59e0b'},
+  {k:'t2',emoji:'🚀',amt:'12 €',url:'https://donate.stripe.com/4gM28t0ho3WP8IxgzQ5EY01',col:'#3b82f6'},
+  {k:'t3',emoji:'💎',amt:'35 €',url:'https://donate.stripe.com/00w9AVggmgJB6Ap0AS5EY02',col:'#a78bfa'},
+  {k:'free',emoji:'💛',amt:'',url:'https://donate.stripe.com/cNi5kF4xEgJB6Ap6Zg5EY03',col:'#22ab94'}
 ];
 PIC.heart='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.2 3 4.5 6.8 4.5c2.2 0 3.6 1.2 5.2 3 1.6-1.8 3-3 5.2-3C21 4.5 23 8.2 21.6 11.6 19.5 16.4 12 21 12 21z"/></svg>';
 PIC.cam='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>';
