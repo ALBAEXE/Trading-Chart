@@ -4,27 +4,29 @@
 
 # NexusCharts
 
-**Gráficos en tiempo real, dibujos y análisis — siempre en tu bolsillo.**
-Una app de gráficos rápida y bonita para iPhone y Android, con interfaz de cristal líquido.
+**Gráficos en tiempo real, indicadores, scripts y alertas — siempre en tu bolsillo.**
+Una app de gráficos rápida y bonita para iPhone, Android y ordenador, con interfaz de cristal líquido.
 
 [English](README.md) · [Italiano](README.it.md) · **Español** · [Français](README.fr.md)
 
-![Versión](https://img.shields.io/badge/versi%C3%B3n-0.21.0-d9a441?style=for-the-badge)
-![Plataforma](https://img.shields.io/badge/iPhone%20%7C%20Android-web%20app-2962ff?style=for-the-badge)
+![Versión](https://img.shields.io/github/v/release/ALBAEXE/Trading-Charts?include_prereleases&label=versi%C3%B3n&color=d9a441&style=for-the-badge)
+![Plataforma](https://img.shields.io/badge/iPhone%20%7C%20Android%20%7C%20Ordenador-web%20app-2962ff?style=for-the-badge)
 ![Idiomas](https://img.shields.io/badge/idiomas-IT%20%7C%20EN%20%7C%20ES%20%7C%20FR-22ab94?style=for-the-badge)
 ![Precio](https://img.shields.io/badge/instalaci%C3%B3n-gratis-111111?style=for-the-badge)
 
 </div>
 
-<!-- CAPTURAS: sube las imágenes a la carpeta "screenshots", luego borra esta línea y la última del bloque
 <p align="center">
-  <img src="screenshots/login.png" width="19%">
-  <img src="screenshots/watchlist.png" width="19%">
-  <img src="screenshots/chart.png" width="19%">
-  <img src="screenshots/hub.png" width="19%">
-  <img src="screenshots/profile.png" width="19%">
+  <img src="screenshots/IMG_4020.png" width="24%">
+  <img src="screenshots/IMG_4021.png" width="24%">
+  <img src="screenshots/IMG_4022.png" width="24%">
+  <img src="screenshots/IMG_4023.png" width="24%">
 </p>
--->
+<p align="center">
+  <img src="screenshots/IMG_4024.png" width="24%">
+  <img src="screenshots/IMG_4025.png" width="24%">
+  <img src="screenshots/IMG_4026.png" width="24%">
+</p>
 
 ---
 
@@ -33,7 +35,7 @@ Una app de gráficos rápida y bonita para iPhone y Android, con interfaz de cri
 - [Qué es NexusCharts](#-qué-es-nexuscharts)
 - [Funciones](#-funciones)
 - [Instalación](#-instalación)
-- [Cómo obtener acceso](#-cómo-obtener-acceso)
+- [Cómo conseguir acceso](#-cómo-conseguir-acceso)
 - [Compatibilidad](#-compatibilidad)
 - [Privacidad y seguridad](#-privacidad-y-seguridad)
 - [Preguntas frecuentes](#-preguntas-frecuentes)
@@ -44,105 +46,117 @@ Una app de gráficos rápida y bonita para iPhone y Android, con interfaz de cri
 
 ## ✨ Qué es NexusCharts
 
-NexusCharts es una **web app** que se instala en la pantalla de inicio y funciona como una app de verdad: a pantalla completa, con su icono, sin pasar por la App Store.
-Está pensada para traders que quieren **gráficos limpios, precios en tiempo real y herramientas de dibujo** en el móvil, sin límites, anuncios ni suscripciones.
+NexusCharts es una **web app** que se instala en la pantalla de inicio y funciona como una app de verdad: a pantalla completa, con su propio icono, sin pasar por la App Store.
+Está pensada para traders que quieren **gráficos limpios, precios en tiempo real, indicadores y herramientas de dibujo** en el móvil, sin límites, anuncios ni suscripciones.
 
 | | |
 |---|---|
 | ⚡ **Precios en vivo** | Cotizaciones y velas se actualizan solas cada pocos segundos |
-| 📱 **Como una app real** | Pantalla completa, vibración al tocar, animaciones fluidas, sin barras del navegador |
+| 📈 **42 indicadores + tus scripts** | Biblioteca integrada y un motor compatible con Pine Script™ |
+| 🔔 **Alertas de verdad** | Notificaciones push incluso con la app cerrada |
+| 📱 **Como una app nativa** | Pantalla completa, vibración al tocar, animaciones fluidas, sin barras del navegador |
 | 🔄 **Siempre actualizada** | Cada vez que la abres tienes la última versión, automáticamente |
-| 🌍 **4 idiomas** | Italiano, inglés, español, francés |
-| 🌗 **2 temas** | Oscuro y claro |
+| 🌍 **4 idiomas · 2 temas** | Italiano, inglés, español, francés · Oscuro y claro |
+
+> 📝 Las novedades de cada versión están en la página [Releases](../../releases).
 
 ---
 
 ## 🚀 Funciones
 
 ### 📋 Watchlist
-- 8 mercados seleccionados, por categoría:
-
-| Categoría | Símbolos |
-|---|---|
-| 💱 Forex | EURUSD |
-| 🪙 Materias primas | XAUUSD (oro), XAGUSD (plata), XPTUSD (platino) |
-| ₿ Cripto | BTCUSD, ETHUSD |
-| 📈 Índices | US30 (Dow Jones), NAS100 (Nasdaq 100) |
-
+- Forex, materias primas, cripto, índices y acciones, agrupados por categoría
+- Busca cualquier símbolo y añádelo con un toque
 - Precio en vivo, variación diaria en puntos y porcentaje, iconos con banderas y monedas
-- Mini reproductor abajo con el símbolo elegido y su mini gráfico
+- Mini reproductor abajo con el símbolo seleccionado y su minigráfico
 
 ### 📊 Gráfico
 - Gráfico a pantalla completa con **actualización en vivo** y **cuenta atrás** de la vela
 - **Temporalidades:** 1m · 5m · 15m · 1H · 4H · 1D
 - **Tipos de gráfico:** Velas · Barras · Línea · Área · Heikin Ashi
-- **Selector rápido:** mantén pulsado y desliza sobre el símbolo o la temporalidad para cambiarlos al instante, como una rueda
-- **Cruz libre:** mantén pulsado y muévela donde quieras, con precio y hora
-- **Leyenda OHLC** siempre visible bajo el nombre del símbolo
-- **Logo de fondo**: tócalo y aparece el nombre con una animación
-- Pellizca para hacer zoom y arrastra para desplazarte
+- **Colores personalizados:** cuerpo, bordes y mechas de las velas con opacidad, además del fondo y las escalas
+- **Selector rápido:** mantén pulsado y desliza sobre la píldora del símbolo o de la temporalidad para cambiarla al instante
+- **Retícula** con etiquetas de precio y hora y **botón "+"** para crear alertas rápidas
+- **Compara** un segundo símbolo en porcentaje
+- Pellizca para hacer zoom, arrastra para desplazarte, comparte una imagen del gráfico
+
+### 📈 Indicadores
+- Pantalla **Indicadores y métricas** con búsqueda, **Favoritos** (toca la estrella) y **Mis scripts**
+- **34 Técnicos:** SMA, EMA, WMA, HMA, VWMA, ALMA, MA Ribbon, Bandas de Bollinger (+ %B y BandWidth), Keltner, Donchian, Envelopes, Supertrend, Ichimoku, VWAP, Regresión lineal, RSI, Stoch RSI, Estocástico, MACD, CCI, ADX, ATR, MFI, Williams %R, Momentum, ROC, Awesome Oscillator, Aroon, OBV, Volumen, Pivot Points, ZigZag
+- **8 Fundamentales** (calculados a partir de los precios): máximo/mínimo del día y de la semana anterior, apertura diaria, rango medio diario, variación diaria %, volatilidad histórica, máximo/mínimo de 52 semanas, máximo/mínimo de la sesión
+- **Leyenda compacta:** toca un indicador para **mostrarlo/ocultarlo**, abrir sus **ajustes** o **quitarlo**
+- **Ventana de ajustes** con **Entradas**, **Estilo** (visibilidad, color y grosor de cada línea) y **Visibilidad** (minutos / horas / días)
+- **Menú •••:** restablece los ajustes o **guarda como predeterminado** para la próxima vez que lo añadas
+
+### 🧩 Editor de scripts
+- Escribe tus propios indicadores en un lenguaje **compatible con Pine Script™** (v5/v6)
+- Editor de código con números de línea, comprobación de errores y consola
+- Admite plots, formas, cajas, líneas, etiquetas, tablas, rellenos, entradas, alertas, temporalidades superiores y sesiones
+- Guarda tus scripts y añádelos al gráfico desde **Mis scripts**
 
 ### ✏️ Herramientas de dibujo
-Se guardan solas para cada símbolo.
+Se guardan automáticamente para cada símbolo.
 
 | Grupo | Herramientas |
 |---|---|
-| Tendencia | Línea de tendencia · Canal paralelo |
+| Tendencia | Línea de tendencia · Línea horizontal · Canal paralelo |
 | Previsión y medición | Posición larga · Posición corta (con objetivo, stop y R:R) |
 | Formas | Pincel · Flecha · Rectángulo · Trayectoria · Elipse |
 | Anotaciones | Texto · Nota |
 
-Toca un dibujo para moverlo, cambiar su color o borrarlo.
+Selecciona un dibujo para moverlo, cambiarle el color o eliminarlo.
+
+### 🔔 Alertas
+- Crea una alerta de precio desde el **"+"** de la retícula o desde el gestor de **Alertas**
+- Línea de la alerta en el gráfico: tócala para eliminarla
+- Lista de activas / inactivas, cancelar y eliminar
+- **Notificaciones push incluso con la app cerrada** (se desactivan en Perfil › Notificaciones)
 
 ### ⏪ Bar Replay
-- Desplázate hacia atrás libremente y coloca la **línea guía** en la vela exacta que quieras
-- Reinicia el gráfico desde ahí, a velocidad de 1x a 10x o vela a vela
-- Perfecto para probar tu estrategia en el pasado
+- Coloca una **línea guía** en la vela exacta que quieras y empieza desde ahí
+- Reproduce de 1x a 10x o avanza vela a vela: perfecto para hacer backtesting
 
 ### 🧭 Centro del gráfico
-Un panel de cristal que arrastras arriba y abajo, con todo lo del gráfico:
-
 | Sección | Qué hace |
 |---|---|
 | **Diseños** | Nuevo · Guardar · Abrir tus configuraciones del gráfico |
-| **Tipo y ajustes** | Cuadrícula, línea de precio, cuenta atrás, logo de fondo, colores de velas |
-| **Árbol de objetos** | Lista de tus dibujos: selecciónalos o bórralos |
-| **Detalles del símbolo** | Descripción, último precio, variación, apertura, máximo, mínimo |
-| **Comparar** | Superpone un segundo símbolo en porcentaje |
-| **Alertas** | Alertas de precio con sonido, vibración y línea en el gráfico |
-| **Técnicos** | Indicador compra/venta con 6 osciladores y 12 medias móviles |
-| **Compartir** | Crea una imagen del gráfico y abre el menú de compartir |
+| **Gráfico** | Tipo, ajustes del gráfico, lienzo, detalles del símbolo |
+| **Análisis** | Comparar · Bar Replay · Alertas · Técnicos · Editor de scripts |
+| **Técnicos** | Indicador de compra/venta a partir de osciladores y medias móviles |
+| **Compartir** | Crea una imagen del gráfico y abre el menú para compartir |
 
 ### 👤 Perfil y ajustes
-- Tema (oscuro/claro) e idioma
-- Actualizar datos, restablecer seguro (mantén pulsado para confirmar), salir
-- **Guía de instalación** dentro de la pantalla de acceso, paso a paso
+- Tema (oscuro/claro), idioma y notificaciones
+- Formulario para avisar de un problema o proponer una idea
+- Actualizar datos, restablecimiento seguro, salir
 
 ---
 
 ## 📲 Instalación
 
-> NexusCharts se instala desde el navegador: no hace falta App Store ni Play Store.
+> NexusCharts se instala desde el navegador: sin App Store ni Play Store.
 
 ### 🍎 iPhone (Safari)
 1. Abre el enlace de NexusCharts con **Safari**.
-2. Toca **Compartir** (el cuadrado con la flecha). Con iOS 26 toca primero los **tres puntos ⋯** y luego **Compartir**.
-3. Toca **Añadir a pantalla de inicio** (si no aparece, toca **Ver más**).
+2. Toca **Compartir** (el cuadrado con la flecha). En iOS 26 toca primero los **tres puntos ⋯** y luego **Compartir**.
+3. Toca **Añadir a pantalla de inicio** (si no lo ves, toca **Ver más**).
 4. Deja activado **Abrir como app web**, comprueba que el nombre sea **NexusCharts** y toca **Añadir**.
 5. Abre **NexusCharts** desde la pantalla de inicio.
 
 ### 🤖 Android (Chrome)
 1. Abre el enlace de NexusCharts con **Chrome**.
 2. Toca los **tres puntos ⋮** arriba a la derecha.
-3. Toca **Añadir a pantalla de inicio** o **Instalar app**.
-4. Confirma con **Instalar**.
-5. Abre **NexusCharts** desde la pantalla de inicio.
+3. Toca **Instalar aplicación** (o **Añadir a pantalla de inicio**) y confirma.
+
+### 💻 Ordenador (Chrome / Edge)
+1. Abre el enlace de NexusCharts.
+2. Haz clic en el **icono de instalar** de la barra de direcciones, o úsala en una pestaña normal.
 
 > 💡 La misma guía está dentro de la app: toca **Instalar** arriba a la izquierda en la pantalla de acceso.
 
 ---
 
-## 🔑 Cómo obtener acceso
+## 🔑 Cómo conseguir acceso
 
 NexusCharts funciona con **códigos de acceso personales**: sin registro y sin cuenta en un bróker.
 
@@ -150,9 +164,9 @@ NexusCharts funciona con **códigos de acceso personales**: sin registro y sin c
 2. Abre la app y toca **Entrar sin bróker**.
 3. Escribe el código (formato `XXXX-XXXX`) y ya estás dentro.
 
-Las siguientes veces la app te deja entrar sola.
+A partir de ahí la app te deja entrar sola.
 
-> ⚠️ Cada código vale para **un solo teléfono**, como una licencia. Si cambias de teléfono o restableces la app, pide uno nuevo.
+> ⚠️ Cada código funciona en **un solo dispositivo**, como una licencia. Si cambias de móvil o restableces la app, pide uno nuevo.
 
 ---
 
@@ -161,23 +175,24 @@ Las siguientes veces la app te deja entrar sola.
 | Dispositivo | Navegador | Estado |
 |---|---|---|
 | iPhone (iOS 16.4 o posterior) | Safari | ✅ Recomendado |
-| iPhone | Chrome / Edge | ✅ Funciona (instala desde Compartir) |
+| iPhone | Chrome / Edge | ✅ Funciona (instalar desde Compartir) |
 | Android 10 o posterior | Chrome | ✅ Compatible |
 | Android | Samsung Internet / Edge | ✅ Funciona |
-| iPad | Safari | ⚠️ Funciona, pensada para móvil |
-| Ordenador | Chrome / Safari / Edge | ⚠️ Funciona en una ventana del navegador |
+| iPad | Safari | ⚠️ Funciona, pensada para móviles |
+| Ordenador | Chrome / Edge / Safari | ⚠️ Funciona, versión completa para ordenador en camino |
 
-**Requisitos:** conexión a internet. La app ocupa menos de 1 MB.
+**Requisitos:** conexión a internet. En iPhone las notificaciones push necesitan la app instalada en la pantalla de inicio.
 
 ---
 
 ## 🔒 Privacidad y seguridad
 
 - 🚫 **No se piden datos personales** para usar la app con un código.
-- 📱 Dibujos, diseños, alertas y ajustes se guardan **solo en tu teléfono**.
+- 📱 Dibujos, diseños, indicadores, scripts y ajustes se guardan **solo en tu dispositivo**.
+- 🔔 Si activas las notificaciones, tus alertas activas se guardan en el servidor solo para avisarte; borras la alerta y desaparece.
 - 🔐 En este repositorio no hay contraseñas ni claves privadas.
-- 🎟️ Los códigos están ligados a un solo dispositivo y se pueden desactivar en cualquier momento.
-- 🧹 **Restablecer app** (mantén pulsado para confirmar) borra todo lo guardado en el teléfono.
+- 🎟️ Los códigos de acceso están ligados a un solo dispositivo y se pueden revocar en cualquier momento.
+- 🧹 **Restablecer la app** borra todo lo guardado en el dispositivo.
 
 ---
 
@@ -190,7 +205,7 @@ No. Instalar y usar NexusCharts es gratis: solo necesitas un código de acceso.
 
 <details>
 <summary><b>¿Necesito una cuenta en un bróker?</b></summary>
-No. Con el código entras sin ningún registro en un bróker.
+No. Con un código de acceso entras sin registrarte en ningún bróker.
 </details>
 
 <details>
@@ -199,8 +214,18 @@ No. NexusCharts es solo para gráficos y análisis: nunca abre órdenes.
 </details>
 
 <details>
-<summary><b>El código dice que ya se usa en otro teléfono.</b></summary>
-Cada código vale para un solo teléfono. Pide uno nuevo en Telegram.
+<summary><b>¿Puedo usar mis indicadores de Pine Script™?</b></summary>
+Sí. Pega el script en el Editor de scripts, guárdalo y añádelo desde Mis scripts. Se admite la mayoría de las funciones v5/v6; si algo no lo está, la consola te indica la línea.
+</details>
+
+<details>
+<summary><b>¿Las alertas funcionan con la app cerrada?</b></summary>
+Sí, con las notificaciones push activadas. En iPhone la app debe estar instalada en la pantalla de inicio.
+</details>
+
+<details>
+<summary><b>El código dice que ya se usa en otro dispositivo.</b></summary>
+Cada código funciona en un solo dispositivo. Pide uno nuevo en Telegram.
 </details>
 
 <details>
@@ -209,13 +234,8 @@ No. Se actualiza sola cada vez que la abres.
 </details>
 
 <details>
-<summary><b>¿Los dibujos se sincronizan entre teléfonos?</b></summary>
-Todavía no: se quedan en el teléfono donde los hiciste.
-</details>
-
-<details>
-<summary><b>¿Las alertas suenan con la app cerrada?</b></summary>
-Todavía no: las alertas suenan mientras la app está abierta.
+<summary><b>¿Los dibujos e indicadores se sincronizan entre dispositivos?</b></summary>
+Todavía no: se quedan en el dispositivo donde los creaste.
 </details>
 
 ---
@@ -224,19 +244,22 @@ Todavía no: las alertas suenan mientras la app está abierta.
 
 | Estado | Función |
 |---|---|
-| ✅ | Watchlist, gráfico en vivo, temporalidades, tipos de gráfico |
-| ✅ | Herramientas de dibujo, Bar Replay, Centro del gráfico |
-| ✅ | Códigos de amigos, guía de instalación, 4 idiomas |
-| 🔜 | Indicadores (volumen, zonas, estudios personalizados) |
-| 🔜 | Editor de scripts para tus indicadores |
-| 💡 | Más mercados en la watchlist |
+| ✅ | Watchlist, gráfico en vivo, temporalidades, tipos de gráfico, colores personalizados |
+| ✅ | Herramientas de dibujo, Bar Replay, Centro del gráfico, diseños |
+| ✅ | 42 indicadores integrados, favoritos, ajustes de indicador |
+| ✅ | Motor compatible con Pine Script™ y editor de scripts |
+| ✅ | Alertas de precio con notificaciones push |
+| ✅ | 4 idiomas, tema oscuro y claro |
+| 🔜 | Carga de datos más rápida |
+| 🔜 | Versión completa para ordenador |
+| 💡 | Sincronización entre dispositivos |
 
 ---
 
 ## 🙏 Créditos
 
 - Gráficos creados con [TradingView Lightweight Charts™](https://www.tradingview.com/lightweight-charts/) (Apache 2.0).
-- TradingView es una marca de TradingView, Inc. NexusCharts no está afiliada a TradingView.
+- TradingView y Pine Script son marcas de TradingView, Inc. NexusCharts no está afiliada a TradingView.
 
 ---
 
