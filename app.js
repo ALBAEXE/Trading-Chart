@@ -1,4 +1,4 @@
-const VERSION='0.28.0';
+const VERSION='0.29.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -254,6 +254,18 @@ html.vgap{--tbb:8px}
 .supthx i svg{width:36px;height:36px}
 .supthx b{font-size:21px;font-weight:800}
 .supthx span{color:var(--muted);font-size:15px;line-height:1.45}
+.pmrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0 0}
+.pmchip{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:var(--surf);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--fg)}
+.pmchip svg{width:16px;height:16px;color:var(--muted)}
+.lgbox{background:var(--surf);border-radius:16px;margin-top:8px;overflow:hidden}
+.lghd{display:flex;align-items:center;gap:12px;width:100%;margin:0;padding:14px 16px;background:transparent;border:0;color:var(--fg);font-size:16px;font-weight:600;text-align:left}
+.lghd i{display:flex;flex:0 0 24px}.lghd i svg{width:22px;height:22px}
+.lghd span{flex:1}
+.lghd em{width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:-4px 4px 0;transition:transform .2s}
+.lgbox.open .lghd em{transform:rotate(225deg);margin-top:4px}
+.lglist{margin:0;padding:0 18px 10px 52px;font-size:14px;line-height:1.5;color:var(--fg)}
+.lglist li{margin:0 0 8px}
+.lglist li::marker{color:var(--muted)}
 .pfbadge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#ef4444;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .pfrow.chev .pfbadge+*{margin-left:8px}
 .pfnote{padding:10px 6px;color:var(--muted);font-size:13.5px;line-height:1.45}
@@ -3930,5 +3942,112 @@ function viewImg(data,name){
     const tmp=document.createElement('div');
     const r=pfRow(tmp,PIC.heart,p3('sup'),p3('supsub'),()=>pfGo('support'),'',PCOL.heart);r.classList.add('chev','suprow');
     fb.parentNode.insertBefore(r,fb.parentNode.firstChild);
+  };
+})();
+
+
+/* =====================================================================
+   NOTE LEGALI + metodi di pagamento (icone generiche, niente loghi)
+   ===================================================================== */
+var LEGAL={
+ it:{title:"Note legali",sub:"Termini, privacy e avvertenze",upd:"Ultimo aggiornamento: 11 novembre 2026",
+  note:"Questi testi descrivono come funziona l'app. Non sono stati redatti da un avvocato.",
+  pm_card:"Carta",pm_apple:"Apple Pay",pm_google:"Google Pay",pm_safe:"Pagamento protetto",
+  s:[
+   ["risk","Avvertenza sul rischio",["NexusCharts è uno strumento di analisi grafica. Niente di quello che mostra è un consiglio finanziario o di investimento.","Il trading su forex, materie prime, indici e criptovalute comporta un rischio elevato di perdita del capitale. Decidi sempre in autonomia.","I prezzi possono essere in ritardo, incompleti o diversi da quelli del tuo broker. Prima di operare controlla sempre la piattaforma del tuo broker."]],
+   ["terms","Termini d'uso",["L'app è gratuita e viene fornita così com'è, senza garanzie di funzionamento continuo o di assenza di errori.","Le funzioni possono cambiare, essere aggiunte o tolte in qualsiasi momento, e il servizio può essere sospeso.","Il codice di accesso è personale e vale per un solo telefono: non va ceduto né condiviso. Un codice usato in modo scorretto può essere disattivato.","È vietato usare l'app per scopi illeciti, provare ad aggirarne le protezioni o sovraccaricare il servizio.","Nei limiti consentiti dalla legge, non si risponde di perdite o danni derivanti dall'uso dell'app o dei dati mostrati."]],
+   ["privacy","Privacy",["Per usare l'app con un codice non serve nessun dato personale: niente nome, email o numero di telefono.","Impostazioni, disegni, layout e alert restano salvati solo sul tuo telefono.","Sul server dell'app vengono conservati: il codice di accesso con un identificativo casuale del telefono e le date di creazione e di primo utilizzo; i messaggi di \"Segnala o proponi\" con le eventuali foto, il contatto Telegram se lo scrivi tu, la versione dell'app, il tipo di telefono, la lingua e il simbolo aperto.","L'indirizzo IP è usato solo per limitare i messaggi ripetuti e viene cancellato dopo 24 ore.","Chi entra con il proprio conto del broker invia email e password direttamente al broker: l'app non le salva. Se scegli di salvarle, le conserva il portachiavi del tuo iPhone.","Nessuna pubblicità, nessun tracciamento e nessuna analisi del comportamento.","Puoi cancellare tutti i dati sul telefono con \"Ripristina l'app\". Per far cancellare i tuoi messaggi dal server scrivi su Telegram."]],
+   ["donate","Contributi volontari",["I contributi in \"Supporta il progetto\" sono volontari e una tantum: non sono un abbonamento e non sbloccano funzioni aggiuntive.","I pagamenti sono gestiti da Stripe: l'app non vede né conserva i dati della tua carta.","I contributi non sono rimborsabili, salvo i casi previsti dalla legge."]],
+   ["contact","Contatti",["Per domande, richieste sui dati o segnalazioni puoi usare \"Segnala o proponi\" oppure scrivere su Telegram."]]
+  ]},
+ es:{title:"Avisos legales",sub:"Términos, privacidad y advertencias",upd:"Última actualización: 11 de noviembre de 2026",
+  note:"Estos textos describen cómo funciona la app. No han sido redactados por un abogado.",
+  pm_card:"Tarjeta",pm_apple:"Apple Pay",pm_google:"Google Pay",pm_safe:"Pago protegido",
+  s:[
+   ["risk","Advertencia de riesgo",["NexusCharts es una herramienta de análisis gráfico. Nada de lo que muestra es un consejo financiero o de inversión.","Operar con forex, materias primas, índices y criptomonedas conlleva un alto riesgo de perder el capital. Decide siempre por tu cuenta.","Los precios pueden llegar con retraso, estar incompletos o ser distintos de los de tu bróker. Antes de operar revisa siempre la plataforma de tu bróker."]],
+   ["terms","Términos de uso",["La app es gratuita y se ofrece tal cual, sin garantías de funcionamiento continuo o sin errores.","Las funciones pueden cambiar, añadirse o eliminarse en cualquier momento, y el servicio puede suspenderse.","El código de acceso es personal y vale para un solo teléfono: no debe cederse ni compartirse. Un código mal utilizado puede desactivarse.","Está prohibido usar la app con fines ilícitos, intentar eludir sus protecciones o sobrecargar el servicio.","En la medida permitida por la ley, no se responde de pérdidas o daños derivados del uso de la app o de los datos mostrados."]],
+   ["privacy","Privacidad",["Para usar la app con un código no se necesita ningún dato personal: ni nombre, ni email, ni teléfono.","Ajustes, dibujos, diseños y alertas se guardan solo en tu teléfono.","En el servidor de la app se guardan: el código de acceso con un identificador aleatorio del teléfono y las fechas de creación y primer uso; los mensajes de \"Informar o proponer\" con las fotos, el contacto de Telegram si lo escribes, la versión de la app, el tipo de teléfono, el idioma y el símbolo abierto.","La dirección IP se usa solo para limitar mensajes repetidos y se borra a las 24 horas.","Quien entra con su propia cuenta del bróker envía email y contraseña directamente al bróker: la app no los guarda. Si decides guardarlos, los conserva el llavero de tu iPhone.","Sin publicidad, sin rastreo y sin análisis de comportamiento.","Puedes borrar todos los datos del teléfono con \"Restablecer app\". Para borrar tus mensajes del servidor escribe por Telegram."]],
+   ["donate","Aportaciones voluntarias",["Las aportaciones de \"Apoya el proyecto\" son voluntarias y únicas: no son una suscripción y no desbloquean funciones extra.","Los pagos los gestiona Stripe: la app no ve ni guarda los datos de tu tarjeta.","Las aportaciones no son reembolsables, salvo en los casos previstos por la ley."]],
+   ["contact","Contacto",["Para preguntas, solicitudes sobre tus datos o avisos usa \"Informar o proponer\" o escribe por Telegram."]]
+  ]},
+ en:{title:"Legal",sub:"Terms, privacy and disclaimers",upd:"Last updated: 11 November 2026",
+  note:"These texts describe how the app works. They were not written by a lawyer.",
+  pm_card:"Card",pm_apple:"Apple Pay",pm_google:"Google Pay",pm_safe:"Secure payment",
+  s:[
+   ["risk","Risk disclaimer",["NexusCharts is a charting and analysis tool. Nothing it shows is financial or investment advice.","Trading forex, commodities, indices and crypto carries a high risk of losing your capital. Always make your own decisions.","Prices may be delayed, incomplete or different from your broker's. Always check your broker's platform before trading."]],
+   ["terms","Terms of use",["The app is free and provided as is, with no guarantee of continuous or error-free operation.","Features may change, be added or removed at any time, and the service may be suspended.","Your access code is personal and works on one phone only: it must not be transferred or shared. A misused code may be deactivated.","Using the app for unlawful purposes, trying to bypass its protections or overloading the service is not allowed.","To the extent permitted by law, there is no liability for losses or damages arising from the use of the app or the data shown."]],
+   ["privacy","Privacy",["Using the app with a code requires no personal data: no name, email or phone number.","Settings, drawings, layouts and alerts are stored only on your phone.","The app's server stores: your access code with a random phone identifier and the dates of creation and first use; \"Report or suggest\" messages with any photos, your Telegram contact if you type it, the app version, phone type, language and open symbol.","Your IP address is used only to limit repeated messages and is deleted after 24 hours.","If you sign in with your own broker account, your email and password go straight to the broker: the app doesn't store them. If you choose to save them, your iPhone Keychain keeps them.","No ads, no tracking, no behaviour analytics.","You can erase all data on the phone with \"Reset app\". To have your messages deleted from the server, write on Telegram."]],
+   ["donate","Voluntary contributions",["Contributions in \"Support the project\" are voluntary and one-time: they are not a subscription and don't unlock extra features.","Payments are handled by Stripe: the app never sees or stores your card details.","Contributions are non-refundable, except where required by law."]],
+   ["contact","Contact",["For questions, data requests or reports use \"Report or suggest\" or write on Telegram."]]
+  ]},
+ fr:{title:"Mentions légales",sub:"Conditions, confidentialité et avertissements",upd:"Dernière mise à jour : 11 novembre 2026",
+  note:"Ces textes décrivent le fonctionnement de l'app. Ils n'ont pas été rédigés par un avocat.",
+  pm_card:"Carte",pm_apple:"Apple Pay",pm_google:"Google Pay",pm_safe:"Paiement sécurisé",
+  s:[
+   ["risk","Avertissement sur les risques",["NexusCharts est un outil d'analyse graphique. Rien de ce qu'elle affiche n'est un conseil financier ou d'investissement.","Le trading sur le forex, les matières premières, les indices et les cryptos comporte un risque élevé de perte du capital. Décide toujours par toi-même.","Les prix peuvent être en retard, incomplets ou différents de ceux de ton courtier. Vérifie toujours la plateforme de ton courtier avant de trader."]],
+   ["terms","Conditions d'utilisation",["L'app est gratuite et fournie telle quelle, sans garantie de fonctionnement continu ou sans erreurs.","Les fonctions peuvent changer, être ajoutées ou retirées à tout moment, et le service peut être suspendu.","Le code d'accès est personnel et ne vaut que pour un téléphone : il ne doit être ni cédé ni partagé. Un code mal utilisé peut être désactivé.","Il est interdit d'utiliser l'app à des fins illicites, de contourner ses protections ou de surcharger le service.","Dans les limites permises par la loi, aucune responsabilité n'est assumée pour les pertes ou dommages liés à l'utilisation de l'app ou des données affichées."]],
+   ["privacy","Confidentialité",["Utiliser l'app avec un code ne demande aucune donnée personnelle : ni nom, ni email, ni téléphone.","Réglages, dessins, mises en page et alertes restent uniquement sur ton téléphone.","Le serveur de l'app conserve : le code d'accès avec un identifiant aléatoire du téléphone et les dates de création et de première utilisation ; les messages de \"Signaler ou proposer\" avec les éventuelles photos, ton contact Telegram si tu l'écris, la version de l'app, le type de téléphone, la langue et le symbole ouvert.","L'adresse IP sert uniquement à limiter les messages répétés et est effacée après 24 heures.","Si tu te connectes avec ton propre compte courtier, l'email et le mot de passe vont directement au courtier : l'app ne les conserve pas. Si tu choisis de les enregistrer, c'est le trousseau de ton iPhone qui les garde.","Pas de publicité, pas de suivi, pas d'analyse du comportement.","Tu peux effacer toutes les données du téléphone avec \"Réinitialiser l'app\". Pour faire supprimer tes messages du serveur, écris sur Telegram."]],
+   ["donate","Contributions volontaires",["Les contributions de \"Soutenir le projet\" sont volontaires et uniques : ce n'est pas un abonnement et elles ne débloquent aucune fonction.","Les paiements sont gérés par Stripe : l'app ne voit ni ne conserve les données de ta carte.","Les contributions ne sont pas remboursables, sauf dans les cas prévus par la loi."]],
+   ["contact","Contact",["Pour toute question, demande sur tes données ou signalement, utilise \"Signaler ou proposer\" ou écris sur Telegram."]]
+  ]}
+};
+function lg(){return LEGAL[lang]||LEGAL.it}
+PIC.legal='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/></svg>';
+PCOL.legal='#94a3b8';
+var LIC={
+  risk:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>','#f59e0b'],
+  terms:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h6"/></svg>','#3b82f6'],
+  privacy:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>','#22ab94'],
+  donate:['<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.2 3 4.5 6.8 4.5c2.2 0 3.6 1.2 5.2 3 1.6-1.8 3-3 5.2-3C21 4.5 23 8.2 21.6 11.6 19.5 16.4 12 21 12 21z"/></svg>','#ec4899'],
+  contact:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>','#a78bfa']
+};
+function renderLegal(p){
+  const L=lg();pfSub(p,L.title);
+  PF.lgOpen=PF.lgOpen||'risk';
+  L.s.forEach(([k,title,items])=>{
+    const box=document.createElement('div');box.className='lgbox'+(PF.lgOpen===k?' open':'');
+    const hd=document.createElement('button');hd.className='lghd';
+    hd.innerHTML='<i></i><span></span><em></em>';hd.firstChild.innerHTML=LIC[k][0];hd.firstChild.style.color=LIC[k][1];hd.children[1].textContent=title;
+    hd.onclick=()=>{PF.lgOpen=PF.lgOpen===k?null:k;PF.keep=true;renderProfile()};
+    box.appendChild(hd);
+    if(PF.lgOpen===k){
+      const ul=document.createElement('ul');ul.className='lglist';
+      items.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.appendChild(li)});
+      if(k==='contact'){const b=document.createElement('button');b.className='pfmini on';b.style.margin='4px 0 6px 0';b.textContent='Telegram';b.onclick=()=>{const u='https://t.me/'+TG_USER;const w=window.open(u,'_blank');if(!w)location.href=u};ul.appendChild(b)}
+      box.appendChild(ul);
+    }
+    p.appendChild(box);
+  });
+  shEl(p,'pfnote',L.upd+' · '+L.note);
+}
+/* riga dei metodi di pagamento sotto "Supporta il progetto" */
+var PMI={
+  card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>'
+};
+(function(){
+  const orig=renderSupport;
+  renderSupport=function(p){
+    orig(p);
+    const L=lg(),row=document.createElement('div');row.className='pmrow';
+    [[PMI.card,L.pm_card],[PMI.phone,L.pm_apple],[PMI.phone,L.pm_google],[PMI.lock,L.pm_safe]].forEach(([ic,tx])=>{
+      const c=document.createElement('span');c.className='pmchip';c.innerHTML=ic+'<span></span>';c.lastChild.textContent=tx;row.appendChild(c);
+    });
+    const note=p.querySelector('.pfnote');if(note)note.before(row);else p.appendChild(row);
+  };
+})();
+/* voce "Note legali" prima di Esci */
+(function(){
+  const orig=renderProfile;
+  renderProfile=function(){
+    if(PF.page==='legal'){const p=$('pf-screen');const st=PF.keep?p.scrollTop:0;PF.keep=false;p.innerHTML='';renderLegal(p);p.scrollTop=st;return}
+    orig();
+    if(PF.page)return;
+    const p=$('pf-screen'),out=[...p.querySelectorAll('.pfrow.danger')].pop();
+    if(!out)return;
+    const g=document.createElement('div');g.className='pfg';
+    pfRow(g,PIC.legal,lg().title,lg().sub,()=>pfGo('legal'),'',PCOL.legal).classList.add('chev');
+    out.parentNode.before(g);
   };
 })();
