@@ -1,4 +1,4 @@
-const VERSION='0.26.0';
+const VERSION='0.26.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -244,7 +244,7 @@ html.vgap{--tbb:8px}
 #chartbox{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 4px);bottom:var(--chb)}
 #chart{position:absolute;inset:0}
 #pxtag{position:absolute;right:0;z-index:4;background:var(--blue);color:#fff;font-size:13px;line-height:1.3;padding:3px 7px 4px;border-radius:3px;font-variant-numeric:tabular-nums;pointer-events:none;transform:translateY(-11px);box-sizing:border-box}
-#wm{position:absolute;left:12px;bottom:74px;height:42px;display:flex;align-items:center;z-index:3;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#wm{position:absolute;left:12px;bottom:36px;height:42px;display:flex;align-items:center;z-index:3;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 #wm[hidden]{display:none}
 #wm img{width:40px;height:40px;filter:var(--logo);opacity:.92;transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 #wm.open img{transform:rotate(-12deg) scale(1.04)}
@@ -943,7 +943,7 @@ function addS(kind,opts){
 function chartOpts(){
   const v=cvOpts();
   return{
-    layout:{...v.layout,fontFamily:'-apple-system,system-ui,sans-serif'},
+    layout:{...v.layout,fontFamily:'-apple-system,system-ui,sans-serif',attributionLogo:false},
     grid:v.grid,
     rightPriceScale:v.rightPriceScale,
     timeScale:{...v.timeScale,timeVisible:true,secondsVisible:false},
