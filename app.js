@@ -1,4 +1,4 @@
-const VERSION='0.27.1';
+const VERSION='0.28.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -222,6 +222,38 @@ html.vgap{--tbb:8px}
 .pfrow.dim{opacity:.55}
 .tab{position:relative}
 .tbbadge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.fbph{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.fbth{position:relative;width:76px;height:76px;margin:0;padding:0;border-radius:12px;border:1px solid var(--line);background:var(--glasssel) center/cover no-repeat}
+.fbth.load{animation:pulse 1s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.4}to{opacity:.9}}
+.fbth button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;margin:0;padding:0;border-radius:50%;background:#000;color:#fff;border:1px solid var(--line);font-size:11px;display:flex;align-items:center;justify-content:center}
+.fbadd{width:auto;min-width:76px;height:76px;padding:0 12px;border-radius:12px;border:1.5px dashed var(--muted);color:var(--fg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer}
+.fbadd svg{width:24px;height:24px;color:#f97316}
+.imgview{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 10px) 10px calc(env(safe-area-inset-bottom) + 10px)}
+.imgview img{max-width:100%;max-height:calc(100% - 70px);border-radius:12px;object-fit:contain}
+.imgbar{display:flex;gap:10px;margin-top:14px}
+.imgview .pfmini{padding:10px 20px;font-size:15px;margin:0}
+.suphead{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:14px 10px 6px}
+.suphead i{width:66px;height:66px;border-radius:50%;background:rgba(236,72,153,.15);color:#ec4899;display:flex;align-items:center;justify-content:center;animation:beat 1.6s ease-in-out infinite}
+.suphead i svg{width:34px;height:34px}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.12)}30%{transform:scale(1)}45%{transform:scale(1.08)}}
+.suphead b{font-size:21px;font-weight:800}
+.suphead span{font-size:14.5px;color:var(--muted);line-height:1.5}
+.suplist{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.supcard{display:flex;align-items:center;gap:14px;width:100%;margin:0;padding:14px 16px;border-radius:18px;background:var(--surf);border:1.5px solid color-mix(in srgb,var(--sc) 45%,transparent);color:var(--fg);text-align:left;font-weight:400}
+.supcard:active{transform:scale(.98)}
+.supcard.off{opacity:.55}
+.supemo{font-size:30px;line-height:1;flex:0 0 40px;text-align:center}
+.suptx{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.suptx b{font-size:16.5px;font-weight:700}
+.suptx small{font-size:12.5px;color:var(--muted)}
+.supamt{font-size:18px;font-weight:800;color:var(--sc);white-space:nowrap}
+.supcard.off .supamt{font-size:12.5px;font-weight:600;color:var(--muted)}
+.supthx{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:18px 20px 6px}
+.supthx i{width:70px;height:70px;border-radius:50%;background:rgba(236,72,153,.15);color:#ec4899;display:flex;align-items:center;justify-content:center;animation:beat 1.6s ease-in-out infinite}
+.supthx i svg{width:36px;height:36px}
+.supthx b{font-size:21px;font-weight:800}
+.supthx span{color:var(--muted);font-size:15px;line-height:1.45}
 .pfbadge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#ef4444;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .pfrow.chev .pfbadge+*{margin-left:8px}
 .pfnote{padding:10px 6px;color:var(--muted);font-size:13.5px;line-height:1.45}
@@ -3666,7 +3698,7 @@ function renderInbox(p){
     if(!items.length){shEl(list,'pfnote',p2('empty'));return}
     const TI={bug:[PIC.bug,'#f97316'],idea:[PIC.idea,'#facc15'],other:[PIC.chat,'#3b82f6']};
     items.forEach(x=>{
-      const card=document.createElement('div');card.className='pfccard'+(x.status==='new'?' unread':'');
+      const card=document.createElement('div');card.className='pfccard'+(x.status==='new'?' unread':'');card.dataset.id=x.id;card.dataset.imgs=x.imgs||0;
       const top=document.createElement('div');top.className='pfctop';
       const ic=TI[x.type]||TI.other;
       top.innerHTML='<span class="pffbic">'+ic[0]+'</span><span class="pfcn"></span><span class="pfcdate"></span>';
@@ -3712,3 +3744,191 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)fbCount(fa
 setTimeout(()=>fbCount(true),4000);
 /* "Codici amici" dal vecchio foglio ora apre la pagina */
 function openCodes(){if(tab!=='pf')showTab('pf');pfGo('codes')}
+
+
+/* =====================================================================
+   FOTO NELLE SEGNALAZIONI + SUPPORTA IL PROGETTO
+   ===================================================================== */
+var PF3={
+ it:{att:"Allega foto",attmax:"Massimo 3 foto.",attsub:"Fino a 3 screenshot, per mostrare il problema",photos:"foto",save:"Salva",close:"Chiudi",
+  sup:"Supporta il progetto",supsub:"Aiuta NexusCharts a crescere",suptitle:"Ti piace NexusCharts?",suptext:"NexusCharts è gratuita e senza pubblicità. Se ti è utile puoi aiutarmi a portarla avanti con un contributo una tantum: nessun abbonamento, paghi una volta sola e decidi tu quanto.",
+  t1:"Un caffè",t1s:"Un piccolo grazie",t2:"Una spinta",t2s:"Aiuti lo sviluppo di nuove funzioni",t3:"Grande sostenitore",t3s:"Fai davvero la differenza",free:"Importo libero",frees:"Scegli tu quanto",soon:"In arrivo",pay:"Paga in modo sicuro con Stripe: carta, Apple Pay o Google Pay.",thanks:"Grazie di cuore!",thankstx:"Il tuo supporto è arrivato. Mi aiuta a far crescere NexusCharts."},
+ es:{att:"Adjuntar fotos",attmax:"Máximo 3 fotos.",attsub:"Hasta 3 capturas, para mostrar el problema",photos:"fotos",save:"Guardar",close:"Cerrar",
+  sup:"Apoya el proyecto",supsub:"Ayuda a NexusCharts a crecer",suptitle:"¿Te gusta NexusCharts?",suptext:"NexusCharts es gratuita y sin publicidad. Si te resulta útil puedes ayudarme a seguir con una aportación única: sin suscripción, pagas una sola vez y eliges cuánto.",
+  t1:"Un café",t1s:"Un pequeño gracias",t2:"Un empujón",t2s:"Ayudas a desarrollar nuevas funciones",t3:"Gran patrocinador",t3s:"Marcas la diferencia",free:"Importe libre",frees:"Tú eliges cuánto",soon:"Próximamente",pay:"Paga de forma segura con Stripe: tarjeta, Apple Pay o Google Pay.",thanks:"¡Muchísimas gracias!",thankstx:"Tu apoyo ha llegado. Me ayuda a hacer crecer NexusCharts."},
+ en:{att:"Attach photos",attmax:"Up to 3 photos.",attsub:"Up to 3 screenshots, to show the problem",photos:"photos",save:"Save",close:"Close",
+  sup:"Support the project",supsub:"Help NexusCharts grow",suptitle:"Enjoying NexusCharts?",suptext:"NexusCharts is free and ad-free. If you find it useful you can help me keep it going with a one-time contribution: no subscription, you pay once and choose how much.",
+  t1:"A coffee",t1s:"A small thank you",t2:"A boost",t2s:"Helps build new features",t3:"Big supporter",t3s:"Makes a real difference",free:"Custom amount",frees:"You choose how much",soon:"Coming soon",pay:"Pay securely with Stripe: card, Apple Pay or Google Pay.",thanks:"Thank you so much!",thankstx:"Your support has arrived. It helps NexusCharts grow."},
+ fr:{att:"Joindre des photos",attmax:"3 photos maximum.",attsub:"Jusqu'à 3 captures, pour montrer le problème",photos:"photos",save:"Enregistrer",close:"Fermer",
+  sup:"Soutenir le projet",supsub:"Aide NexusCharts à grandir",suptitle:"Tu aimes NexusCharts ?",suptext:"NexusCharts est gratuite et sans publicité. Si elle t'est utile, tu peux m'aider à la faire avancer avec une contribution unique : pas d'abonnement, tu paies une seule fois et tu choisis combien.",
+  t1:"Un café",t1s:"Un petit merci",t2:"Un coup de pouce",t2s:"Aide à créer de nouvelles fonctions",t3:"Grand soutien",t3s:"Fait vraiment la différence",free:"Montant libre",frees:"Tu choisis combien",soon:"Bientôt",pay:"Paiement sécurisé avec Stripe : carte, Apple Pay ou Google Pay.",thanks:"Merci infiniment !",thankstx:"Ton soutien est bien arrivé. Il aide NexusCharts à grandir."}
+};
+function p3(k){return(PF3[lang]&&PF3[lang][k])||PF3.it[k]||k}
+/* LINK STRIPE: incolla qui i Payment Links e gli importi quando sono pronti */
+var SUPPORT=[
+  {k:'t1',emoji:'☕',amt:'',url:'',col:'#f59e0b'},
+  {k:'t2',emoji:'🚀',amt:'',url:'',col:'#3b82f6'},
+  {k:'t3',emoji:'💎',amt:'',url:'',col:'#a78bfa'},
+  {k:'free',emoji:'💛',amt:'',url:'',col:'#22ab94'}
+];
+PIC.heart='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.2 3 4.5 6.8 4.5c2.2 0 3.6 1.2 5.2 3 1.6-1.8 3-3 5.2-3C21 4.5 23 8.2 21.6 11.6 19.5 16.4 12 21 12 21z"/></svg>';
+PIC.cam='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>';
+PCOL.heart='#ec4899';
+
+/* ---------- pagina Supporta il progetto ---------- */
+function renderSupport(p){
+  pfSub(p,p3('sup'));
+  const h=document.createElement('div');h.className='suphead';
+  h.innerHTML='<i>'+PIC.heart+'</i><b></b><span></span>';
+  h.children[1].textContent=p3('suptitle');h.children[2].textContent=p3('suptext');p.appendChild(h);
+  const list=document.createElement('div');list.className='suplist';
+  SUPPORT.forEach(s=>{
+    const c=document.createElement('button');c.className='supcard'+(s.url?'':' off');
+    c.style.setProperty('--sc',s.col);
+    c.innerHTML='<span class="supemo"></span><span class="suptx"><b></b><small></small></span><span class="supamt"></span>';
+    c.querySelector('.supemo').textContent=s.emoji;
+    c.querySelector('b').textContent=p3(s.k);c.querySelector('small').textContent=p3(s.k+'s');
+    c.querySelector('.supamt').textContent=s.url?(s.amt||'›'):p3('soon');
+    c.onclick=()=>{if(!s.url)return;haptic();const w=window.open(s.url,'_blank');if(!w)location.href=s.url};
+    list.appendChild(c);
+  });
+  p.appendChild(list);
+  shEl(p,'pfnote',p3('pay'));
+}
+/* ritorno da Stripe: indirizzo dell'app con ?grazie=1 */
+(function(){
+  if(!/[?&]grazie=1/.test(location.search))return;
+  try{history.replaceState(null,'',location.pathname)}catch(e){}
+  setTimeout(()=>{
+    openSheet(s=>{
+      const d=document.createElement('div');d.className='supthx';
+      d.innerHTML='<i>'+PIC.heart+'</i><b></b><span></span>';
+      d.children[1].textContent=p3('thanks');d.children[2].textContent=p3('thankstx');s.appendChild(d);
+      const ok=document.createElement('button');ok.className='gdok';ok.textContent='OK';ok.onclick=closeSheet;s.appendChild(ok);
+    });
+    haptic();
+  },1500);
+})();
+
+/* ---------- foto: rimpicciolite prima dell'invio ---------- */
+function shrinkImg(file){
+  return new Promise((ok,ko)=>{
+    const fr=new FileReader();
+    fr.onerror=ko;
+    fr.onload=()=>{
+      const im=new Image();
+      im.onerror=ko;
+      im.onload=()=>{
+        const M=1280,k=Math.min(1,M/Math.max(im.width,im.height));
+        const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+        c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+        let q=.72,u=c.toDataURL('image/jpeg',q);
+        while(u.length>600000&&q>.35){q-=.1;u=c.toDataURL('image/jpeg',q)}
+        ok(u);
+      };
+      im.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+/* aggiunge il riquadro foto al modulo "Segnala o proponi" */
+function fbPhotos(g,before){
+  PF.fbImgs=PF.fbImgs||[];
+  const wrap=document.createElement('div');wrap.className='fbph';
+  const draw=()=>{
+    wrap.innerHTML='';
+    PF.fbImgs.forEach((u,i)=>{
+      const t=document.createElement('div');t.className='fbth';t.style.backgroundImage='url('+u+')';
+      const x=document.createElement('button');x.textContent='✕';x.onclick=()=>{PF.fbImgs.splice(i,1);draw()};t.appendChild(x);wrap.appendChild(t);
+    });
+    if(PF.fbImgs.length<3){
+      const add=document.createElement('label');add.className='fbadd';
+      add.innerHTML=PIC.cam+'<span></span>';add.lastChild.textContent=p3('att');
+      const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.hidden=true;
+      inp.onchange=async()=>{
+        const fs=[...inp.files];
+        if(PF.fbImgs.length+fs.length>3)msg(p3('attmax'));
+        for(const f of fs.slice(0,3-PF.fbImgs.length)){try{PF.fbImgs.push(await shrinkImg(f))}catch(e){}}
+        draw();
+      };
+      add.appendChild(inp);wrap.appendChild(add);
+    }
+  };
+  draw();g.insertBefore(wrap,before);
+}
+/* versione del modulo con le foto */
+(function(){
+  const orig=renderFeedback;
+  renderFeedback=function(p){
+    orig(p);
+    if(PF.fbDone)return;
+    const ta=p.querySelector('.pfta');if(!ta)return;
+    fbPhotos(ta.parentNode,ta.nextSibling);
+    const send=p.querySelector('.pfbtn');
+    const oldClick=send.onclick;
+    send.onclick=async()=>{
+      const text=p.querySelector('.pfta').value.trim();if(text.length<5){msg(p2('fbshort'));return}
+      send.disabled=true;
+      try{
+        const ua=navigator.userAgent,dev=/iPhone/.test(ua)?'iPhone':/iPad/.test(ua)?'iPad':/Android/.test(ua)?'Android':'Computer';
+        const r=await fetch(WORKER+'/feedback',{method:'POST',headers:{'Content-Type':'application/json',...(FRIEND?{Authorization:'Bearer '+FRIEND}:{}),...(admKey()&&!FRIEND?{'X-Admin-Key':admKey()}:{})},
+          body:JSON.stringify({type:PF.fbType,text,contact:p.querySelector('.pfin2').value.trim(),ver:VERSION,dev,lang,ctx:(cur||'')+' '+(res||''),imgs:PF.fbImgs||[]})});
+        if(r.status===429){msg(p2('fbmany'));send.disabled=false;return}
+        if(!r.ok)throw new Error(r.status);
+        PF.fbDone=true;PF.fbDraft='';PF.fbImgs=[];haptic();renderProfile();
+      }catch(e){send.disabled=false;msg(ft('neterr'))}
+    };
+  };
+})();
+/* foto nelle segnalazioni ricevute */
+(function(){
+  const orig=renderInbox;
+  renderInbox=function(p){
+    orig(p);
+    let n=0;const iv=setInterval(()=>{
+      if(++n>60){clearInterval(iv);return}
+      const cards=p.querySelectorAll('.pfccard[data-id]');if(!cards.length)return;
+      clearInterval(iv);
+      cards.forEach(card=>{
+        const id=card.dataset.id,k=+card.dataset.imgs||0;if(!k)return;
+        const tx=card.querySelector('.pffbtx'),row=document.createElement('div');row.className='fbph';
+        for(let i=0;i<k;i++){
+          const t=document.createElement('button');t.className='fbth load';row.appendChild(t);
+          adm('GET','/feedback/'+id+'/img/'+i).then(r=>{t.classList.remove('load');t.style.backgroundImage='url('+r.data+')';t.onclick=()=>viewImg(r.data,id+'_'+(i+1))}).catch(()=>{});
+        }
+        tx.after(row);
+      });
+    },150);
+  };
+})();
+function viewImg(data,name){
+  const v=document.createElement('div');v.className='imgview';
+  v.innerHTML='<img alt=""><div class="imgbar"><button class="pfmini"></button><button class="pfmini on"></button></div>';
+  v.querySelector('img').src=data;
+  const [cl,sv]=v.querySelectorAll('button');cl.textContent=p3('close');sv.textContent=p3('save');
+  cl.onclick=()=>v.remove();
+  sv.onclick=()=>{
+    try{
+      const bin=atob(data.split(',')[1]),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);
+      const f=new File([a],'NexusCharts_'+name+'.jpg',{type:'image/jpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});
+      else{const l=document.createElement('a');l.href=data;l.download=f.name;l.click()}
+    }catch(e){}
+  };
+  document.body.appendChild(v);
+}
+/* voce nel Profilo */
+(function(){
+  const orig=renderProfile;
+  renderProfile=function(){
+    if(PF.page==='support'){const p=$('pf-screen');p.innerHTML='';renderSupport(p);return}
+    orig();
+    if(PF.page)return;
+    const p=$('pf-screen'),rows=[...p.querySelectorAll('.pfrow')];
+    const fb=rows.find(r=>(r.querySelector('.pftx span')||{}).textContent===p2('fb'));
+    if(!fb)return;
+    const tmp=document.createElement('div');
+    const r=pfRow(tmp,PIC.heart,p3('sup'),p3('supsub'),()=>pfGo('support'),'',PCOL.heart);r.classList.add('chev','suprow');
+    fb.parentNode.insertBefore(r,fb.parentNode.firstChild);
+  };
+})();
