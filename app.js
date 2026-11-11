@@ -1,4 +1,4 @@
-const VERSION='0.27.0';
+const VERSION='0.27.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -220,6 +220,8 @@ html.vgap{--tbb:8px}
 .pfrow .pfic svg{width:24px;height:24px}
 .pfrow.busy .pfic svg{animation:rot .8s linear infinite}
 .pfrow.dim{opacity:.55}
+.tab{position:relative}
+.tbbadge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
 .pfbadge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#ef4444;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .pfrow.chev .pfbadge+*{margin-left:8px}
 .pfnote{padding:10px 6px;color:var(--muted);font-size:13.5px;line-height:1.45}
@@ -1107,7 +1109,7 @@ function showTab(x){
   $('wl-screen').hidden=x!=='wl';
   $('ch-screen').hidden=x!=='ch';
   $('pf-screen').hidden=x!=='pf';
-  if(x==='pf')renderProfile();
+  if(x==='pf'){renderProfile();if(window.fbCount)fbCount(false)}
   $('mini').hidden=x!=='wl';
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===x));
   if(x==='wl')refreshWL(false);
@@ -3512,7 +3514,7 @@ function renderProfile(){
   g=pfGroup(p,'');
   pfRow(g,PIC.out,t('logout'),'',logout,'danger');
   p.scrollTop=st;
-  if(!FRIEND&&admKey()&&!PF.fbChecked){PF.fbChecked=true;adm('GET','/feedback').then(j=>{FBN=((j&&j.items)||[]).filter(x=>x.status==='new').length;if(FBN&&tab==='pf'&&!PF.page){PF.keep=true;renderProfile()}}).catch(()=>{})}
+  fbCount(false);
 }
 /* Aggiorna: icona che gira, poi un avviso chiaro */
 async function pfRefresh(row){
@@ -3522,8 +3524,10 @@ async function pfRefresh(row){
   try{
     const v=await remoteVersion();
     if(v&&v!==VERSION){msg(p2('ref_new'));setTimeout(()=>doRefresh(),500);return}
-    await Promise.all([loadSafe(),refreshWL(true)]);
-    await new Promise(r=>setTimeout(r,Math.max(0,700-(Date.now()-t0))));
+    /* i dati si ricaricano in sottofondo: il messaggio non aspetta tutta la watchlist */
+    refreshWL(true);
+    await Promise.race([loadSafe().catch(()=>{}),new Promise(r=>setTimeout(r,1500))]);
+    await new Promise(r=>setTimeout(r,Math.max(0,600-(Date.now()-t0))));
     msg('✓ '+p2('ref_ok')+' (v'+VERSION+').');haptic();
   }catch(e){msg(p2('ref_err'))}
   finally{row.classList.remove('busy')}
@@ -3657,7 +3661,7 @@ function renderInbox(p){
   const sg=pfGroup(p,'');sg.appendChild(seg);
   const list=document.createElement('div');list.className='pfclist';p.appendChild(list);
   adm('GET','/feedback').then(j=>{
-    const all=(j&&j.items)||[];FBN=all.filter(x=>x.status==='new').length;
+    const all=(j&&j.items)||[];FBN=all.filter(x=>x.status==='new').length;fbBadge();
     const items=all.filter(x=>PF.fbFilter==='all'||(PF.fbFilter==='new'?x.status!=='done':x.status==='done'));
     if(!items.length){shEl(list,'pfnote',p2('empty'));return}
     const TI={bug:[PIC.bug,'#f97316'],idea:[PIC.idea,'#facc15'],other:[PIC.chat,'#3b82f6']};
@@ -3683,5 +3687,28 @@ function renderInbox(p){
     });
   }).catch(e=>{shEl(list,'pfnote',e.status===403?ft('keybad'):ft('neterr'))});
 }
+/* numero di segnalazioni nuove: sulla voce del Profilo e sull'icona Profilo in basso */
+var FB_LAST=0;
+function fbBadge(){
+  const tb=document.querySelector('.tab[data-t=pf]');if(!tb)return;
+  let b=tb.querySelector('.tbbadge');
+  if(!FBN){if(b)b.remove();return}
+  if(!b){b=document.createElement('span');b.className='tbbadge';tb.appendChild(b)}
+  b.textContent=FBN>9?'9+':FBN;
+}
+function fbCount(force){
+  if(FRIEND||!admKey()||document.hidden)return;
+  if(!force&&Date.now()-FB_LAST<30000)return;
+  FB_LAST=Date.now();
+  adm('GET','/feedback').then(j=>{
+    const n=((j&&j.items)||[]).filter(x=>x.status==='new').length;
+    const ch=n!==FBN;FBN=n;fbBadge();
+    if(ch&&tab==='pf'&&!PF.page){PF.keep=true;renderProfile()}
+  }).catch(()=>{});
+}
+/* controllo ogni 4 minuti mentre l'app e' aperta, e subito quando torni sull'app */
+setInterval(()=>fbCount(true),240000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)fbCount(false)});
+setTimeout(()=>fbCount(true),4000);
 /* "Codici amici" dal vecchio foglio ora apre la pagina */
 function openCodes(){if(tab!=='pf')showTab('pf');pfGo('codes')}
