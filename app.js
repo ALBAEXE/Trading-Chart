@@ -1,4 +1,4 @@
-const VERSION='0.22.0';
+const VERSION='0.23.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -844,7 +844,7 @@ function renderWL(){
 let wlBusy=false,wlLast=0;
 async function refreshWL(force){
   if(wlBusy||!accId||!WATCH.length)return;
-  if(!force&&Date.now()-wlLast<8000)return;
+  if(!force&&Date.now()-wlLast<5000)return;
   if(paused())return;
   wlBusy=true;wlLast=Date.now();
   try{
@@ -974,10 +974,11 @@ async function load(){
 }
 let tickFails=0;
 async function tick(){
-  if(!series||!cur||!lastBars.length||paused()||document.hidden||(window.RP&&RP.on))return;
+  if(tick.busy||!series||!cur||!lastBars.length||paused()||document.hidden||(window.RP&&RP.on))return;
+  tick.busy=true;setTimeout(()=>{tick.busy=false},4000);
   try{
     const it=BYN[cur],want=cur+'|'+res,to=Date.now();
-    const b=await barsFor(it,res,to-Math.max(72e5,SECS[res]*3000),to);
+    const b=await barsFor(it,res,to-Math.max(6e5,SECS[res]*5000),to);
     if(cur+'|'+res!==want||!b.length)return;
     const map=new Map(lastBars.map(x=>[x.t,x]));
     b.forEach(x=>map.set(x.t,x));
@@ -985,13 +986,13 @@ async function tick(){
     updSeries(lastBars,b.map(x=>x.t));
     if(CMP.sym&&tickN%5===0)cmpLoad().catch(()=>{});
     afterData();
-    if(++tickN%6===0)quoteFor(cur).then(()=>{renderLegend();renderMini();tint()}).catch(()=>{});
+    if(++tickN%15===0)quoteFor(cur).then(()=>{renderLegend();renderMini();tint()}).catch(()=>{});
     tickFails=0;
   }catch(e){
     /* errori passeggeri in silenzio; avviso solo se continuano */
     if(e&&e.status===401)return;
     if(++tickFails>=3){tickFails=0;msg(t('slow'))}
-  }
+  }finally{tick.busy=false}
 }
 /* etichetta blu del prezzo con il conto alla rovescia della candela */
 function tagText(){
@@ -1144,7 +1145,7 @@ function start(){
       chart=LightweightCharts.createChart($('chart'),{autoSize:true,...chartOpts()});
     }
     series=makeSeries();applyCS();
-    setInterval(()=>{if(tab==='ch')tick()},3000);
+    setInterval(()=>{if(tab==='ch')tick()},1000);
     requestAnimationFrame(tagLoop);
   }
   $('top').hidden=true;$('login').hidden=true;$('brand').hidden=true;
