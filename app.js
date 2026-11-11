@@ -1,4 +1,4 @@
-const VERSION='0.35.0';
+const VERSION='0.35.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -4837,16 +4837,16 @@ pageDet=function(b){
    linea orizzontale, notifica sul telefono anche ad app chiusa
    ===================================================================== */
 var ALT={
- it:{act:"Attivi",inact:"Non attivi",none:"Nessun alert attivo.",noin:"Nessun alert non attivo.",fired:"Scattato",stopped:"Annullato",stop:"Annulla",re:"Riattiva",delin:"Elimina tutti i non attivi",delinq:"Eliminare definitivamente tutti gli alert non attivi?",delq:"Eliminare definitivamente questo alert?",
+ it:{alpush:"Notifiche degli alert",alpushsub:"Quando il prezzo tocca un alert, anche ad app chiusa",alneed:"Attiva prima le notifiche qui sopra.",delt:"Eliminare questo alert?",deltx:"L'alert «{n}» verrà eliminato definitivamente.",act:"Attivi",inact:"Non attivi",none:"Nessun alert attivo.",noin:"Nessun alert non attivo.",fired:"Scattato",stopped:"Annullato",stop:"Annulla",re:"Riattiva",delin:"Elimina tutti i non attivi",delinq:"Eliminare definitivamente tutti gli alert non attivi?",delq:"Eliminare definitivamente questo alert?",
   above:"Sopra",below:"Sotto",created:"Creato",tip:"Più veloce: tieni premuto sul grafico e tocca il + accanto al prezzo.",push:"Notifica sul telefono",pushsub:"Arriva anche con l'app chiusa",pushoff:"Per ricevere gli alert ad app chiusa attiva le notifiche: tocca l'interruttore.",
   addat:"Aggiungi alert su {s} a {p}",hline:"Disegna una linea orizzontale a {p}",copy:"Copia il prezzo {p}",copied:"Prezzo copiato.",made:"Alert creato: {s} {d} {p}",d_hline:"Linea orizzontale"},
- es:{act:"Activas",inact:"Inactivas",none:"Ninguna alerta activa.",noin:"Ninguna alerta inactiva.",fired:"Activada",stopped:"Cancelada",stop:"Cancelar",re:"Reactivar",delin:"Eliminar todas las inactivas",delinq:"¿Eliminar definitivamente todas las alertas inactivas?",delq:"¿Eliminar definitivamente esta alerta?",
+ es:{alpush:"Notificaciones de alertas",alpushsub:"Cuando el precio toca una alerta, incluso con la app cerrada",alneed:"Activa antes las notificaciones aquí arriba.",delt:"¿Eliminar esta alerta?",deltx:"La alerta «{n}» se eliminará definitivamente.",act:"Activas",inact:"Inactivas",none:"Ninguna alerta activa.",noin:"Ninguna alerta inactiva.",fired:"Activada",stopped:"Cancelada",stop:"Cancelar",re:"Reactivar",delin:"Eliminar todas las inactivas",delinq:"¿Eliminar definitivamente todas las alertas inactivas?",delq:"¿Eliminar definitivamente esta alerta?",
   above:"Por encima",below:"Por debajo",created:"Creada",tip:"Más rápido: mantén pulsado el gráfico y toca el + junto al precio.",push:"Aviso en el teléfono",pushsub:"Llega también con la app cerrada",pushoff:"Para recibir las alertas con la app cerrada activa las notificaciones: toca el interruptor.",
   addat:"Añadir alerta en {s} a {p}",hline:"Dibujar una línea horizontal a {p}",copy:"Copiar el precio {p}",copied:"Precio copiado.",made:"Alerta creada: {s} {d} {p}",d_hline:"Línea horizontal"},
- en:{act:"Active",inact:"Inactive",none:"No active alerts.",noin:"No inactive alerts.",fired:"Triggered",stopped:"Cancelled",stop:"Cancel",re:"Restart",delin:"Delete all inactive",delinq:"Permanently delete all inactive alerts?",delq:"Permanently delete this alert?",
+ en:{alpush:"Alert notifications",alpushsub:"When price touches an alert, even with the app closed",alneed:"Turn on notifications above first.",delt:"Delete this alert?",deltx:"The alert “{n}” will be permanently deleted.",act:"Active",inact:"Inactive",none:"No active alerts.",noin:"No inactive alerts.",fired:"Triggered",stopped:"Cancelled",stop:"Cancel",re:"Restart",delin:"Delete all inactive",delinq:"Permanently delete all inactive alerts?",delq:"Permanently delete this alert?",
   above:"Above",below:"Below",created:"Created",tip:"Faster: press and hold on the chart and tap the + next to the price.",push:"Phone notification",pushsub:"Arrives even when the app is closed",pushoff:"To get alerts with the app closed, turn on notifications: tap the switch.",
   addat:"Add alert on {s} at {p}",hline:"Draw a horizontal line at {p}",copy:"Copy price {p}",copied:"Price copied.",made:"Alert created: {s} {d} {p}",d_hline:"Horizontal line"},
- fr:{act:"Actives",inact:"Inactives",none:"Aucune alerte active.",noin:"Aucune alerte inactive.",fired:"Déclenchée",stopped:"Annulée",stop:"Annuler",re:"Réactiver",delin:"Supprimer toutes les inactives",delinq:"Supprimer définitivement toutes les alertes inactives ?",delq:"Supprimer définitivement cette alerte ?",
+ fr:{alpush:"Notifications des alertes",alpushsub:"Quand le prix touche une alerte, même app fermée",alneed:"Active d'abord les notifications ci-dessus.",delt:"Supprimer cette alerte ?",deltx:"L'alerte « {n} » sera supprimée définitivement.",act:"Actives",inact:"Inactives",none:"Aucune alerte active.",noin:"Aucune alerte inactive.",fired:"Déclenchée",stopped:"Annulée",stop:"Annuler",re:"Réactiver",delin:"Supprimer toutes les inactives",delinq:"Supprimer définitivement toutes les alertes inactives ?",delq:"Supprimer définitivement cette alerte ?",
   above:"Au-dessus",below:"En dessous",created:"Créée",tip:"Plus rapide : appuie longuement sur le graphique et touche le + à côté du prix.",push:"Notification sur le téléphone",pushsub:"Arrive même app fermée",pushoff:"Pour recevoir les alertes app fermée, active les notifications : touche l'interrupteur.",
   addat:"Ajouter une alerte sur {s} à {p}",hline:"Tracer une ligne horizontale à {p}",copy:"Copier le prix {p}",copied:"Prix copié.",made:"Alerte créée : {s} {d} {p}",d_hline:"Ligne horizontale"}
 };
@@ -4970,16 +4970,6 @@ pageAlert=function(b){
   };
   row.appendChild(ok);b.appendChild(row);
   shEl(b,'sh-note',alt('tip'));
-  /* notifica sul telefono */
-  const sw0=cvSwitch(false,async v=>{
-    try{localStorage.setItem('tc_alpush',v?'1':'0')}catch(e){}
-    if(v&&await pushState()!=='on'){const okp=await pushEnable();if(!okp){sw0.checked=false;try{localStorage.setItem('tc_alpush','0')}catch(e){}}}
-    alSync(0);hubRender();
-  });
-  const pr=cvRow(b,alt('push'),sw0);
-  const sub=document.createElement('small');sub.style.cssText='display:block;color:var(--muted);font-size:12.5px;margin-top:2px';sub.textContent=alt('pushsub');pr.querySelector('.cvl').appendChild(sub);
-  const note=shEl(b,'sh-note','');note.hidden=true;
-  pushState().then(st=>{sw0.checked=st==='on'&&alPushOn();if(st!=='on'){note.hidden=false;note.textContent=st==='home'?nt('home'):st==='old'?nt('old'):st==='denied'?nt('denied'):alt('pushoff')}}).catch(()=>{});
   const act=ALERTS.filter(a=>a.active).sort((x,y)=>y.ts-x.ts),ina=ALERTS.filter(a=>!a.active).sort((x,y)=>(y.ft||y.ts)-(x.ft||x.ts));
   shEl(b,'sh-l',alt('act')+' ('+act.length+')');
   if(!act.length)shEl(b,'sh-note',alt('none'));
@@ -5035,7 +5025,8 @@ function addHLine(p){
   const box=$('chartbox'),b=document.createElement('button');b.id='xhplus';b.hidden=true;b.innerHTML=AIC.plus;b.setAttribute('aria-label','+');
   box.appendChild(b);
   let price=null,hideT=0;
-  const hide=()=>{clearTimeout(hideT);hideT=setTimeout(()=>{b.hidden=true},260)};
+  const touch=window.matchMedia&&matchMedia('(hover: none)').matches;
+  const hide=()=>{clearTimeout(hideT);if(touch){b.hidden=true;return}hideT=setTimeout(()=>{b.hidden=true},260)};
   b.addEventListener('pointerenter',()=>clearTimeout(hideT));
   function mv(p){
     if(!p||!p.point||dMode!=='idle'||(window.RP&&RP.on)||!series){hide();return}
@@ -5062,6 +5053,91 @@ function addHLine(p){
       shItem(s,alt('copy',{p:ps}),{left:ic('copy'),on:()=>{closeSheet();try{navigator.clipboard.writeText(ps.replace(/[\s ]/g,''));msg(alt('copied'))}catch(_){}}});
     });
   };
+})();
+
+/* ---------- interruttore "Notifiche degli alert" nella pagina Notifiche del Profilo ---------- */
+(function(){
+  const css=`.alsw{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.alsw .tx{flex:1;min-width:0}.alsw b{display:block;font-weight:500;font-size:16px}.alsw small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.35}
+.alsw input{width:auto;margin:0}
+#altag{position:absolute;z-index:6;display:flex;align-items:center;gap:0;height:30px;border-radius:8px;border:1.5px solid var(--fg);background:var(--glass2);color:var(--fg);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3);transform:translateY(-50%)}
+#altag[hidden]{display:none}
+#altag span{padding:0 10px;font-variant-numeric:tabular-nums}
+#altag button{width:38px;height:100%;margin:0;padding:0;border:0;border-left:1.5px solid var(--fg);background:transparent;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:0 7px 7px 0}
+#altag button svg{width:18px;height:18px}`;
+  const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+  const orig=renderNotif;
+  renderNotif=function(p){
+    orig(p);
+    const g=pfGroup(p,'');
+    const r=document.createElement('label');r.className='alsw';
+    r.innerHTML='<div class="tx"><b></b><small></small></div>';
+    r.querySelector('b').textContent=alt('alpush');r.querySelector('small').textContent=alt('alpushsub');
+    const sw=cvSwitch(false,v=>{try{localStorage.setItem('tc_alpush',v?'1':'0')}catch(e){}alSync(0)});
+    r.appendChild(sw);g.appendChild(r);
+    pushState().then(st=>{
+      const on=st==='on';sw.disabled=!on;sw.checked=on&&alPushOn();
+      if(!on)r.querySelector('small').textContent=alt('alneed');
+    }).catch(()=>{});
+  };
+})();
+
+/* ---------- tocco sulla linea dell'alert: etichetta con il cestino ---------- */
+(function(){
+  const box=$('chartbox'),tag=document.createElement('div');tag.id='altag';tag.hidden=true;
+  tag.innerHTML='<span></span><button aria-label="del"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>';
+  box.appendChild(tag);
+  let sel=null,raf=0;
+  const name=a=>a.sym+' '+alt(a.dir)+' '+fmt(a.price,alDec(a.sym));
+  function place(){
+    raf=0;
+    if(!sel||!sel.active||sel.sym!==cur||!series){hideTag();return}
+    const y=series.priceToCoordinate(sel.price);
+    if(y==null){tag.style.visibility='hidden'}else{
+      const ch=$('chart').getBoundingClientRect(),bx=box.getBoundingClientRect();
+      let w=0;try{w=chart.timeScale().width()}catch(e){w=ch.width-70}
+      tag.style.visibility='';tag.style.top=(ch.top-bx.top+y)+'px';
+      tag.style.left=Math.max(8,ch.left-bx.left+w/2-tag.offsetWidth/2)+'px';
+    }
+    raf=requestAnimationFrame(place);
+  }
+  function hideTag(){sel=null;tag.hidden=true;if(raf){cancelAnimationFrame(raf);raf=0}}
+  function showTag(a){sel=a;tag.firstChild.textContent='⏰ '+name(a);tag.hidden=false;haptic();if(!raf)raf=requestAnimationFrame(place)}
+  window.alTagHide=hideTag;
+  tag.querySelector('button').onclick=e=>{
+    e.stopPropagation();const a=sel;if(!a)return;
+    openSheet(s=>{
+      shEl(s,'sh-t',alt('delt'));
+      shEl(s,'sh-note',alt('deltx',{n:name(a)}));
+      shItem(s,t('del'),{danger:true,on:()=>{closeSheet();ALERTS=ALERTS.filter(x=>x!==a);saveAlerts();refreshAlertLines();alSync();hideTag()}});
+      shItem(s,t('cancel'),{on:closeSheet});
+    });
+  };
+  function click(p){
+    if(dMode!=='idle'||!p||!p.point||!series){hideTag();return}
+    const y=p.point.y;let best=null,bd=16;
+    ALERTS.forEach(a=>{if(!a.active||a.sym!==cur)return;const yy=series.priceToCoordinate(a.price);if(yy!=null&&Math.abs(yy-y)<bd){bd=Math.abs(yy-y);best=a}});
+    if(best){if(sel===best)hideTag();else showTag(best)}else hideTag();
+  }
+  (function hook(){if(!chart){setTimeout(hook,500);return}try{chart.subscribeClick(click)}catch(e){}})();
+})();
+
+/* ---------- nome del simbolo in alto: sempre leggibile per intero ---------- */
+(function(){
+  const st=document.createElement('style');
+  st.textContent='#lgname.wrap{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.2}';
+  document.head.appendChild(st);
+  function fit(){
+    const el=$('lgname');if(!el)return;
+    el.classList.remove('wrap');
+    let fs=18;el.style.fontSize=fs+'px';
+    while(fs>13&&el.scrollWidth>el.clientWidth+1){fs-=0.5;el.style.fontSize=fs+'px'}
+    if(el.scrollWidth>el.clientWidth+1){el.style.fontSize='14px';el.classList.add('wrap')}
+  }
+  const orig=renderLegend;
+  renderLegend=function(){orig();fit()};
+  window.addEventListener('resize',()=>setTimeout(fit,100));
+  setTimeout(fit,500);
 })();
 
 /* =====================================================================
