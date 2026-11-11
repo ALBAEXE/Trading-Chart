@@ -1,4 +1,4 @@
-const VERSION='0.36.2';
+const VERSION='0.36.3';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -7379,3 +7379,25 @@ function ncConfirm(o){
     bg.onclick=e=>{if(e.target===bg)done(false)};
   });
 }
+
+/* =====================================================================
+   0.36.3 — finestre tutte uguali: sfondo pieno del tema (nero o bianco),
+   bordo sottile e velo scuro dietro, come la conferma degli alert
+   ===================================================================== */
+(function(){
+  const st=document.createElement('style');
+  st.textContent=`
+#hub,#sheet,#wheel,#sedm,#ncbox{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border:1px solid var(--glassline);box-shadow:0 -8px 40px rgba(0,0,0,.35)}
+#hub{border-bottom:0}
+#sheet,#wheel,#sedm{box-shadow:0 14px 44px rgba(0,0,0,.4)}
+#hubbg,#sheetbg,#sedmbg{background:rgba(0,0,0,.42)!important;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+#wheelbg{background:rgba(0,0,0,.18)}
+html[data-theme="light"] #hubbg,html[data-theme="light"] #sheetbg,html[data-theme="light"] #sedmbg{background:rgba(0,0,0,.28)!important}
+html[data-theme="light"] #hub,html[data-theme="light"] #sheet,html[data-theme="light"] #wheel,html[data-theme="light"] #sedm,html[data-theme="light"] #ncbox{box-shadow:0 10px 40px rgba(0,0,0,.18)}
+#hub .hubtop,#hubhead{background:transparent}
+body.inapp #msg{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border:1px solid var(--glassline);box-shadow:0 8px 28px rgba(0,0,0,.35)}
+#xhplus,.sedfab button{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#altag{background:var(--bg)}
+`;
+  document.head.appendChild(st);
+})();
