@@ -1,4 +1,4 @@
-const VERSION='0.39.0';
+const VERSION='0.39.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -7875,4 +7875,25 @@ pageInd=function(b){
 (function(){
   const o=hubRoot;
   hubRoot=function(b){o(b);const t=[...b.querySelectorAll('.htile')].find(x=>x.textContent.trim()===th('a_ind'));if(t)t.onclick=()=>{ISRCH='';hubPage(iut('title'),pageInd)}};
+})();
+
+/* =====================================================================
+   0.39.1: indicatori dal pulsante della barra, non più dall'Hub
+   ===================================================================== */
+(function(){
+  const oR=hubRender;
+  hubRender=function(){
+    if(HUB.mode==='ind'&&!HUB.stack.length){
+      $('hubtitle').textContent=iut('title');
+      const L=$('hubleft');L.innerHTML=HIC.back;L.style.visibility='hidden';
+      const b=$('hubbody');b.innerHTML='';b.scrollTop=0;pageInd(b);return;
+    }
+    $('hubleft').style.visibility='';oR();
+  };
+  window.openInd=function(){ISRCH='';openHub('hub');HUB.mode='ind';$('hub').classList.add('ind');hubRender()};
+  const oO=openHub;
+  openHub=function(m){$('hub').classList.remove('ind');oO(m)};
+  $('inds').onclick=openInd;
+  const oH=hubRoot;
+  hubRoot=function(b){oH(b);b.querySelectorAll('.htile[data-k="ind"]').forEach(t=>t.remove())};
 })();
