@@ -1,4 +1,4 @@
-const VERSION='0.40.0';
+const VERSION='0.41.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -8324,3 +8324,206 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout
     clearTimeout(ADL.tm);ADL.tm=setTimeout(adLiveLoop,ADL.data?1500:50);
   };
 })();
+
+/* =====================================================================
+   0.41.0: tutti i timeframe (secondi, minuti, ore, giorni, settimane, mesi)
+   - quelli che il broker dà già: 1m 5m 15m 1H 4H 1D
+   - gli altri si costruiscono unendo le candele di quelli (es. 3m da 1m, 1W da 1D)
+   - i secondi si formano dal vivo con i prezzi che arrivano ogni secondo
+   ===================================================================== */
+var TF_NATIVE={'1m':1,'5m':1,'15m':1,'1H':1,'4H':1,'1D':1};
+var TF_ALL=['1s','5s','10s','15s','30s','45s','1m','3m','5m','15m','30m','45m','1H','2H','3H','4H','1D','1W','1M','3M','6M','12M'];
+var TF_PLAN={
+  '1s':{k:'s',n:1},'5s':{k:'s',n:5},'10s':{k:'s',n:10},'15s':{k:'s',n:15},'30s':{k:'s',n:30},'45s':{k:'s',n:45},
+  '3m':{k:'i',base:'1m',ms:18e4},'30m':{k:'i',base:'15m',ms:18e5},'45m':{k:'i',base:'15m',ms:27e5},
+  '2H':{k:'i',base:'1H',ms:72e5},'3H':{k:'i',base:'1H',ms:108e5},
+  '1W':{k:'w',base:'1D'},'1M':{k:'m',base:'1D',n:1},'3M':{k:'m',base:'1D',n:3},'6M':{k:'m',base:'1D',n:6},'12M':{k:'m',base:'1D',n:12}
+};
+Object.assign(SECS,{'1s':1,'5s':5,'10s':10,'15s':15,'30s':30,'45s':45,'3m':180,'30m':1800,'45m':2700,'2H':7200,'3H':10800,'1W':604800,'1M':2592000,'3M':7776000,'6M':15552000,'12M':31536000});
+Object.assign(DAYS,{'3m':3,'30m':28,'45m':40,'2H':100,'3H':150,'1W':1500,'1M':3650,'3M':7300,'6M':9125,'12M':12775});
+TF_ALL.filter(k=>TF_PLAN[k]&&TF_PLAN[k].k==='s').forEach(k=>DAYS[k]=1);
+Object.assign(RES_TF,{'1s':'1S','5s':'5S','10s':'10S','15s':'15S','30s':'30S','45s':'45S','3m':'3','30m':'30','45m':'45','2H':'120','3H':'180','1W':'W','1M':'M','3M':'3M','6M':'6M','12M':'12M'});
+const tfIsSec=r=>!!(TF_PLAN[r]&&TF_PLAN[r].k==='s');
+/* nomi */
+(function(){
+  const N={
+    it:{s:['secondo','secondi'],m:['minuto','minuti'],H:['ora','ore'],D:['giorno','giorni'],W:['settimana','settimane'],M:['mese','mesi']},
+    es:{s:['segundo','segundos'],m:['minuto','minutos'],H:['hora','horas'],D:['día','días'],W:['semana','semanas'],M:['mes','meses']},
+    en:{s:['second','seconds'],m:['minute','minutes'],H:['hour','hours'],D:['day','days'],W:['week','weeks'],M:['month','months']},
+    fr:{s:['seconde','secondes'],m:['minute','minutes'],H:['heure','heures'],D:['jour','jours'],W:['semaine','semaines'],M:['mois','mois']}
+  };
+  Object.keys(N).forEach(L=>{
+    const o={};TF_ALL.forEach(k=>{const n=parseInt(k),u=k.replace(/^\d+/,'');o[k]=n+' '+N[L][u][n===1?0:1]});
+    if(TFN[L])Object.assign(TFN[L],o);
+    if(TCH[L])TCH[L].tf=Object.assign({},TCH[L].tf||{},o);
+  });
+})();
+var TFG={
+  it:{s:'Secondi',m:'Minuti',h:'Ore',d:'Giorni',secnote:'Le candele in secondi si formano dal vivo mentre l\'app è aperta: lo storico parte da quando apri il simbolo.'},
+  es:{s:'Segundos',m:'Minutos',h:'Horas',d:'Días',secnote:'Las velas en segundos se forman en vivo mientras la app está abierta: el historial empieza cuando abres el símbolo.'},
+  en:{s:'Seconds',m:'Minutes',h:'Hours',d:'Days',secnote:'Second candles are built live while the app is open: history starts when you open the symbol.'},
+  fr:{s:'Secondes',m:'Minutes',h:'Heures',d:'Jours',secnote:'Les bougies en secondes se forment en direct quand l\'app est ouverte : l\'historique commence à l\'ouverture du symbole.'}
+};
+const tfg=k=>(TFG[lang]||TFG.it)[k];
+function tfGroup(k){return /s$/.test(k)?'s':/m$/.test(k)?'m':/H$/.test(k)?'h':'d'}
+
+/* ---------- unire le candele ---------- */
+function tfKey(t,p){
+  if(p.k==='i'){const d0=Math.floor(t/864e5)*864e5;return d0+Math.floor((t-d0)/p.ms)*p.ms}
+  const d=new Date(t+8*36e5);   /* la candela giornaliera del broker può partire la sera prima */
+  if(p.k==='w'){const wd=(d.getUTCDay()+6)%7;return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()-wd)}
+  return Date.UTC(d.getUTCFullYear(),Math.floor(d.getUTCMonth()/p.n)*p.n,1);
+}
+function tfAgg(B,p){
+  const out=[];let key=null,cur0=null;
+  for(const b of B){
+    const k=tfKey(b.t,p);
+    if(k!==key){key=k;cur0={t:p.k==='i'?k:b.t,o:b.o,h:b.h,l:b.l,c:b.c,v:b.v||0,_k:k};out.push(cur0)}
+    else{cur0.h=Math.max(cur0.h,b.h);cur0.l=Math.min(cur0.l,b.l);cur0.c=b.c;cur0.v+=b.v||0}
+  }
+  return out;
+}
+/* ---------- secondi: prezzi raccolti dal vivo ---------- */
+var SECB={};   /* simbolo -> [{t,p}] */
+function secPush(sym,p){
+  if(!sym||!isFinite(p))return;
+  const a=SECB[sym]||(SECB[sym]=[]),t=Date.now();
+  a.push({t,p});
+  if(a.length>16000)a.splice(0,a.length-14400);
+}
+function secBuild(sym,n,from){
+  const a=SECB[sym]||[],ms=n*1000,out=[];let key=null,c=null;
+  for(const x of a){
+    if(x.t<from)continue;
+    const k=Math.floor(x.t/ms)*ms;
+    if(k!==key){key=k;c={t:k,o:x.p,h:x.p,l:x.p,c:x.p,v:0};out.push(c)}
+    else{c.h=Math.max(c.h,x.p);c.l=Math.min(c.l,x.p);c.c=x.p}
+  }
+  return out;
+}
+/* ogni volta che arrivano prezzi nuovi raccolgo l'ultimo, per qualsiasi timeframe */
+(function(){const o=afterData;afterData=function(){o.apply(this,arguments);try{if(!(window.RP&&RP.on)&&lastBars.length&&!tfIsSec(res))secPush(cur,lastBars[lastBars.length-1].c)}catch(e){}}})();
+
+/* ---------- richieste al broker per i timeframe nuovi ---------- */
+var TFC={};    /* simbolo|tf -> Map(t -> candela base) */
+(function(){
+  const raw=barsFor,rawV=barsV;
+  const derived=async(orig,it,reso,from,to)=>{
+    const p=TF_PLAN[reso];
+    if(p.k==='s'){
+      /* prezzo attuale dal minuto in corso */
+      try{const b=await orig(it,'1m',to-12e4,to);if(b.length)secPush(it.name,b[b.length-1].c)}catch(e){if(!(SECB[it.name]||[]).length)throw e}
+      return secBuild(it.name,p.n,from);
+    }
+    const key=it.name+'|'+p.base,M=TFC[key]||(TFC[key]=new Map());
+    const start=tfKey(from,p)-(p.k==='i'?0:2*864e5);
+    let first=Infinity;M.forEach((v,t)=>{if(t<first)first=t});
+    /* se ho già lo storico, chiedo solo le ultime candele base */
+    const short=SECS[p.base]*1000*30;
+    const f=first<=start&&M.size?Math.max(start,to-short):start;
+    const B=await orig(it,p.base,f,to);
+    B.forEach(b=>M.set(b.t,b));
+    if(M.size>40000){const ks=[...M.keys()].sort((a,b)=>a-b);ks.slice(0,M.size-30000).forEach(k=>M.delete(k))}
+    const all=[...M.values()].filter(b=>b.t>=start&&b.t<=to).sort((a,b)=>a.t-b.t);
+    const agg=tfAgg(all,p),kf=tfKey(from,p);
+    return agg.filter(x=>x._k>=kf).map(x=>({t:x.t,o:x.o,h:x.h,l:x.l,c:x.c,v:x.v}));
+  };
+  barsFor=function(it,reso,from,to){return TF_NATIVE[reso]||!TF_PLAN[reso]?raw(it,reso,from,to):derived(raw,it,reso,from,to)};
+  barsV=function(it,reso,from,to){return TF_NATIVE[reso]||!TF_PLAN[reso]?rawV(it,reso,from,to):derived(rawV,it,reso,from,to)};
+})();
+
+/* ---------- conto alla rovescia: anche per settimane e mesi ---------- */
+tagText=function(){
+  const last=lastBars[lastBars.length-1];if(!last)return;
+  const p=TF_PLAN[res];let end=last.t+SECS[res]*1000;
+  if(p&&(p.k==='w'||p.k==='m')){const k=tfKey(last.t,p),d=new Date(k);end=(p.k==='w'?k+6048e5:Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+p.n,1))-8*36e5}
+  let s=Math.max(0,Math.floor((end-Date.now())/1000));
+  const dd=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60),ss=s%60,P=n=>String(n).padStart(2,'0');
+  $('tagpx').textContent=fmt(last.c,dec);
+  $('tagcd').hidden=!!(window.RP&&RP.on)||!CS.cd;
+  $('tagcd').textContent=dd?dd+'d '+P(hh)+':'+P(mm):(hh?P(hh)+':':'')+P(mm)+':'+P(ss);
+};
+
+/* ---------- asse del tempo con i secondi ---------- */
+(function(){
+  const o=chartOpts;chartOpts=function(){const x=o.apply(this,arguments);x.timeScale=Object.assign({},x.timeScale,{secondsVisible:tfIsSec(res)});return x};
+  const s=setRes;setRes=function(r){
+    if(!SECS[r])return;
+    const was=tfIsSec(res);
+    s.apply(this,arguments);
+    try{chart.applyOptions({timeScale:{secondsVisible:tfIsSec(r)}})}catch(e){}
+    if(tfIsSec(r)&&!was)msg(tfg('secnote'));
+  };
+})();
+
+/* ---------- elenco dei timeframe: nella ruota e nel foglio ---------- */
+tfList=function(){return TF_ALL.slice()};
+openTF=function(){
+  openSheet(s=>{
+    shEl(s,'sh-l',t('tf'));
+    ['s','m','h','d'].forEach(g=>{
+      shEl(s,'sh-l',tfg(g)).style.cssText='margin-top:6px;font-size:12px;opacity:.8';
+      const ch=document.createElement('div');ch.className='chips';
+      TF_ALL.filter(k=>tfGroup(k)===g).forEach(k=>{
+        const b=document.createElement('button');b.className='chip'+(k===res?' on':'');b.textContent=k;
+        b.onclick=()=>{setRes(k);closeSheet()};ch.appendChild(b);
+      });
+      s.appendChild(ch);
+    });
+    shEl(s,'sh-l',t('symbols'));
+    WATCH.forEach(n=>{const it=BYN[n];if(it)shItem(s,n,{left:iconEl(it,30),check:n===cur,on:()=>{setCur(n);closeSheet()}})});
+  });
+};
+
+/* ---------- Tecnici: tutti tranne i secondi (servono molte candele) ---------- */
+(function(){
+  const o=pageTech;
+  pageTech=function(b){
+    const keep=Object.keys(SECS);
+    /* mostro i bottoni nell'ordine giusto e senza i secondi */
+    o(b);
+    const bar=b.querySelector('.ttf');if(!bar)return;
+    const btns=[...bar.querySelectorAll('button')];
+    const byTxt=new Map(btns.map((x,i)=>[keep[i],x]));
+    bar.innerHTML='';
+    TF_ALL.filter(k=>!tfIsSec(k)).forEach(k=>{const x=byTxt.get(k);if(x)bar.appendChild(x)});
+    if(tfIsSec(TE_TF)){const x=byTxt.get('1m');if(x)x.click()}
+  };
+})();
+
+/* ---------- indicatori: request.security e input timeframe ---------- */
+tfPlan=function(tf){
+  tf=PINE.tfNorm(tf);let m;
+  if(/S$/.test(tf))return null;
+  if((m=/^(\d+)$/.exec(tf))){const n=+m[1];for(const[bm,br]of[[1440,'1D'],[240,'4H'],[60,'1H'],[15,'15m'],[5,'5m'],[1,'1m']])if(n%bm===0)return{base:br,ms:n*60000,kind:'i'};return null}
+  if((m=/^(\d*)D$/.exec(tf)))return{base:'1D',ms:(+m[1]||1)*864e5,kind:'i'};
+  if(/W$/.test(tf))return{base:'1D',ms:6048e5,kind:'w'};
+  if((m=/^(\d*)M$/.exec(tf)))return{base:'1D',ms:(+m[1]||1)*2592e6,kind:'m',n:+m[1]||1};
+  return null;
+};
+aggregate=function(B,plan){
+  const out={t:[],o:[],h:[],l:[],c:[],v:[]};
+  const p=plan.kind==='w'?{k:'w'}:plan.kind==='m'?{k:'m',n:plan.n||1}:{k:'i',ms:plan.ms};
+  tfAgg(B,p).forEach(x=>{out.t.push(p.k==='i'?x.t:x._k);out.o.push(x.o);out.h.push(x.h);out.l.push(x.l);out.c.push(x.c);out.v.push(x.v||0)});
+  return out;
+};
+TF_OPTS.length=0;['','1S','5S','15S','30S','1','3','5','15','30','45','60','120','180','240','D','W','M','3M','6M','12M'].forEach(x=>TF_OPTS.push(x));
+tfLabel=function(v){
+  if(v==='')return itx('tfchart');let m;
+  if((m=/^(\d+)S$/.exec(v)))return m[1]+'s';
+  if(/^\d+$/.test(v)){const n=+v;return n%60===0?(n/60)+'h':n+'m'}
+  if(v==='D')return'1D';if(v==='W')return'1W';if(v==='M')return'1M';
+  return v;
+};
+/* Visibilità nelle impostazioni dell'indicatore: secondi, minuti, ore, giorni, settimane, mesi */
+tfCat=function(r){r=r||res;return /s$/.test(r)?'s':/m$/.test(r)?'m':/H$/.test(r)?'h':r==='1D'?'d':r==='1W'?'w':'mo'};
+Object.assign(ISDT.it,{s:'Secondi',w:'Settimane',mo:'Mesi'});Object.assign(ISDT.es,{s:'Segundos',w:'Semanas',mo:'Meses'});
+Object.assign(ISDT.en,{s:'Seconds',w:'Weeks',mo:'Months'});Object.assign(ISDT.fr,{s:'Secondes',w:'Semaines',mo:'Mois'});
+isdVis=function(body,ind){
+  shEl(body,'isg',isdt('showon'));
+  ind.tfv=ind.tfv||{};
+  [['s','1s · 5s · 10s · 15s · 30s · 45s'],['m','1m · 3m · 5m · 15m · 30m · 45m'],['h','1H · 2H · 3H · 4H'],['d','1D'],['w','1W'],['mo','1M · 3M · 6M · 12M']].forEach(([k,sub])=>{
+    const r=isdRow(body,isdt(k),isdCheck(ind.tfv[k]!==false,v=>{ind.tfv[k]=v;indSave();indSchedule(true);indRender()}),'',true);
+    const sm=document.createElement('small');sm.style.cssText='margin-left:auto;color:var(--muted);font-size:12.5px;text-align:right';sm.textContent=sub;r.appendChild(sm);
+  });
+};
