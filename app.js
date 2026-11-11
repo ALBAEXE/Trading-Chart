@@ -1,4 +1,4 @@
-const VERSION='0.29.1';
+const VERSION='0.30.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -266,6 +266,29 @@ html.vgap{--tbb:8px}
 .lglist{margin:0;padding:0 18px 10px 52px;font-size:14px;line-height:1.5;color:var(--fg)}
 .lglist li{margin:0 0 8px}
 .lglist li::marker{color:var(--muted)}
+.ntcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:16px 12px 10px}
+.ntcard i{width:62px;height:62px;border-radius:50%;background:rgba(142,142,147,.16);color:var(--muted);display:flex;align-items:center;justify-content:center}
+.ntcard i svg{width:30px;height:30px}
+.ntcard.on i{background:rgba(239,68,68,.15);color:#ef4444;animation:ring 2.4s ease-in-out infinite}
+@keyframes ring{0%,60%,100%{transform:rotate(0)}65%{transform:rotate(14deg)}72%{transform:rotate(-12deg)}79%{transform:rotate(8deg)}86%{transform:rotate(-4deg)}}
+.ntcard b{font-size:19px;font-weight:800}
+.ntcard span{font-size:14px;color:var(--muted);line-height:1.45}
+.pfbtn.pfbtn2{background:var(--glasssel);color:var(--danger)}
+.ntask{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:14px 22px 4px}
+.ntask i{width:64px;height:64px;border-radius:50%;background:rgba(239,68,68,.15);color:#ef4444;display:flex;align-items:center;justify-content:center;animation:ring 2.4s ease-in-out infinite}
+.ntask i svg{width:32px;height:32px}
+.ntask b{font-size:19px;font-weight:800}
+.ntask span{font-size:14px;color:var(--muted);line-height:1.45}
+.ntlater{display:block;width:calc(100% - 36px);margin:8px 18px 0;height:42px;border-radius:13px;background:transparent;color:var(--muted);font-size:15px;border:0}
+.ntstat{display:flex;align-items:baseline;justify-content:center;gap:8px;padding:10px 0 2px}
+.ntstat b{font-size:30px;font-weight:800;color:#f97316}
+.ntstat span{font-size:13.5px;color:var(--muted)}
+.ntprev{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:18px;background:rgba(120,120,128,.22);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);margin:2px 0 6px}
+.ntprev img{width:38px;height:38px;border-radius:9px;background:#000;padding:3px;flex:0 0 38px}
+.ntprev>div{flex:1;min-width:0}
+.nth{display:flex;justify-content:space-between;font-size:13px}.nth b{font-weight:700}.nth span{color:var(--muted);font-size:12px}
+.ntt{font-weight:700;font-size:14.5px;margin-top:1px}
+.ntb{font-size:14px;line-height:1.35;white-space:pre-wrap;word-break:break-word}
 .pfbadge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#ef4444;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .pfrow.chev .pfbadge+*{margin-left:8px}
 .pfnote{padding:10px 6px;color:var(--muted);font-size:13.5px;line-height:1.45}
@@ -4047,5 +4070,158 @@ var PMI={
     const g=document.createElement('div');g.className='pfg';
     pfRow(g,PIC.legal,lg().title,lg().sub,()=>pfGo('legal'),'',PCOL.legal).classList.add('chev');
     out.parentNode.before(g);
+  };
+})();
+
+
+/* =====================================================================
+   NOTIFICHE: attivazione per tutti + portale "Invia notifica" per l'amministratore
+   ===================================================================== */
+var NT={
+ it:{n:"Notifiche",nsub:"Novità e avvisi sul telefono",on:"Notifiche attive",off:"Notifiche spente",enable:"Attiva notifiche",disable:"Disattiva",why:"Ricevi sul telefono le novità di NexusCharts e gli avvisi importanti, anche ad app chiusa.",home:"Per ricevere le notifiche apri NexusCharts dall'icona sulla schermata Home (non da Safari).",old:"Questo telefono non supporta le notifiche delle web app. Su iPhone serve iOS 16.4 o successivo.",denied:"Le notifiche sono bloccate. Riattivale da Impostazioni dell'iPhone → Notifiche → NexusCharts.",done:"Notifiche attivate.",fail:"Non sono riuscito ad attivare le notifiche. Riprova.",offdone:"Notifiche disattivate.",ask:"Vuoi ricevere le notifiche di NexusCharts?",asksub:"Novità, aggiornamenti e avvisi importanti. Puoi spegnerle quando vuoi dal Profilo.",later:"Non ora",
+  send:"Invia notifica",sendsub:"Scrivi un messaggio a tutti gli utenti",ttl:"Titolo",body:"Messaggio",preview:"Anteprima",devices:"telefoni con le notifiche attive",go:"Invia a tutti",confirm:"Inviare questa notifica a tutti?",sent:"Notifica inviata",hist:"Inviate di recente",none:"Nessuna notifica inviata.",now:"ora",lim:"Con il piano gratuito si arriva a circa 45 telefoni per invio."},
+ es:{n:"Notificaciones",nsub:"Novedades y avisos en el teléfono",on:"Notificaciones activas",off:"Notificaciones apagadas",enable:"Activar notificaciones",disable:"Desactivar",why:"Recibe en el teléfono las novedades de NexusCharts y los avisos importantes, incluso con la app cerrada.",home:"Para recibir notificaciones abre NexusCharts desde el icono de la pantalla de inicio (no desde Safari).",old:"Este teléfono no admite notificaciones de web apps. En iPhone hace falta iOS 16.4 o posterior.",denied:"Las notificaciones están bloqueadas. Actívalas en Ajustes del iPhone → Notificaciones → NexusCharts.",done:"Notificaciones activadas.",fail:"No pude activar las notificaciones. Inténtalo de nuevo.",offdone:"Notificaciones desactivadas.",ask:"¿Quieres recibir las notificaciones de NexusCharts?",asksub:"Novedades, actualizaciones y avisos importantes. Puedes apagarlas cuando quieras desde el Perfil.",later:"Ahora no",
+  send:"Enviar notificación",sendsub:"Escribe un mensaje a todos los usuarios",ttl:"Título",body:"Mensaje",preview:"Vista previa",devices:"teléfonos con notificaciones activas",go:"Enviar a todos",confirm:"¿Enviar esta notificación a todos?",sent:"Notificación enviada",hist:"Enviadas recientemente",none:"Ninguna notificación enviada.",now:"ahora",lim:"Con el plan gratuito se llega a unos 45 teléfonos por envío."},
+ en:{n:"Notifications",nsub:"News and alerts on your phone",on:"Notifications on",off:"Notifications off",enable:"Turn on notifications",disable:"Turn off",why:"Get NexusCharts news and important alerts on your phone, even when the app is closed.",home:"To get notifications open NexusCharts from its Home Screen icon (not from Safari).",old:"This phone doesn't support web app notifications. iPhone needs iOS 16.4 or later.",denied:"Notifications are blocked. Turn them back on in iPhone Settings → Notifications → NexusCharts.",done:"Notifications turned on.",fail:"Couldn't turn on notifications. Try again.",offdone:"Notifications turned off.",ask:"Do you want NexusCharts notifications?",asksub:"News, updates and important alerts. You can turn them off anytime from Profile.",later:"Not now",
+  send:"Send notification",sendsub:"Write a message to all users",ttl:"Title",body:"Message",preview:"Preview",devices:"phones with notifications on",go:"Send to everyone",confirm:"Send this notification to everyone?",sent:"Notification sent",hist:"Recently sent",none:"No notifications sent.",now:"now",lim:"On the free plan each send reaches about 45 phones."},
+ fr:{n:"Notifications",nsub:"Nouveautés et alertes sur le téléphone",on:"Notifications activées",off:"Notifications désactivées",enable:"Activer les notifications",disable:"Désactiver",why:"Reçois sur ton téléphone les nouveautés de NexusCharts et les alertes importantes, même app fermée.",home:"Pour recevoir les notifications, ouvre NexusCharts depuis l'icône de l'écran d'accueil (pas depuis Safari).",old:"Ce téléphone ne prend pas en charge les notifications des web apps. Sur iPhone il faut iOS 16.4 ou plus.",denied:"Les notifications sont bloquées. Réactive-les dans Réglages de l'iPhone → Notifications → NexusCharts.",done:"Notifications activées.",fail:"Impossible d'activer les notifications. Réessaie.",offdone:"Notifications désactivées.",ask:"Veux-tu recevoir les notifications de NexusCharts ?",asksub:"Nouveautés, mises à jour et alertes importantes. Tu peux les couper quand tu veux depuis le Profil.",later:"Pas maintenant",
+  send:"Envoyer une notification",sendsub:"Écris un message à tous les utilisateurs",ttl:"Titre",body:"Message",preview:"Aperçu",devices:"téléphones avec les notifications activées",go:"Envoyer à tous",confirm:"Envoyer cette notification à tous ?",sent:"Notification envoyée",hist:"Envoyées récemment",none:"Aucune notification envoyée.",now:"maintenant",lim:"Avec le plan gratuit chaque envoi atteint environ 45 téléphones."}
+};
+function nt(k){return(NT[lang]&&NT[lang][k])||NT.it[k]||k}
+PIC.bell='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>';
+PIC.mega='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+PCOL.bell='#ef4444';PCOL.mega='#f97316';
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+var SWREG=null;
+function swReady(){
+  if(!('serviceWorker' in navigator))return Promise.resolve(null);
+  if(!SWREG)SWREG=navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).catch(()=>null);
+  return SWREG;
+}
+if('serviceWorker' in navigator)setTimeout(swReady,2500);
+const b64uToU8=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0))};
+async function pushState(){
+  if(!pushOK())return'old';
+  if(!isStandalone()&&/iPhone|iPad/.test(navigator.userAgent))return'home';
+  if(Notification.permission==='denied')return'denied';
+  const r=await swReady();if(!r)return'old';
+  const s=await r.pushManager.getSubscription();
+  return s&&Notification.permission==='granted'?'on':'off';
+}
+function pushHeaders(){return{'Content-Type':'application/json',...(FRIEND?{Authorization:'Bearer '+FRIEND}:{}),...(admKey()&&!FRIEND?{'X-Admin-Key':admKey()}:{})}}
+async function pushEnable(){
+  try{
+    /* la richiesta di permesso deve partire subito dal tocco */
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){msg(nt(perm==='denied'?'denied':'fail'));return false}
+    const r=await swReady();if(!r)throw new Error('sw');
+    const k=await (await fetch(WORKER+'/push/key',{cache:'no-store'})).json();
+    let s=await r.pushManager.getSubscription();
+    if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToU8(k.key)});
+    const ua=navigator.userAgent,dev=/iPhone/.test(ua)?'iPhone':/iPad/.test(ua)?'iPad':/Android/.test(ua)?'Android':'Computer';
+    const res=await fetch(WORKER+'/push/sub',{method:'POST',headers:pushHeaders(),body:JSON.stringify({sub:s.toJSON(),lang,dev})});
+    if(!res.ok)throw new Error(res.status);
+    try{localStorage.setItem('tc_push','1')}catch(e){}
+    msg(nt('done'));haptic();return true;
+  }catch(e){msg(nt('fail'));return false}
+}
+async function pushDisable(){
+  try{
+    const r=await swReady(),s=r&&await r.pushManager.getSubscription();
+    if(s){await fetch(WORKER+'/push/sub',{method:'POST',headers:pushHeaders(),body:JSON.stringify({sub:s.toJSON(),off:true})}).catch(()=>{});await s.unsubscribe()}
+    try{localStorage.setItem('tc_push','0')}catch(e){}
+    msg(nt('offdone'));
+  }catch(e){}
+}
+/* ripresenta l'iscrizione a ogni apertura: se il telefono l'ha rinnovata, il server resta aggiornato */
+setTimeout(async()=>{
+  try{if(await pushState()!=='on')return;const r=await swReady(),s=await r.pushManager.getSubscription();
+    const ua=navigator.userAgent,dev=/iPhone/.test(ua)?'iPhone':/Android/.test(ua)?'Android':'Computer';
+    fetch(WORKER+'/push/sub',{method:'POST',headers:pushHeaders(),body:JSON.stringify({sub:s.toJSON(),lang,dev})}).catch(()=>{})}catch(e){}
+},8000);
+/* invito una sola volta, dopo l'accesso, per chi usa l'app dalla Home */
+function pushInvite(){
+  let seen=null;try{seen=localStorage.getItem('tc_pushask')}catch(e){}
+  if(seen||!document.body.classList.contains('inapp'))return;
+  pushState().then(st=>{
+    if(st!=='off')return;
+    try{localStorage.setItem('tc_pushask','1')}catch(e){}
+    openSheet(s=>{
+      const d=document.createElement('div');d.className='ntask';
+      d.innerHTML='<i>'+PIC.bell+'</i><b></b><span></span>';d.children[1].textContent=nt('ask');d.children[2].textContent=nt('asksub');s.appendChild(d);
+      const ok=document.createElement('button');ok.className='gdok';ok.textContent=nt('enable');ok.onclick=async()=>{closeSheet();await pushEnable()};s.appendChild(ok);
+      const no=document.createElement('button');no.className='ntlater';no.textContent=nt('later');no.onclick=closeSheet;s.appendChild(no);
+    });
+  });
+}
+setInterval(()=>{if(document.body.classList.contains('inapp')&&!document.hidden)pushInvite()},8000);
+/* ---------- pagina Notifiche (per tutti) ---------- */
+function renderNotif(p){
+  pfSub(p,nt('n'));
+  const card=document.createElement('div');card.className='ntcard';
+  card.innerHTML='<i>'+PIC.bell+'</i><b>…</b><span></span>';card.children[2].textContent=nt('why');p.appendChild(card);
+  const g=pfGroup(p,'');g.classList.add('pfpad');
+  pushState().then(st=>{
+    card.classList.toggle('on',st==='on');
+    card.children[1].textContent=st==='on'?nt('on'):nt('off');
+    g.innerHTML='';
+    if(st==='old'||st==='home'||st==='denied'){shEl(g,'pfnote',nt(st));return}
+    const b=document.createElement('button');b.className='pfbtn'+(st==='on'?' pfbtn2':'');b.textContent=st==='on'?nt('disable'):nt('enable');
+    b.onclick=async()=>{b.disabled=true;if(st==='on')await pushDisable();else await pushEnable();PF.keep=true;renderProfile()};
+    g.appendChild(b);
+  });
+}
+/* ---------- pagina Invia notifica (solo amministratore) ---------- */
+function renderSend(p){
+  pfSub(p,nt('send'));
+  const stat=document.createElement('div');stat.className='ntstat';stat.innerHTML='<b>…</b><span></span>';stat.lastChild.textContent=nt('devices');p.appendChild(stat);
+  const g=pfGroup(p,'');g.classList.add('pfpad');
+  const ti=document.createElement('input');ti.className='pfin2';ti.placeholder=nt('ttl');ti.maxLength=80;ti.value=PF.ntT||'';g.appendChild(ti);
+  const bo=document.createElement('textarea');bo.className='pfta';bo.placeholder=nt('body');bo.maxLength=300;bo.value=PF.ntB||'';g.appendChild(bo);
+  /* anteprima stile iPhone */
+  const lab=document.createElement('div');lab.className='pfl';lab.textContent=nt('preview');g.appendChild(lab);
+  const pv=document.createElement('div');pv.className='ntprev';
+  pv.innerHTML='<img alt="" src="'+LOGO_SRC+'"><div><div class="nth"><b>NexusCharts</b><span></span></div><div class="ntt"></div><div class="ntb"></div></div>';
+  pv.querySelector('.nth span').textContent=nt('now');g.appendChild(pv);
+  const upd=()=>{PF.ntT=ti.value;PF.ntB=bo.value;pv.querySelector('.ntt').textContent=ti.value||nt('ttl');pv.querySelector('.ntb').textContent=bo.value||nt('body')};
+  ti.oninput=upd;bo.oninput=upd;upd();
+  const go=document.createElement('button');go.className='pfbtn';go.textContent=nt('go');g.appendChild(go);
+  go.onclick=async()=>{
+    if(!ti.value.trim()&&!bo.value.trim())return;
+    if(!confirm(nt('confirm')))return;
+    go.disabled=true;
+    try{const r=await adm('POST','/push',{title:ti.value.trim(),body:bo.value.trim()});msg('✓ '+nt('sent')+': '+r.sent+'/'+r.total);PF.ntT='';PF.ntB='';haptic();PF.keep=true;renderProfile()}
+    catch(e){go.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}
+  };
+  shEl(p,'pfnote',nt('lim'));
+  const hl=document.createElement('div');hl.className='pfl';hl.textContent=nt('hist');p.appendChild(hl);
+  const list=document.createElement('div');list.className='pfclist';p.appendChild(list);
+  adm('GET','/push').then(j=>{
+    stat.firstChild.textContent=j.devices;
+    if(!j.hist||!j.hist.length){shEl(list,'pfnote',nt('none'));return}
+    j.hist.forEach(h=>{
+      const c=document.createElement('div');c.className='pfccard';
+      c.innerHTML='<div class="pfctop"><span class="pfcn"></span><span class="pfcdate"></span></div><div class="pffbtx"></div><div class="pfcmeta"></div>';
+      c.querySelector('.pfcn').textContent=h.title;c.querySelector('.pffbtx').textContent=h.body;
+      c.querySelector('.pfcdate').textContent=new Date(h.ts).toLocaleString(LOC[lang]||'it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      c.querySelector('.pfcmeta').textContent='✓ '+h.sent+'/'+h.total+(h.removed?'  ·  −'+h.removed:'');
+      list.appendChild(c);
+    });
+  }).catch(()=>{stat.firstChild.textContent='–'});
+}
+/* voci nel Profilo */
+(function(){
+  const orig=renderProfile;
+  renderProfile=function(){
+    const p=$('pf-screen');
+    if(PF.page==='notif'){p.innerHTML='';renderNotif(p);return}
+    if(PF.page==='send'){const st=PF.keep?p.scrollTop:0;PF.keep=false;p.innerHTML='';renderSend(p);p.scrollTop=st;return}
+    orig();
+    if(PF.page)return;
+    const rows=[...p.querySelectorAll('.pfrow')];
+    const setRow=rows.find(r=>(r.querySelector('.pftx span')||{}).textContent===pt('settings'));
+    if(setRow){const tmp=document.createElement('div');const r=pfRow(tmp,PIC.bell,nt('n'),nt('nsub'),()=>pfGo('notif'),'',PCOL.bell);r.classList.add('chev');setRow.after(r)}
+    const inbox=rows.find(r=>(r.querySelector('.pftx span')||{}).textContent===p2('inbox'));
+    if(inbox){const tmp=document.createElement('div');const r=pfRow(tmp,PIC.mega,nt('send'),nt('sendsub'),()=>pfGo('send'),'',PCOL.mega);r.classList.add('chev');inbox.after(r)}
   };
 })();
