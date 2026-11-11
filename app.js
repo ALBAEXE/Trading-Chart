@@ -1,4 +1,4 @@
-const VERSION='0.39.1';
+const VERSION='0.39.2';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -7896,4 +7896,57 @@ pageInd=function(b){
   $('inds').onclick=openInd;
   const oH=hubRoot;
   hubRoot=function(b){oH(b);b.querySelectorAll('.htile[data-k="ind"]').forEach(t=>t.remove())};
+})();
+
+/* =====================================================================
+   0.39.2: legenda indicatori compatta, tocco = barra con occhio/impostazioni/elimina
+   ===================================================================== */
+(function(){
+  const st=document.createElement('style');
+  st.textContent=`#lgind{gap:1px;margin-top:4px}
+#lgind .lgr{display:inline-flex;align-items:center;align-self:flex-start;max-width:100%;height:22px;padding:0 6px;margin-left:-6px;border:1px solid transparent;border-radius:6px;font-size:11.5px;font-weight:500;color:var(--fg);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;pointer-events:auto;white-space:nowrap;transition:border-color .15s,background .15s}
+#lgind .lgr .lgn{overflow:hidden;text-overflow:ellipsis;min-width:0}
+#lgind .lgr .lgp{color:var(--muted);margin-left:5px}
+#lgind .lgr.off .lgn,#lgind .lgr.off .lgp{opacity:.45}
+#lgind .lgr.err .lgn{color:var(--down)}
+#lgind .lgr.sel{border-color:#2962ff;background:color-mix(in srgb,var(--bg) 70%,transparent);height:26px}
+#lgind .lgb{display:none;align-items:center;gap:2px;margin-left:8px}
+#lgind .lgr.sel .lgb{display:inline-flex}
+#lgind .lgb button{width:28px;height:24px;margin:0;padding:0;border:0;background:none;color:var(--fg);display:flex;align-items:center;justify-content:center;border-radius:5px}
+#lgind .lgb button:active{background:var(--glasssel)}
+#lgind .lgb svg{width:16px;height:16px}`;
+  document.head.appendChild(st);
+  const S='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">';
+  const IC={
+    eye:S+'<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg>',
+    eyeoff:S+'<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/><path d="M4 4l16 16"/></svg>',
+    set:S+'<path d="M12 2.8l8 4.6v9.2l-8 4.6-8-4.6V7.4z"/><circle cx="12" cy="12" r="3"/></svg>',
+    del:S+'<path d="M4.5 6.5h15M9.5 6.5V4.5h5v2M6.5 6.5l1 13h9l1-13M10.2 10v6.5M13.8 10v6.5"/></svg>'
+  };
+  window.LGSEL=null;
+  const btn=(ic,lab,fn)=>{const b=document.createElement('button');b.innerHTML=ic;b.setAttribute('aria-label',lab);b.onclick=e=>{e.stopPropagation();haptic&&haptic();fn()};return b};
+  indLegend=function(){
+    const d=$('lgind');if(!d)return;d.innerHTML='';
+    const open=IND.length?lsGet('tc_lgopen',true):!!window.LGTAP;d.hidden=!open;$('lgbtn').classList.toggle('open',open);
+    if(!IND.length){LGSEL=null;const n=document.createElement('span');n.style.cssText='font-size:11.5px;color:var(--muted)';n.textContent=itx('none');d.appendChild(n);return}
+    if(LGSEL&&!IND.some(x=>x.uid===LGSEL))LGSEL=null;
+    IND.forEach(ind=>{
+      const r=IR.get(ind.uid),row=document.createElement('div');
+      row.className='lgr'+(ind.vis===false?' off':'')+(r&&r.error?' err':'')+(LGSEL===ind.uid?' sel':'');
+      const n=document.createElement('span');n.className='lgn';n.textContent=(r&&r.error?'⚠ ':'')+(ind.name||'Script');row.appendChild(n);
+      const ins=r&&r.inputs?r.inputs.filter(x=>x.type==='int'||x.type==='float').slice(0,3).map(x=>ind.inputs&&ind.inputs[x.key]!=null?ind.inputs[x.key]:x.val):[];
+      if(ins.length)ind._p=ins.join(' ');else if(ind.vis===false&&ind._p)ins.push(ind._p);
+      if(ins.length){const p=document.createElement('span');p.className='lgp';p.textContent=ins.join(' ');row.appendChild(p)}
+      const bar=document.createElement('span');bar.className='lgb';
+      bar.appendChild(btn(ind.vis===false?IC.eyeoff:IC.eye,itx(ind.vis===false?'show':'hide'),()=>{ind.vis=ind.vis===false;indSave();indSchedule(true);indRender();indLegend()}));
+      bar.appendChild(btn(IC.set,itx('settings'),()=>{LGSEL=null;indLegend();openInd();hubPage(ind.name||'Script',bb=>pageIndSet(bb,ind))}));
+      bar.appendChild(btn(IC.del,itx('remove'),()=>{LGSEL=null;indRemove(ind);indLegend()}));
+      row.appendChild(bar);
+      row.onclick=e=>{e.stopPropagation();LGSEL=LGSEL===ind.uid?null:ind.uid;indLegend()};
+      d.appendChild(row);
+    });
+  };
+  /* tocco fuori dalla legenda: deseleziona */
+  document.addEventListener('pointerdown',e=>{if(LGSEL&&!e.target.closest('#lgind')){LGSEL=null;indLegend()}},true);
+  try{indLegend()}catch(e){}
 })();
