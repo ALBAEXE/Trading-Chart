@@ -1,4 +1,4 @@
-const VERSION='0.24.0';
+const VERSION='0.25.0';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -260,6 +260,15 @@ html.vgap{--tbb:8px}
 #lgdot{width:10px;height:10px;border-radius:50%;background:var(--faint);display:block}
 #lgdot.on{background:var(--up)}
 #lgdot.off{background:#8e8e93}
+.lyact{margin:8px 18px 0;font-size:12.5px;color:var(--muted);text-align:center}
+.lycard{display:flex;align-items:center;gap:12px;width:calc(100% - 24px);margin:6px 12px;padding:11px 12px;border-radius:16px;background:var(--glasssel);border:1px solid transparent;color:var(--fg);text-align:left;font-weight:400}
+.lycard.on{border-color:var(--goldfg)}
+.lycard .ic{flex-basis:34px}
+.lytx{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.lytx b{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lytx small{font-size:12.5px;color:var(--muted);line-height:1.35}
+.lycard .ck{color:var(--goldfg);font-weight:700}
+.lycard .addb{margin-left:4px}
 #lgstat{cursor:pointer}
 #sheet.mkt{padding:6px 0 calc(env(safe-area-inset-bottom) + 18px)}
 .mkhead{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 12px 4px}
@@ -3227,3 +3236,142 @@ function openMarket(){
   });
 }
 $('lgstat').onclick=openMarket;
+
+
+/* =====================================================================
+   LAYOUT come TradingView: salva tutto lo spazio di lavoro del grafico
+   (simbolo, timeframe, tipo, impostazioni e canvas, disegni di tutti i
+   simboli, confronto, zoom; indicatori quando arriveranno)
+   ===================================================================== */
+var LYT={
+ it:{active:"Layout attivo",none:"Nessun layout attivo",saveCur:"Salva",saveNew:"Salva come nuovo",saved:"Layout salvato.",updated:"Layout aggiornato.",what:"Un layout salva tutto lo spazio di lavoro: simbolo, timeframe, tipo di grafico, impostazioni e canvas, i disegni di tutti i simboli, il confronto e lo zoom. Gli indicatori verranno salvati appena arriveranno.",draws:"disegni",draw1:"disegno",open:"aperto",newq:"Iniziare un layout nuovo? Il grafico torna pulito, senza disegni e con le impostazioni iniziali. Il layout attivo viene salvato prima, quindi non perdi niente.",newyes:"Sì, nuovo layout",newdone:"Nuovo layout pronto.",openq:"I disegni non salvati in un layout verranno sostituiti da quelli del layout che apri. Continuare?",delq:"Eliminare questo layout?",rename:"Rinomina",multi:"Più grafici nella stessa schermata arriveranno più avanti."},
+ es:{active:"Diseño activo",none:"Ningún diseño activo",saveCur:"Guardar",saveNew:"Guardar como nuevo",saved:"Diseño guardado.",updated:"Diseño actualizado.",what:"Un diseño guarda todo el espacio de trabajo: símbolo, temporalidad, tipo de gráfico, ajustes y lienzo, los dibujos de todos los símbolos, la comparación y el zoom. Los indicadores se guardarán en cuanto lleguen.",draws:"dibujos",draw1:"dibujo",open:"abierto",newq:"¿Empezar un diseño nuevo? El gráfico queda limpio, sin dibujos y con los ajustes iniciales. El diseño activo se guarda antes, así no pierdes nada.",newyes:"Sí, diseño nuevo",newdone:"Diseño nuevo listo.",openq:"Los dibujos que no estén guardados en un diseño se sustituirán por los del diseño que abres. ¿Continuar?",delq:"¿Eliminar este diseño?",rename:"Renombrar",multi:"Varios gráficos en la misma pantalla llegarán más adelante."},
+ en:{active:"Active layout",none:"No active layout",saveCur:"Save",saveNew:"Save as new",saved:"Layout saved.",updated:"Layout updated.",what:"A layout saves your whole workspace: symbol, timeframe, chart type, settings and canvas, the drawings of every symbol, the comparison and the zoom. Indicators will be saved as soon as they arrive.",draws:"drawings",draw1:"drawing",open:"open",newq:"Start a new layout? The chart becomes clean, with no drawings and default settings. The active layout is saved first, so you lose nothing.",newyes:"Yes, new layout",newdone:"New layout ready.",openq:"Drawings not saved in a layout will be replaced by the ones in the layout you open. Continue?",delq:"Delete this layout?",rename:"Rename",multi:"Multiple charts on one screen will come later."},
+ fr:{active:"Mise en page active",none:"Aucune mise en page active",saveCur:"Enregistrer",saveNew:"Enregistrer comme nouvelle",saved:"Mise en page enregistrée.",updated:"Mise en page mise à jour.",what:"Une mise en page enregistre tout l'espace de travail : symbole, unité de temps, type de graphique, réglages et canevas, les dessins de tous les symboles, la comparaison et le zoom. Les indicateurs seront enregistrés dès qu'ils arriveront.",draws:"dessins",draw1:"dessin",open:"ouverte",newq:"Commencer une nouvelle mise en page ? Le graphique redevient propre, sans dessins et avec les réglages initiaux. La mise en page active est enregistrée avant, tu ne perds rien.",newyes:"Oui, nouvelle mise en page",newdone:"Nouvelle mise en page prête.",openq:"Les dessins non enregistrés dans une mise en page seront remplacés par ceux de la mise en page que tu ouvres. Continuer ?",delq:"Supprimer cette mise en page ?",rename:"Renommer",multi:"Plusieurs graphiques sur le même écran arriveront plus tard."}
+};
+function lyt(k){return(LYT[lang]&&LYT[lang][k])||LYT.it[k]}
+var LY_CUR=lsGet('tc_lycur',null);
+function lyCurSet(id){LY_CUR=id;lsSet('tc_lycur',id)}
+function lyActive(){return LAYOUTS.find(l=>l.id&&l.id===LY_CUR)||null}
+/* tutti i disegni di tutti i simboli */
+function allDraws(){
+  try{dSave()}catch(e){}
+  const o={};
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('tc_draw_')){const v=lsGet(k,[]);if(v&&v.length)o[k.slice(8)]=v}}}catch(e){}
+  return o;
+}
+function setAllDraws(o){
+  try{
+    const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('tc_draw_'))ks.push(k)}
+    ks.forEach(k=>localStorage.removeItem(k));
+  }catch(e){}
+  Object.keys(o||{}).forEach(s=>lsSet('tc_draw_'+s,o[s]));
+}
+function viewNow(){
+  try{const r=chart.timeScale().getVisibleLogicalRange(),n=lastBars.length;if(!r||!n)return null;return{to:r.to-(n-1),w:r.to-r.from}}catch(e){return null}
+}
+function lySnap(name,id){
+  return{v:2,id:id||('L'+Date.now().toString(36)),name,sym:cur,res,cs:JSON.parse(JSON.stringify(CS)),draws:allDraws(),cmp:CMP.sym||null,view:viewNow(),ind:[],ts:Date.now()};
+}
+function lySaveActive(quiet){
+  const a=lyActive();if(!a)return false;
+  const s=lySnap(a.name,a.id);LAYOUTS=LAYOUTS.map(l=>l===a?s:l);saveLayouts();
+  if(!quiet)msg(lyt('updated'));return true;
+}
+function lyDrawCount(l){const d=l.draws||(l.sym?{[l.sym]:l.draw||[]}:{});return Object.values(d).reduce((s,a)=>s+(a?a.length:0),0)}
+function lyApply(l){
+  const draws=l.draws||(l.sym?{[l.sym]:l.draw||[]}:{});
+  setAllDraws(draws);
+  CS=Object.assign({},CS_DEF,JSON.parse(JSON.stringify(l.cs||{})));saveCS();
+  if(l.id)lyCurSet(l.id);
+  closeHub();
+  if(l.sym&&l.sym!==cur&&BYN[l.sym])setCur(l.sym);
+  dLoad();
+  if(l.res&&l.res!==res)setRes(l.res);
+  rebuildSeries();applyCS();applyCanvas();
+  setTimeout(()=>cmpSet(l.cmp||null),300);
+  /* zoom: appena le candele sono caricate rimetto la stessa vista */
+  if(l.view){
+    const want=(l.sym||cur)+'|'+(l.res||res);let n=0;
+    const tmr=setInterval(()=>{
+      if(++n>40){clearInterval(tmr);return}
+      if(cur+'|'+res!==want||!lastBars.length)return;
+      clearInterval(tmr);
+      try{const last=lastBars.length-1;chart.timeScale().setVisibleLogicalRange({from:last+l.view.to-l.view.w,to:last+l.view.to})}catch(e){}
+    },150);
+  }
+  msg('');
+}
+/* ---- pagine dell'Hub (sostituiscono quelle di prima) ---- */
+function hubNew(){
+  hubPage(th('l_new'),b=>{
+    shEl(b,'sh-note',lyt('newq'));
+    shItem(b,lyt('newyes'),{danger:true,on:()=>{
+      lySaveActive(true);
+      setAllDraws({});drawings=[];dSel=null;
+      CS=Object.assign({},CS_DEF);saveCS();lyCurSet(null);
+      cmpSet(null);rebuildSeries();applyCS();applyCanvas();closeHub();msg(lyt('newdone'));
+    }});
+  });
+}
+function pageSave(b){
+  const a=lyActive();
+  shEl(b,'sh-note',lyt('what'));
+  if(a){
+    shEl(b,'sh-l',lyt('active'));
+    const row0=document.createElement('div');row0.className='chips';
+    const up=document.createElement('button');up.className='chip on';up.textContent=lyt('saveCur')+' «'+a.name+'»';
+    up.onclick=()=>{lySaveActive(false);closeHub()};row0.appendChild(up);b.appendChild(row0);
+  }
+  shEl(b,'sh-l',a?lyt('saveNew'):th('l_save'));
+  const inp=document.createElement('input');inp.className='hinput';inp.placeholder=th('ly_name');inp.value=a?'':(cur+' '+res);b.appendChild(inp);
+  const row=document.createElement('div');row.className='chips';
+  const ok=document.createElement('button');ok.className='chip'+(a?'':' on');ok.textContent=a?lyt('saveNew'):th('l_save');
+  ok.onclick=()=>{
+    const name=inp.value.trim()||(cur+' '+res);
+    const old=LAYOUTS.find(l=>l.name===name);
+    const s=lySnap(name,old&&old.id);
+    LAYOUTS=[s].concat(LAYOUTS.filter(l=>l!==old));
+    saveLayouts();lyCurSet(s.id);msg(lyt('saved'));closeHub();
+  };
+  row.appendChild(ok);b.appendChild(row);
+  shEl(b,'sh-note',lyt('multi'));
+}
+function pageOpen(b){
+  if(!LAYOUTS.length){shEl(b,'sh-note',th('ly_none'));return}
+  LAYOUTS.forEach(l=>{if(!l.id)l.id='L'+(l.ts||Date.now()).toString(36)+Math.random().toString(36).slice(2,5)});saveLayouts();
+  const TN={candles:'t_candles',bars:'t_bars',line:'t_line',area:'t_area',ha:'t_ha'};
+  LAYOUTS.forEach(l=>{
+    const del=document.createElement('button');del.className='addb';del.innerHTML='✕';del.setAttribute('aria-label',t('del'));
+    del.onclick=e=>{e.stopPropagation();if(!confirm(lyt('delq')))return;LAYOUTS=LAYOUTS.filter(x=>x!==l);if(l.id===LY_CUR)lyCurSet(null);saveLayouts();hubRender()};
+    const it=BYN[l.sym],nd=lyDrawCount(l);
+    const card=document.createElement('button');card.className='lycard'+(l.id===LY_CUR?' on':'');
+    if(it)card.appendChild(iconEl(it,34));
+    const tx=document.createElement('span');tx.className='lytx';
+    const t1=document.createElement('b');t1.textContent=l.name;tx.appendChild(t1);
+    const t2=document.createElement('small');
+    const ty=l.cs&&l.cs.type?th(TN[l.cs.type]||'t_candles'):th('t_candles');
+    const d=l.ts?new Date(l.ts).toLocaleDateString(LOC[lang]||'it-IT',{day:'2-digit',month:'short'}):'';
+    t2.textContent=[l.sym,l.res,ty,nd+' '+(nd===1?lyt('draw1'):lyt('draws')),d].filter(Boolean).join(' · ');tx.appendChild(t2);
+    card.appendChild(tx);
+    if(l.id===LY_CUR){const c=document.createElement('span');c.className='ck';c.textContent='✓';card.appendChild(c)}
+    card.appendChild(del);
+    card.onclick=()=>{
+      if(l.id===LY_CUR){lyApply(l);return}
+      if(lyActive())lySaveActive(true);
+      else if(Object.keys(allDraws()).length&&!confirm(lyt('openq')))return;
+      lyApply(l);
+    };
+    b.appendChild(card);
+  });
+}
+/* nome del layout attivo sotto i tre riquadri dell'Hub */
+(function(){
+  const orig=hubRoot;
+  hubRoot=function(b){
+    orig(b);
+    const a=lyActive(),el=document.createElement('div');el.className='lyact';
+    el.textContent=a?lyt('active')+': '+a.name:lyt('none');
+    const first=b.querySelector('.htiles');if(first&&first.nextSibling)b.insertBefore(el,first.nextSibling);else b.appendChild(el);
+  };
+})();
