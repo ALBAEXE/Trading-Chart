@@ -1,4 +1,4 @@
-const VERSION='0.37.0';
+const VERSION='0.37.1';
 /* tema salvato sul telefono: scuro (predefinito) o bianco */
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}
 
@@ -7477,20 +7477,6 @@ img,svg,canvas{-webkit-user-drag:none;-webkit-touch-callout:none}
 `;
   document.head.appendChild(st);
 })();
-/* tieni premuto sulla barra in basso, scorri e lascia: si apre la scheda sotto il dito */
-(function(){
-  const bar=$('tabbar');if(!bar)return;let start=null,lastHov=null;
-  const tabAt=(x,y)=>{const e=document.elementFromPoint(x,y);return e&&e.closest?e.closest('#tabbar .tab'):null};
-  const hov=t=>{if(lastHov&&lastHov!==t)lastHov.classList.remove('hov');if(t)t.classList.add('hov');lastHov=t};
-  bar.addEventListener('touchstart',e=>{const p=e.touches[0];start=tabAt(p.clientX,p.clientY)},{passive:true});
-  bar.addEventListener('touchmove',e=>{if(!start)return;const p=e.touches[0];hov(tabAt(p.clientX,p.clientY))},{passive:true});
-  bar.addEventListener('touchend',e=>{
-    const p=e.changedTouches[0],t=tabAt(p.clientX,p.clientY);hov(null);
-    if(start&&t&&t!==start){e.preventDefault();haptic();t.click()}
-    start=null;
-  });
-  bar.addEventListener('touchcancel',()=>{hov(null);start=null});
-})();
 /* uscita con conferma */
 var LOGOUT_T={
   it:{t:"Vuoi uscire?",x:"Per rientrare servirà di nuovo il tuo codice amico o il tuo accesso.",ok:"Esci",no:"Annulla"},
@@ -7501,4 +7487,62 @@ var LOGOUT_T={
 (function(){
   const o=logout;
   logout=function(){const L=LOGOUT_T[lang]||LOGOUT_T.it;closeSheet&&closeSheet();ncConfirm({title:L.t,text:L.x,ok:L.ok,cancel:L.no}).then(y=>{if(y)o()})};
+})();
+
+/* =====================================================================
+   0.37.1 — Hub senza riquadri colorati, barra in basso che segue il dito,
+   pressione lunga sulle voci del Profilo come nella watchlist
+   ===================================================================== */
+(function(){
+  const st=document.createElement('style');
+  st.textContent=`
+.htile .hic{background:transparent!important}
+#tabbar .tab{position:relative;z-index:1;background:transparent!important}
+#tabpill{position:absolute;top:4px;bottom:4px;left:4px;border-radius:24px;background:var(--glasssel);z-index:0;pointer-events:none;transition:transform .32s cubic-bezier(.2,.9,.25,1.1),width .32s}
+#tabpill.drag{transition:none}
+.pfrow:active,.pfrow.press{background:var(--glasssel)}
+.row.press{background:var(--glasssel)}`;
+  document.head.appendChild(st);
+})();
+/* pillola grigia della barra in basso: si sposta col dito e va dove lo lasci */
+(function(){
+  const bar=$('tabbar');if(!bar)return;
+  const pill=document.createElement('div');pill.id='tabpill';bar.insertBefore(pill,bar.firstChild);
+  const tabs=()=>[...bar.querySelectorAll('.tab')];
+  const place=(x,w)=>{pill.style.width=w+'px';pill.style.transform='translateX('+(x-4)+'px)'};
+  const snap=()=>{const t=bar.querySelector('.tab.on')||tabs()[0];if(!t)return;place(t.offsetLeft,t.offsetWidth)};
+  new MutationObserver(()=>{if(!pill.classList.contains('drag'))snap()}).observe(bar,{subtree:true,attributes:true,attributeFilter:['class']});
+  window.addEventListener('resize',snap);setTimeout(snap,50);setTimeout(snap,800);
+  setInterval(()=>{if(bar.offsetWidth&&!pill.classList.contains('drag')){const t=bar.querySelector('.tab.on');if(t&&Math.abs(pill.getBoundingClientRect().left-t.getBoundingClientRect().left)>2)snap()}},600);
+  let st=null,moved=false;
+  const tabAt=x=>{let best=null,bd=1e9;tabs().forEach(t=>{const r=t.getBoundingClientRect(),c=r.left+r.width/2,d=Math.abs(x-c);if(d<bd){bd=d;best=t}});return best};
+  bar.addEventListener('touchstart',e=>{const p=e.touches[0];st={x:p.clientX,t:tabAt(p.clientX)};moved=false},{passive:true});
+  bar.addEventListener('touchmove',e=>{
+    if(!st)return;const p=e.touches[0];
+    if(!moved&&Math.abs(p.clientX-st.x)<6)return;
+    moved=true;pill.classList.add('drag');
+    const br=bar.getBoundingClientRect(),w=(bar.querySelector('.tab')||{}).offsetWidth||100;
+    const x=Math.max(4,Math.min(br.width-4-w,p.clientX-br.left-w/2));
+    place(x,w);
+  },{passive:true});
+  bar.addEventListener('touchend',e=>{
+    if(!st)return;const p=e.changedTouches[0],t=tabAt(p.clientX),was=moved;
+    pill.classList.remove('drag');st=null;moved=false;
+    if(was){e.preventDefault();if(t&&!t.classList.contains('on')){haptic();t.click()}snap()}
+  });
+  bar.addEventListener('touchcancel',()=>{pill.classList.remove('drag');st=null;moved=false;snap()});
+})();
+/* pressione lunga su una voce (Profilo, watchlist): si evidenzia, ma lasciando non si apre */
+(function(){
+  let el=null,t0=0,x0=0,y0=0,long=false,tm=0;
+  const SEL='.pfrow,.row';
+  document.addEventListener('touchstart',e=>{
+    const r=e.target.closest&&e.target.closest(SEL);if(!r)return;
+    el=r;long=false;t0=Date.now();x0=e.touches[0].clientX;y0=e.touches[0].clientY;
+    r.classList.add('press');clearTimeout(tm);tm=setTimeout(()=>{long=true},480);
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{if(!el)return;const p=e.touches[0];if(Math.abs(p.clientX-x0)>10||Math.abs(p.clientY-y0)>10){el.classList.remove('press');el=null;clearTimeout(tm)}},{passive:true});
+  const end=()=>{if(el)el.classList.remove('press');clearTimeout(tm);setTimeout(()=>{el=null},0)};
+  document.addEventListener('touchend',end,{passive:true});document.addEventListener('touchcancel',()=>{long=false;end()},{passive:true});
+  document.addEventListener('click',e=>{if(long&&e.target.closest&&e.target.closest(SEL)){e.preventDefault();e.stopPropagation();long=false}},true);
 })();
