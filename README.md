@@ -5,7 +5,7 @@
 # NexusCharts
 
 **Real-time charts, indicators, scripts and alerts — right in your pocket.**
-A fast, beautiful charting app for iPhone, Android and desktop, with a liquid-glass interface.
+A fast, beautiful charting app for iPhone, Android and desktop, with a pure-black, orbit-inspired design.
 
 **English** · [Italiano](README.it.md) · [Español](README.es.md) · [Français](README.fr.md)
 
@@ -38,6 +38,8 @@ A fast, beautiful charting app for iPhone, Android and desktop, with a liquid-gl
 - [How to get access](#-how-to-get-access)
 - [Compatibility](#-compatibility)
 - [Privacy & security](#-privacy--security)
+- [How it's built](#%EF%B8%8F-how-its-built)
+- [Versioning](#-versioning)
 - [FAQ](#-faq)
 - [Roadmap](#-roadmap)
 - [Credits](#-credits)
@@ -59,6 +61,13 @@ It's built for traders who want **clean charts, live prices, indicators and draw
 | 🌍 **4 languages · 2 themes** | Italian, English, Spanish, French · Dark and light |
 
 > 📝 What's new in each version: see the [Releases](../../releases) page.
+
+### 🆕 New in 0.42.0 — Design 3.0
+
+- 🪐 **New welcome screens**: six short slides with the orbit logo, shown **once** on each device, then never again. You can skip them at any time.
+- 💫 **Logo animation**: on every later launch the logo glides from the center to the top of the sign-in screen.
+- 🌍 **Orbit language menu**: tap the flag to choose Italian, English, Spanish or French. Your choice is remembered.
+- ⬛ **Pure-black sign-in screen** with bigger, modern buttons. Sign-in, codes and Face ID work exactly as before.
 
 ---
 
@@ -166,6 +175,8 @@ NexusCharts uses **personal access codes** — no sign-up, no broker account nee
 
 From then on the app signs you in automatically.
 
+Already signed in? After an update you may see the welcome screens once: your code stays saved and the app signs you in as usual.
+
 > ⚠️ Every code works on **one device only**, like a license. If you change phone or reset the app, just ask for a new one.
 
 ---
@@ -192,7 +203,26 @@ From then on the app signs you in automatically.
 - 🔔 If you turn on notifications, your active price alerts are kept on the server only to notify you; delete an alert and it's gone.
 - 🔐 No passwords or private keys are stored in this repository.
 - 🎟️ Access codes are tied to a single device and can be revoked at any time.
+- 🛡️ **Protection against code guessing**: after too many wrong codes from the same network, sign-in pauses for a while and the app shows a clear message. Valid codes and linked devices are never affected.
 - 🧹 **Reset app** erases everything saved on the device.
+
+---
+
+## 🏗️ How it's built
+
+- 🖥️ **The app** (what you see on your screen) lives in this repository and is published as a web app.
+- ⚙️ **The engine** runs on Cloudflare: it checks access codes, relays live prices and sends alerts. It is managed separately and is not part of this repository.
+- 🔐 Keys and passwords live only in the engine's encrypted settings, never in the code.
+
+---
+
+## 🔢 Versioning
+
+Versions use three numbers, **MAJOR.MINOR.PATCH** (for example 0.42.0):
+
+- **First number**: big changes.
+- **Middle number**: new features.
+- **Last number**: fixes and improvements.
 
 ---
 
@@ -250,6 +280,7 @@ Not yet: they're saved on the device where you made them.
 | ✅ | Pine Script™-compatible engine and script editor |
 | ✅ | Price alerts with push notifications |
 | ✅ | 4 languages, dark and light theme |
+| ✅ | Design 3.0: welcome screens, logo animation, orbit language menu |
 | 🔜 | Faster data loading |
 | 🔜 | Full desktop version |
 | 💡 | Sync between devices |

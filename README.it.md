@@ -5,7 +5,7 @@
 # NexusCharts
 
 **Grafici in tempo reale, indicatori, script e alert — sempre in tasca.**
-Un'app di grafici veloce e bella per iPhone, Android e computer, con interfaccia in vetro liquido.
+Un'app di grafici veloce e bella per iPhone, Android e computer, con un design nero assoluto ispirato alle orbite.
 
 [English](README.md) · **Italiano** · [Español](README.es.md) · [Français](README.fr.md)
 
@@ -38,6 +38,8 @@ Un'app di grafici veloce e bella per iPhone, Android e computer, con interfaccia
 - [Come ottenere l'accesso](#-come-ottenere-laccesso)
 - [Compatibilità](#-compatibilità)
 - [Privacy e sicurezza](#-privacy-e-sicurezza)
+- [Come è fatta](#%EF%B8%8F-come-è-fatta)
+- [Numeri di versione](#-numeri-di-versione)
 - [Domande frequenti](#-domande-frequenti)
 - [Prossimamente](#-prossimamente)
 - [Riconoscimenti](#-riconoscimenti)
@@ -59,6 +61,13 @@ NexusCharts è una **web app** che si installa sulla schermata Home e funziona c
 | 🌍 **4 lingue · 2 temi** | Italiano, inglese, spagnolo, francese · Scuro e chiaro |
 
 > 📝 Le novità di ogni versione sono nella pagina [Releases](../../releases).
+
+### 🆕 Novità della 0.42.0 — Design 3.0
+
+- 🪐 **Nuove schermate di benvenuto**: sei brevi slide con il logo a orbite, mostrate **una sola volta** su ogni dispositivo. Puoi saltarle quando vuoi.
+- 💫 **Animazione del logo**: alle aperture successive il logo scivola dal centro alla parte alta della schermata di accesso.
+- 🌍 **Menu lingue a orbita**: tocca la bandiera e scegli italiano, inglese, spagnolo o francese. La scelta resta salvata.
+- ⬛ **Schermata di accesso nero assoluto** con pulsanti più grandi e moderni. Accesso, codici e Face ID funzionano come prima.
 
 ---
 
@@ -166,6 +175,8 @@ NexusCharts usa **codici di accesso personali**: niente registrazione, niente co
 
 Da quel momento l'app ti fa entrare da sola.
 
+Eri già dentro? Dopo un aggiornamento potresti vedere una volta le schermate di benvenuto: il tuo codice resta salvato e l'app ti fa entrare come sempre.
+
 > ⚠️ Ogni codice funziona su **un solo dispositivo**, come una licenza. Se cambi telefono o ripristini l'app, chiedine uno nuovo.
 
 ---
@@ -192,7 +203,26 @@ Da quel momento l'app ti fa entrare da sola.
 - 🔔 Se attivi le notifiche, i tuoi alert attivi vengono tenuti sul server solo per avvisarti; elimini l'alert e sparisce.
 - 🔐 In questo repository non ci sono password né chiavi private.
 - 🎟️ I codici di accesso sono legati a un solo dispositivo e si possono revocare in qualsiasi momento.
+- 🛡️ **Protezione contro chi prova a indovinare i codici**: dopo troppi codici sbagliati dalla stessa rete, l'accesso si mette in pausa per un po' e l'app mostra un messaggio chiaro. I codici validi e i dispositivi collegati non vengono toccati.
 - 🧹 **Ripristina l'app** cancella tutto quello che è salvato sul dispositivo.
+
+---
+
+## 🏗️ Come è fatta
+
+- 🖥️ **L'app** (quello che vedi sullo schermo) sta in questo repository ed è pubblicata come web app.
+- ⚙️ **Il motore** gira su Cloudflare: controlla i codici di accesso, porta i prezzi live e invia gli alert. È gestito a parte e non fa parte di questo repository.
+- 🔐 Chiavi e password stanno solo nelle impostazioni cifrate del motore, mai nel codice.
+
+---
+
+## 🔢 Numeri di versione
+
+Le versioni hanno tre numeri, **MAGGIORE.MINORE.CORREZIONE** (per esempio 0.42.0):
+
+- **Primo numero**: cambiamenti grandi.
+- **Numero centrale**: nuove funzioni.
+- **Ultimo numero**: correzioni e miglioramenti.
 
 ---
 
@@ -250,6 +280,7 @@ Non ancora: restano sul dispositivo dove li hai creati.
 | ✅ | Motore compatibile con Pine Script™ ed editor script |
 | ✅ | Alert sul prezzo con notifiche push |
 | ✅ | 4 lingue, tema scuro e chiaro |
+| ✅ | Design 3.0: schermate di benvenuto, animazione del logo, menu lingue a orbita |
 | 🔜 | Caricamento dati più veloce |
 | 🔜 | Versione completa per computer |
 | 💡 | Sincronizzazione tra dispositivi |

@@ -5,7 +5,7 @@
 # NexusCharts
 
 **Graphiques en temps réel, indicateurs, scripts et alertes — toujours dans ta poche.**
-Une app de graphiques rapide et élégante pour iPhone, Android et ordinateur, avec une interface en verre liquide.
+Une app de graphiques rapide et élégante pour iPhone, Android et ordinateur, avec un design noir absolu inspiré des orbites.
 
 [English](README.md) · [Italiano](README.it.md) · [Español](README.es.md) · **Français**
 
@@ -38,6 +38,8 @@ Une app de graphiques rapide et élégante pour iPhone, Android et ordinateur, a
 - [Comment obtenir l'accès](#-comment-obtenir-laccès)
 - [Compatibilité](#-compatibilité)
 - [Confidentialité et sécurité](#-confidentialité-et-sécurité)
+- [Comment elle est faite](#%EF%B8%8F-comment-elle-est-faite)
+- [Numéros de version](#-numéros-de-version)
 - [Questions fréquentes](#-questions-fréquentes)
 - [Prochainement](#-prochainement)
 - [Crédits](#-crédits)
@@ -59,6 +61,13 @@ Elle est pensée pour les traders qui veulent des **graphiques clairs, des prix 
 | 🌍 **4 langues · 2 thèmes** | Italien, anglais, espagnol, français · Sombre et clair |
 
 > 📝 Les nouveautés de chaque version sont sur la page [Releases](../../releases).
+
+### 🆕 Nouveautés de la 0.42.0 — Design 3.0
+
+- 🪐 **Nouveaux écrans de bienvenue** : six courtes diapositives avec le logo en orbite, affichées **une seule fois** sur chaque appareil. Tu peux les passer à tout moment.
+- 💫 **Animation du logo** : aux ouvertures suivantes, le logo glisse du centre vers le haut de l'écran de connexion.
+- 🌍 **Menu des langues en orbite** : touche le drapeau et choisis l'italien, l'anglais, l'espagnol ou le français. Ton choix est enregistré.
+- ⬛ **Écran de connexion noir absolu** avec des boutons plus grands et modernes. La connexion, les codes et Face ID fonctionnent comme avant.
 
 ---
 
@@ -166,6 +175,8 @@ NexusCharts fonctionne avec des **codes d'accès personnels** : pas d'inscriptio
 
 Ensuite, l'app te connecte toute seule.
 
+Tu étais déjà connecté ? Après une mise à jour, tu verras peut-être une fois les écrans de bienvenue : ton code reste enregistré et l'app te connecte comme d'habitude.
+
 > ⚠️ Chaque code fonctionne sur **un seul appareil**, comme une licence. Si tu changes de téléphone ou réinitialises l'app, demandes-en un nouveau.
 
 ---
@@ -192,7 +203,26 @@ Ensuite, l'app te connecte toute seule.
 - 🔔 Si tu actives les notifications, tes alertes actives sont gardées sur le serveur uniquement pour te prévenir ; supprime l'alerte et elle disparaît.
 - 🔐 Ce dépôt ne contient aucun mot de passe ni clé privée.
 - 🎟️ Les codes d'accès sont liés à un seul appareil et peuvent être révoqués à tout moment.
+- 🛡️ **Protection contre ceux qui essaient de deviner les codes** : après trop de codes erronés depuis le même réseau, la connexion se met en pause un moment et l'app affiche un message clair. Les codes valides et les appareils liés ne sont jamais touchés.
 - 🧹 **Réinitialiser l'app** efface tout ce qui est enregistré sur l'appareil.
+
+---
+
+## 🏗️ Comment elle est faite
+
+- 🖥️ **L'app** (ce que tu vois à l'écran) se trouve dans ce dépôt et est publiée comme web app.
+- ⚙️ **Le moteur** tourne sur Cloudflare : il vérifie les codes d'accès, transmet les prix en direct et envoie les alertes. Il est géré à part et ne fait pas partie de ce dépôt.
+- 🔐 Les clés et mots de passe se trouvent uniquement dans les réglages chiffrés du moteur, jamais dans le code.
+
+---
+
+## 🔢 Numéros de version
+
+Les versions ont trois nombres, **MAJEUR.MINEUR.CORRECTIF** (par exemple 0.42.0) :
+
+- **Premier nombre** : grands changements.
+- **Nombre central** : nouvelles fonctions.
+- **Dernier nombre** : corrections et améliorations.
 
 ---
 
@@ -250,6 +280,7 @@ Pas encore : ils restent sur l'appareil où tu les as créés.
 | ✅ | Moteur compatible Pine Script™ et éditeur de scripts |
 | ✅ | Alertes de prix avec notifications push |
 | ✅ | 4 langues, thème sombre et clair |
+| ✅ | Design 3.0 : écrans de bienvenue, animation du logo, menu des langues en orbite |
 | 🔜 | Chargement des données plus rapide |
 | 🔜 | Version complète pour ordinateur |
 | 💡 | Synchronisation entre appareils |
