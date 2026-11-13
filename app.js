@@ -831,7 +831,7 @@ function api(path,opt={}){
     if(r.status===429){backoff(3000);if(window.tickSlow)tickSlow()}else if(r.ok)apiBack=0;
     const tx=await r.text();let j;
     try{j=JSON.parse(tx)}catch(e){j=tx}
-    if(!r.ok){const er=new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));er.status=r.status;throw er}
+    if(!r.ok){const er=new Error(r.status+' '+(typeof j==='string'?j:JSON.stringify(j)).slice(0,300));er.status=r.status;er.body=j;if(r.status===429)er.retry=retryOf(r,j);throw er}
     return j;
   };
   const p=apiChain.then(run,run);
@@ -1615,8 +1615,34 @@ function sessionLost(){
   location.reload();
 }
 
+/* troppi tentativi (429 del servizio amici): secondi di attesa dal server, poi frase leggibile nella lingua dell'app */
+function retryOf(r,j){
+  let s=j&&typeof j==='object'?Number(j.retry):NaN;
+  if(!(s>0)){try{s=Number(r.headers.get('Retry-After'))}catch(e){}}
+  return s>0?Math.ceil(s):0;
+}
+const MANY={
+  it:{t:'Troppi tentativi',r:'riprova tra',m:['1 minuto','minuti'],h:['1 ora','ore'],l:'riprova più tardi'},
+  en:{t:'Too many attempts',r:'try again in',m:['1 minute','minutes'],h:['1 hour','hours'],l:'try again later'},
+  es:{t:'Demasiados intentos',r:'inténtalo de nuevo en',m:['1 minuto','minutos'],h:['1 hora','horas'],l:'inténtalo más tarde'},
+  fr:{t:'Trop de tentatives',r:'réessaie dans',m:['1 minute','minutes'],h:['1 heure','heures'],l:'réessaie plus tard'}
+};
+function manyText(sec){
+  const L=MANY[lang]||MANY.it;
+  if(!(sec>0))return L.t+', '+L.l+'.';
+  const min=Math.ceil(sec/60);
+  if(min<60)return L.t+', '+L.r+' '+(min===1?L.m[0]:min+' '+L.m[1])+'.';
+  const h=Math.ceil(min/60);
+  return L.t+', '+L.r+' '+(h===1?L.h[0]:h+' '+L.h[1])+'.';
+}
+/* il 429 e' il limite ai tentativi del servizio amici (non un 429 del broker) */
+function isMany(e){return !!(e&&e.status===429&&e.body&&typeof e.body==='object'&&e.body.error==='troppi tentativi')}
+/* messaggio per gli errori della chiave amministratore */
+function admMsg(e){return e&&e.status===403?ft('keybad'):isMany(e)?manyText(e.retry):ft('neterr')}
+
 /* testo dell'errore: blocco di rete oppure la causa precisa */
 function errText(e){
+  if(isMany(e))return manyText(e.retry);
   const m=(e&&e.message)||String(e);
   if(e instanceof TypeError&&/fetch|load failed|network/i.test(m))return t('cors');
   return m;
@@ -2835,6 +2861,7 @@ async function friendEnter(code,auto){
   }catch(e){
     friendOff();
     if(e&&(e.status===401||e.status===403)){try{localStorage.removeItem('tc_fcode')}catch(_){}friendUI(true);msg(ft(e.status===403?'other':'bad'))}
+    else if(isMany(e)){friendUI(true);msg(manyText(e.retry))}
     else msg(e&&e.status?errText(e):ft('neterr'));
   }finally{fBusy=false}
 }
@@ -2869,7 +2896,7 @@ function admKey(){try{return localStorage.getItem('tc_admin')||''}catch(e){retur
 async function adm(method,path,body,key){
   const r=await fetch(WORKER+'/admin'+path,{method,headers:{'Content-Type':'application/json','X-Admin-Key':key||admKey()},body:body?JSON.stringify(body):undefined,cache:'no-store'});
   let j=null;try{j=await r.json()}catch(e){}
-  if(!r.ok){const er=new Error((j&&j.error)||('HTTP '+r.status));er.status=r.status;throw er}
+  if(!r.ok){const er=new Error((j&&j.error)||('HTTP '+r.status));er.status=r.status;er.body=j;if(r.status===429)er.retry=retryOf(r,j);throw er}
   return j;
 }
 function codeBox(s,code){
@@ -2897,7 +2924,7 @@ function openCodes(fresh){
       ok.onclick=async()=>{
         const k=i.value.trim();if(!k)return;
         try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);openCodes()}
-        catch(e){msg(e.status===403?ft('keybad'):ft('neterr'))}
+        catch(e){msg(admMsg(e))}
       };
       row.appendChild(ok);s.appendChild(row);
       return;
@@ -2909,7 +2936,7 @@ function openCodes(fresh){
     gen.onclick=async()=>{
       gen.disabled=true;
       try{const j=await adm('POST','/codes',{name:i.value.trim()});openCodes(j)}
-      catch(e){gen.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}
+      catch(e){gen.disabled=false;msg(admMsg(e))}
     };
     row.appendChild(gen);s.appendChild(row);
     shEl(s,'sh-l',ft('active'));
@@ -3640,7 +3667,7 @@ function renderCodes(p){
     const g=pfGroup(p,'');g.classList.add('pfpad');
     const i=document.createElement('input');i.type='password';i.className='pfin2';i.placeholder=ft('keyph');i.autocomplete='off';g.appendChild(i);
     const ok=document.createElement('button');ok.className='pfbtn';ok.textContent=ft('keysave');g.appendChild(ok);
-    ok.onclick=async()=>{const k=i.value.trim();if(!k)return;try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);PF.fbChecked=false;renderProfile()}catch(e){msg(e.status===403?ft('keybad'):ft('neterr'))}};
+    ok.onclick=async()=>{const k=i.value.trim();if(!k)return;try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);PF.fbChecked=false;renderProfile()}catch(e){msg(admMsg(e))}};
     return;
   }
   /* nuovo codice */
@@ -3652,7 +3679,7 @@ function renderCodes(p){
   }
   const i=document.createElement('input');i.className='pfin2';i.placeholder=ft('name');i.autocomplete='off';g.appendChild(i);
   const gen=document.createElement('button');gen.className='pfbtn';gen.textContent=ft('gen');g.appendChild(gen);
-  gen.onclick=async()=>{gen.disabled=true;try{PF.fresh=await adm('POST','/codes',{name:i.value.trim()});haptic();renderProfile()}catch(e){gen.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}};
+  gen.onclick=async()=>{gen.disabled=true;try{PF.fresh=await adm('POST','/codes',{name:i.value.trim()});haptic();renderProfile()}catch(e){gen.disabled=false;msg(admMsg(e))}};
   /* riepilogo e lista */
   const stats=document.createElement('div');stats.className='pfstats';p.appendChild(stats);
   const lab=document.createElement('div');lab.className='pfl';lab.textContent=ft('active');p.appendChild(lab);
@@ -3763,7 +3790,7 @@ function renderInbox(p){
       const del=document.createElement('button');del.className='pfmini danger';del.textContent=p2('del');del.onclick=async()=>{if(!confirm(p2('delq')))return;try{await adm('DELETE','/feedback/'+x.id);PF.keep=true;renderProfile()}catch(e){msg(ft('neterr'))}};acts.appendChild(del);
       card.appendChild(acts);list.appendChild(card);
     });
-  }).catch(e=>{shEl(list,'pfnote',e.status===403?ft('keybad'):ft('neterr'))});
+  }).catch(e=>{shEl(list,'pfnote',admMsg(e))});
 }
 /* numero di segnalazioni nuove: sulla voce del Profilo e sull'icona Profilo in basso */
 var FB_LAST=0;
@@ -4208,7 +4235,7 @@ function renderSend(p){
     if(!confirm(nt('confirm')))return;
     go.disabled=true;
     try{const r=await adm('POST','/push',{title:ti.value.trim(),body:bo.value.trim()});msg('✓ '+nt('sent')+': '+r.sent+'/'+r.total);PF.ntT='';PF.ntB='';haptic();PF.keep=true;renderProfile()}
-    catch(e){go.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}
+    catch(e){go.disabled=false;msg(admMsg(e))}
   };
   shEl(p,'pfnote',nt('lim'));
   const hl=document.createElement('div');hl.className='pfl';hl.textContent=nt('hist');p.appendChild(hl);
@@ -7648,7 +7675,7 @@ function renderAdmin(p){
     const g=pfGroup(p,'');g.classList.add('pfpad','adlock');
     const i=document.createElement('input');i.type='password';i.className='pfin2';i.placeholder=ft('keyph');i.autocomplete='off';g.appendChild(i);
     const ok=document.createElement('button');ok.className='pfbtn';ok.textContent=adt('unlock');g.appendChild(ok);
-    ok.onclick=async()=>{const k=i.value.trim();if(!k)return;ok.disabled=true;try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);haptic();ADM.data=null;PF.keep=true;renderProfile();admLoad()}catch(e){ok.disabled=false;msg(e.status===403?ft('keybad'):ft('neterr'))}};
+    ok.onclick=async()=>{const k=i.value.trim();if(!k)return;ok.disabled=true;try{await adm('GET','/codes',null,k);localStorage.setItem('tc_admin',k);haptic();ADM.data=null;PF.keep=true;renderProfile();admLoad()}catch(e){ok.disabled=false;msg(admMsg(e))}};
     return;
   }
   const D=ADM.data;
