@@ -17,16 +17,16 @@ A fast, beautiful charting app for iPhone, Android and desktop, with a pure-blac
 </div>
 
 <p align="center">
-  <img src="screenshots/IMG_4020.png" width="24%">
-  <img src="screenshots/IMG_4021.png" width="24%">
-  <img src="screenshots/IMG_4022.png" width="24%">
-  <img src="screenshots/IMG_4023.png" width="24%">
+  <img src="screenshots/en/watchlist.png" width="24%">
+  <img src="screenshots/en/chart.png" width="24%">
+  <img src="screenshots/en/indicators.png" width="24%">
+  <img src="screenshots/en/settings.png" width="24%">
 </p>
 <p align="center">
-  <img src="screenshots/IMG_4024.png" width="24%">
-  <img src="screenshots/IMG_4025.png" width="24%">
-  <img src="screenshots/IMG_4026.png" width="24%">
-  <img src="screenshots/login-design3.png" width="24%">
+  <img src="screenshots/en/hub.png" width="24%">
+  <img src="screenshots/en/drawings.png" width="24%">
+  <img src="screenshots/en/editor.png" width="24%">
+  <img src="screenshots/en/login.png" width="24%">
 </p>
 
 ---

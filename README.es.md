@@ -17,16 +17,16 @@ Una app de gráficos rápida y bonita para iPhone, Android y ordenador, con un d
 </div>
 
 <p align="center">
-  <img src="screenshots/IMG_4020.png" width="24%">
-  <img src="screenshots/IMG_4021.png" width="24%">
-  <img src="screenshots/IMG_4022.png" width="24%">
-  <img src="screenshots/IMG_4023.png" width="24%">
+  <img src="screenshots/es/watchlist.png" width="24%">
+  <img src="screenshots/es/chart.png" width="24%">
+  <img src="screenshots/es/indicators.png" width="24%">
+  <img src="screenshots/es/settings.png" width="24%">
 </p>
 <p align="center">
-  <img src="screenshots/IMG_4024.png" width="24%">
-  <img src="screenshots/IMG_4025.png" width="24%">
-  <img src="screenshots/IMG_4026.png" width="24%">
-  <img src="screenshots/login-design3.png" width="24%">
+  <img src="screenshots/es/hub.png" width="24%">
+  <img src="screenshots/es/drawings.png" width="24%">
+  <img src="screenshots/es/editor.png" width="24%">
+  <img src="screenshots/es/login.png" width="24%">
 </p>
 
 ---
