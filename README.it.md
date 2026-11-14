@@ -9,7 +9,7 @@ Un'app di grafici veloce e bella per iPhone, Android e computer, con un design n
 
 [English](README.md) · **Italiano** · [Español](README.es.md) · [Français](README.fr.md)
 
-[![Versione](https://img.shields.io/badge/versione-v0.43.0-d9a441?style=for-the-badge)](../../releases)
+[![Versione](https://img.shields.io/badge/versione-v0.43.1-d9a441?style=for-the-badge)](../../releases)
 ![Piattaforma](https://img.shields.io/badge/iPhone%20%7C%20Android%20%7C%20Computer-web%20app-2962ff?style=for-the-badge)
 ![Lingue](https://img.shields.io/badge/lingue-IT%20%7C%20EN%20%7C%20ES%20%7C%20FR-22ab94?style=for-the-badge)
 ![Prezzo](https://img.shields.io/badge/installazione-gratis-111111?style=for-the-badge)
@@ -70,6 +70,7 @@ NexusCharts è una **web app** che si installa sulla schermata Home e funziona c
 - 💫 **Transizione del logo a ogni apertura dell'app**, non solo dopo le schermate di benvenuto.
 - 🏳️ **Bandiere delle lingue rotonde** in tutta l'app.
 - 🧹 **Accesso più pulito**: *Ripristina l'app* ora è solo in Profilo › Impostazioni.
+- 🖤 **0.43.1**: schermata di avvio nera e niente più vecchio logo luminoso all'apertura, logo nuovo e pulito in tutta l'app, niente sfondo giallo quando iPhone inserisce email e password, e il campo Server vuoto mostra solo il pallino verde.
 
 <details>
 <summary>In precedenza, nella 0.42.0</summary>

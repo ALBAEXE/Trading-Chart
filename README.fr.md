@@ -9,7 +9,7 @@ Une app de graphiques rapide et élégante pour iPhone, Android et ordinateur, a
 
 [English](README.md) · [Italiano](README.it.md) · [Español](README.es.md) · **Français**
 
-[![Version](https://img.shields.io/badge/version-v0.43.0-d9a441?style=for-the-badge)](../../releases)
+[![Version](https://img.shields.io/badge/version-v0.43.1-d9a441?style=for-the-badge)](../../releases)
 ![Plateforme](https://img.shields.io/badge/iPhone%20%7C%20Android%20%7C%20Ordinateur-web%20app-2962ff?style=for-the-badge)
 ![Langues](https://img.shields.io/badge/langues-IT%20%7C%20EN%20%7C%20ES%20%7C%20FR-22ab94?style=for-the-badge)
 ![Prix](https://img.shields.io/badge/installation-gratuite-111111?style=for-the-badge)
@@ -70,6 +70,7 @@ Elle est pensée pour les traders qui veulent des **graphiques clairs, des prix 
 - 💫 **Transition du logo à chaque ouverture de l'app**, pas seulement après les écrans de bienvenue.
 - 🏳️ **Drapeaux de langue ronds** dans toute l'app.
 - 🧹 **Connexion plus épurée** : *Réinitialiser l'app* se trouve maintenant seulement dans Profil › Réglages.
+- 🖤 **0.43.1** : écran de lancement noir et plus d'ancien logo lumineux à l'ouverture, le nouveau logo épuré dans toute l'app, plus de fond jaune quand l'iPhone remplit ton e-mail et ton mot de passe, et le champ Serveur vide n'affiche que le point vert.
 
 <details>
 <summary>Auparavant, dans la 0.42.0</summary>

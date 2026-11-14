@@ -9,7 +9,7 @@ A fast, beautiful charting app for iPhone, Android and desktop, with a pure-blac
 
 **English** · [Italiano](README.it.md) · [Español](README.es.md) · [Français](README.fr.md)
 
-[![Version](https://img.shields.io/badge/version-v0.43.0-d9a441?style=for-the-badge)](../../releases)
+[![Version](https://img.shields.io/badge/version-v0.43.1-d9a441?style=for-the-badge)](../../releases)
 ![Platform](https://img.shields.io/badge/iPhone%20%7C%20Android%20%7C%20Desktop-web%20app-2962ff?style=for-the-badge)
 ![Languages](https://img.shields.io/badge/languages-IT%20%7C%20EN%20%7C%20ES%20%7C%20FR-22ab94?style=for-the-badge)
 ![Price](https://img.shields.io/badge/install-free-111111?style=for-the-badge)
@@ -70,6 +70,7 @@ It's built for traders who want **clean charts, live prices, indicators and draw
 - 💫 **Logo transition every time you open the app**, not only after the welcome screens.
 - 🏳️ **Round language flags** everywhere in the app.
 - 🧹 **Cleaner sign-in**: *Reset the app* is now only in Profile › Settings.
+- 🖤 **0.43.1**: black launch screen and no more old glowing logo at startup, the new clean logo everywhere in the app, no yellow background when iPhone fills in your email and password, and an empty Server field shows only the green dot.
 
 <details>
 <summary>Previously in 0.42.0</summary>
