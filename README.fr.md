@@ -26,6 +26,7 @@ Une app de graphiques rapide et élégante pour iPhone, Android et ordinateur, a
   <img src="screenshots/IMG_4024.png" width="24%">
   <img src="screenshots/IMG_4025.png" width="24%">
   <img src="screenshots/IMG_4026.png" width="24%">
+  <img src="screenshots/login-design3.png" width="24%">
 </p>
 
 ---
@@ -62,12 +63,23 @@ Elle est pensée pour les traders qui veulent des **graphiques clairs, des prix 
 
 > 📝 Les nouveautés de chaque version sont sur la page [Releases](../../releases).
 
-### 🆕 Nouveautés de la 0.42.0 — Design 3.0
+### 🆕 Nouveautés de la 0.43.0 — Connexion Design 3.0
+
+- 🔐 **Nouvel écran de connexion**, fait exactement comme le prototype Design 3.0 : logo en orbite, scanner Face ID, champs style console et boutons or et bleu avec un anneau en pointillés qui tourne.
+- 🔢 **Code d'accès en 8 cases** (4 + 4) : chaque caractère tombe dans sa case et les huit segments autour du logo s'allument un par un. Un code erroné devient rouge et tremble.
+- 💫 **Transition du logo à chaque ouverture de l'app**, pas seulement après les écrans de bienvenue.
+- 🏳️ **Drapeaux de langue ronds** dans toute l'app.
+- 🧹 **Connexion plus épurée** : *Réinitialiser l'app* se trouve maintenant seulement dans Profil › Réglages.
+
+<details>
+<summary>Auparavant, dans la 0.42.0</summary>
 
 - 🪐 **Nouveaux écrans de bienvenue** : six courtes diapositives avec le logo en orbite, affichées **une seule fois** sur chaque appareil. Tu peux les passer à tout moment.
 - 💫 **Animation du logo** : aux ouvertures suivantes, le logo glisse du centre vers le haut de l'écran de connexion.
 - 🌍 **Menu des langues en orbite** : touche le drapeau et choisis l'italien, l'anglais, l'espagnol ou le français. Ton choix est enregistré.
 - ⬛ **Écran de connexion noir absolu** avec des boutons plus grands et modernes. La connexion, les codes et Face ID fonctionnent comme avant.
+
+</details>
 
 ---
 
@@ -81,7 +93,7 @@ Elle est pensée pour les traders qui veulent des **graphiques clairs, des prix 
 
 ### 📊 Graphique
 - Graphique plein écran avec **mise à jour en direct** et **compte à rebours** de la bougie
-- **Unités de temps :** 1m · 5m · 15m · 1H · 4H · 1D
+- **Unités de temps :** secondes 1s · 5s · 10s · 15s · 30s · 45s — minutes 1m · 3m · 5m · 15m · 30m · 45m — heures 1H · 2H · 3H · 4H — jours 1D · 1W · 1M · 3M · 6M · 12M
 - **Types de graphique :** Bougies · Barres · Ligne · Aire · Heikin Ashi
 - **Couleurs personnalisées :** corps, bordures et mèches des bougies avec opacité, plus le fond et les échelles
 - **Sélecteur rapide :** maintiens et glisse sur la pastille du symbole ou de l'unité de temps pour la changer aussitôt
@@ -161,8 +173,6 @@ Sélectionne un dessin pour le déplacer, changer sa couleur ou le supprimer.
 1. Ouvre le lien de NexusCharts.
 2. Clique sur l'**icône d'installation** dans la barre d'adresse, ou utilise-la dans un onglet normal.
 
-> 💡 Le même guide est dans l'app : touche **Installer** en haut à gauche de l'écran de connexion.
-
 ---
 
 ## 🔑 Comment obtenir l'accès
@@ -218,7 +228,7 @@ Tu étais déjà connecté ? Après une mise à jour, tu verras peut-être une f
 
 ## 🔢 Numéros de version
 
-Les versions ont trois nombres, **MAJEUR.MINEUR.CORRECTIF** (par exemple 0.42.0) :
+Les versions ont trois nombres, **MAJEUR.MINEUR.CORRECTIF** (par exemple 0.43.0) :
 
 - **Premier nombre** : grands changements.
 - **Nombre central** : nouvelles fonctions.
@@ -281,6 +291,7 @@ Pas encore : ils restent sur l'appareil où tu les as créés.
 | ✅ | Alertes de prix avec notifications push |
 | ✅ | 4 langues, thème sombre et clair |
 | ✅ | Design 3.0 : écrans de bienvenue, animation du logo, menu des langues en orbite |
+| ✅ | Connexion Design 3.0 : logo en orbite, code en 8 cases, drapeaux ronds |
 | 🔜 | Chargement des données plus rapide |
 | 🔜 | Version complète pour ordinateur |
 | 💡 | Synchronisation entre appareils |

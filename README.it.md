@@ -26,6 +26,7 @@ Un'app di grafici veloce e bella per iPhone, Android e computer, con un design n
   <img src="screenshots/IMG_4024.png" width="24%">
   <img src="screenshots/IMG_4025.png" width="24%">
   <img src="screenshots/IMG_4026.png" width="24%">
+  <img src="screenshots/login-design3.png" width="24%">
 </p>
 
 ---
@@ -62,12 +63,23 @@ NexusCharts è una **web app** che si installa sulla schermata Home e funziona c
 
 > 📝 Le novità di ogni versione sono nella pagina [Releases](../../releases).
 
-### 🆕 Novità della 0.42.0 — Design 3.0
+### 🆕 Novità della 0.43.0 — Accesso Design 3.0
+
+- 🔐 **Nuova schermata di accesso**, fatta esattamente come il prototipo Design 3.0: logo a orbite, scanner del Face ID, campi in stile console e pulsanti oro e blu con l'anello tratteggiato che gira.
+- 🔢 **Codice di accesso in 8 caselle** (4 + 4): ogni carattere cade nella sua casella e gli otto segmenti intorno al logo si accendono uno alla volta. Se il codice è sbagliato diventano rossi e tremano.
+- 💫 **Transizione del logo a ogni apertura dell'app**, non solo dopo le schermate di benvenuto.
+- 🏳️ **Bandiere delle lingue rotonde** in tutta l'app.
+- 🧹 **Accesso più pulito**: *Ripristina l'app* ora è solo in Profilo › Impostazioni.
+
+<details>
+<summary>In precedenza, nella 0.42.0</summary>
 
 - 🪐 **Nuove schermate di benvenuto**: sei brevi slide con il logo a orbite, mostrate **una sola volta** su ogni dispositivo. Puoi saltarle quando vuoi.
 - 💫 **Animazione del logo**: alle aperture successive il logo scivola dal centro alla parte alta della schermata di accesso.
 - 🌍 **Menu lingue a orbita**: tocca la bandiera e scegli italiano, inglese, spagnolo o francese. La scelta resta salvata.
 - ⬛ **Schermata di accesso nero assoluto** con pulsanti più grandi e moderni. Accesso, codici e Face ID funzionano come prima.
+
+</details>
 
 ---
 
@@ -81,7 +93,7 @@ NexusCharts è una **web app** che si installa sulla schermata Home e funziona c
 
 ### 📊 Grafico
 - Grafico a tutto schermo con **aggiornamento live** e **conto alla rovescia** della candela
-- **Timeframe:** 1m · 5m · 15m · 1H · 4H · 1D
+- **Timeframe:** secondi 1s · 5s · 10s · 15s · 30s · 45s — minuti 1m · 3m · 5m · 15m · 30m · 45m — ore 1H · 2H · 3H · 4H — giorni 1D · 1W · 1M · 3M · 6M · 12M
 - **Tipi di grafico:** Candele · Barre · Linea · Area · Heikin Ashi
 - **Colori personalizzati:** corpo, bordi e stoppini delle candele con opacità, più sfondo e scale del grafico
 - **Selettore rapido:** tieni premuto e scorri sulla pillola del simbolo o del timeframe per cambiarlo al volo
@@ -161,8 +173,6 @@ Seleziona un disegno per spostarlo, cambiargli colore o eliminarlo.
 1. Apri il link di NexusCharts.
 2. Clicca l'**icona di installazione** nella barra degli indirizzi, oppure usala in una normale scheda.
 
-> 💡 La stessa guida è dentro l'app: tocca **Installa** in alto a sinistra nella schermata di accesso.
-
 ---
 
 ## 🔑 Come ottenere l'accesso
@@ -218,7 +228,7 @@ Eri già dentro? Dopo un aggiornamento potresti vedere una volta le schermate di
 
 ## 🔢 Numeri di versione
 
-Le versioni hanno tre numeri, **MAGGIORE.MINORE.CORREZIONE** (per esempio 0.42.0):
+Le versioni hanno tre numeri, **MAGGIORE.MINORE.CORREZIONE** (per esempio 0.43.0):
 
 - **Primo numero**: cambiamenti grandi.
 - **Numero centrale**: nuove funzioni.
@@ -281,6 +291,7 @@ Non ancora: restano sul dispositivo dove li hai creati.
 | ✅ | Alert sul prezzo con notifiche push |
 | ✅ | 4 lingue, tema scuro e chiaro |
 | ✅ | Design 3.0: schermate di benvenuto, animazione del logo, menu lingue a orbita |
+| ✅ | Accesso Design 3.0: logo a orbite, codice in 8 caselle, bandiere rotonde |
 | 🔜 | Caricamento dati più veloce |
 | 🔜 | Versione completa per computer |
 | 💡 | Sincronizzazione tra dispositivi |

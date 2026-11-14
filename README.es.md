@@ -26,6 +26,7 @@ Una app de gráficos rápida y bonita para iPhone, Android y ordenador, con un d
   <img src="screenshots/IMG_4024.png" width="24%">
   <img src="screenshots/IMG_4025.png" width="24%">
   <img src="screenshots/IMG_4026.png" width="24%">
+  <img src="screenshots/login-design3.png" width="24%">
 </p>
 
 ---
@@ -62,12 +63,23 @@ Está pensada para traders que quieren **gráficos limpios, precios en tiempo re
 
 > 📝 Las novedades de cada versión están en la página [Releases](../../releases).
 
-### 🆕 Novedades de la 0.42.0 — Design 3.0
+### 🆕 Novedades de la 0.43.0 — Acceso Design 3.0
+
+- 🔐 **Nueva pantalla de acceso**, hecha exactamente como el prototipo Design 3.0: logo de órbitas, escáner de Face ID, campos estilo consola y botones dorado y azul con un anillo discontinuo que gira.
+- 🔢 **Código de acceso en 8 casillas** (4 + 4): cada carácter cae en su casilla y los ocho segmentos alrededor del logo se encienden uno a uno. Si el código es incorrecto se ponen rojos y tiemblan.
+- 💫 **Transición del logo cada vez que abres la app**, no solo después de las pantallas de bienvenida.
+- 🏳️ **Banderas de idioma redondas** en toda la app.
+- 🧹 **Acceso más limpio**: *Restablecer la app* ahora está solo en Perfil › Ajustes.
+
+<details>
+<summary>Anteriormente, en la 0.42.0</summary>
 
 - 🪐 **Nuevas pantallas de bienvenida**: seis diapositivas breves con el logo de órbitas, que se muestran **una sola vez** en cada dispositivo. Puedes saltarlas cuando quieras.
 - 💫 **Animación del logo**: en las aperturas siguientes el logo se desliza del centro a la parte superior de la pantalla de acceso.
 - 🌍 **Menú de idiomas en órbita**: toca la bandera y elige italiano, inglés, español o francés. Tu elección queda guardada.
 - ⬛ **Pantalla de acceso negro absoluto** con botones más grandes y modernos. El acceso, los códigos y Face ID funcionan como antes.
+
+</details>
 
 ---
 
@@ -81,7 +93,7 @@ Está pensada para traders que quieren **gráficos limpios, precios en tiempo re
 
 ### 📊 Gráfico
 - Gráfico a pantalla completa con **actualización en vivo** y **cuenta atrás** de la vela
-- **Temporalidades:** 1m · 5m · 15m · 1H · 4H · 1D
+- **Temporalidades:** segundos 1s · 5s · 10s · 15s · 30s · 45s — minutos 1m · 3m · 5m · 15m · 30m · 45m — horas 1H · 2H · 3H · 4H — días 1D · 1W · 1M · 3M · 6M · 12M
 - **Tipos de gráfico:** Velas · Barras · Línea · Área · Heikin Ashi
 - **Colores personalizados:** cuerpo, bordes y mechas de las velas con opacidad, además del fondo y las escalas
 - **Selector rápido:** mantén pulsado y desliza sobre la píldora del símbolo o de la temporalidad para cambiarla al instante
@@ -161,8 +173,6 @@ Selecciona un dibujo para moverlo, cambiarle el color o eliminarlo.
 1. Abre el enlace de NexusCharts.
 2. Haz clic en el **icono de instalar** de la barra de direcciones, o úsala en una pestaña normal.
 
-> 💡 La misma guía está dentro de la app: toca **Instalar** arriba a la izquierda en la pantalla de acceso.
-
 ---
 
 ## 🔑 Cómo conseguir acceso
@@ -218,7 +228,7 @@ A partir de ahí la app te deja entrar sola.
 
 ## 🔢 Números de versión
 
-Las versiones tienen tres números, **MAYOR.MENOR.CORRECCIÓN** (por ejemplo 0.42.0):
+Las versiones tienen tres números, **MAYOR.MENOR.CORRECCIÓN** (por ejemplo 0.43.0):
 
 - **Primer número**: cambios grandes.
 - **Número central**: funciones nuevas.
@@ -281,6 +291,7 @@ Todavía no: se quedan en el dispositivo donde los creaste.
 | ✅ | Alertas de precio con notificaciones push |
 | ✅ | 4 idiomas, tema oscuro y claro |
 | ✅ | Design 3.0: pantallas de bienvenida, animación del logo, menú de idiomas en órbita |
+| ✅ | Acceso Design 3.0: logo de órbitas, código en 8 casillas, banderas redondas |
 | 🔜 | Carga de datos más rápida |
 | 🔜 | Versión completa para ordenador |
 | 💡 | Sincronización entre dispositivos |

@@ -26,6 +26,7 @@ A fast, beautiful charting app for iPhone, Android and desktop, with a pure-blac
   <img src="screenshots/IMG_4024.png" width="24%">
   <img src="screenshots/IMG_4025.png" width="24%">
   <img src="screenshots/IMG_4026.png" width="24%">
+  <img src="screenshots/login-design3.png" width="24%">
 </p>
 
 ---
@@ -62,12 +63,23 @@ It's built for traders who want **clean charts, live prices, indicators and draw
 
 > 📝 What's new in each version: see the [Releases](../../releases) page.
 
-### 🆕 New in 0.42.0 — Design 3.0
+### 🆕 New in 0.43.0 — Design 3.0 sign-in
+
+- 🔐 **New sign-in screen**, built exactly like the Design 3.0 prototype: orbit logo, Face ID scanner, console-style fields and gold and blue buttons with a rotating dashed ring.
+- 🔢 **Access code in 8 boxes** (4 + 4): each character drops into its box and the eight segments around the logo light up one by one. A wrong code turns red and shakes.
+- 💫 **Logo transition every time you open the app**, not only after the welcome screens.
+- 🏳️ **Round language flags** everywhere in the app.
+- 🧹 **Cleaner sign-in**: *Reset the app* is now only in Profile › Settings.
+
+<details>
+<summary>Previously in 0.42.0</summary>
 
 - 🪐 **New welcome screens**: six short slides with the orbit logo, shown **once** on each device, then never again. You can skip them at any time.
 - 💫 **Logo animation**: on every later launch the logo glides from the center to the top of the sign-in screen.
 - 🌍 **Orbit language menu**: tap the flag to choose Italian, English, Spanish or French. Your choice is remembered.
 - ⬛ **Pure-black sign-in screen** with bigger, modern buttons. Sign-in, codes and Face ID work exactly as before.
+
+</details>
 
 ---
 
@@ -81,7 +93,7 @@ It's built for traders who want **clean charts, live prices, indicators and draw
 
 ### 📊 Chart
 - Full-screen chart with **live updates** and a candle **countdown**
-- **Timeframes:** 1m · 5m · 15m · 1H · 4H · 1D
+- **Timeframes:** seconds 1s · 5s · 10s · 15s · 30s · 45s — minutes 1m · 3m · 5m · 15m · 30m · 45m — hours 1H · 2H · 3H · 4H — days 1D · 1W · 1M · 3M · 6M · 12M
 - **Chart types:** Candles · Bars · Line · Area · Heikin Ashi
 - **Custom colors:** candle body, borders and wicks with opacity, plus canvas background and scales
 - **Quick picker:** hold and swipe on the symbol or timeframe pill to change it instantly
@@ -161,8 +173,6 @@ Select a drawing to move it, change its color or delete it.
 1. Open the NexusCharts link.
 2. Click the **install icon** in the address bar, or open it in a normal tab.
 
-> 💡 The same guide is available inside the app: tap **Install** at the top left of the login screen.
-
 ---
 
 ## 🔑 How to get access
@@ -218,7 +228,7 @@ Already signed in? After an update you may see the welcome screens once: your co
 
 ## 🔢 Versioning
 
-Versions use three numbers, **MAJOR.MINOR.PATCH** (for example 0.42.0):
+Versions use three numbers, **MAJOR.MINOR.PATCH** (for example 0.43.0):
 
 - **First number**: big changes.
 - **Middle number**: new features.
@@ -281,6 +291,7 @@ Not yet: they're saved on the device where you made them.
 | ✅ | Price alerts with push notifications |
 | ✅ | 4 languages, dark and light theme |
 | ✅ | Design 3.0: welcome screens, logo animation, orbit language menu |
+| ✅ | Design 3.0 sign-in: orbit logo, 8-box access code, round flags |
 | 🔜 | Faster data loading |
 | 🔜 | Full desktop version |
 | 💡 | Sync between devices |
